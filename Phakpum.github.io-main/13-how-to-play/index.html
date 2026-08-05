@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — How to Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --card-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+  }
+
+  .app{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: var(--forest-dark);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 22px);
+    color: var(--gold);
+  }
+
+  /* ---------- SCROLLABLE BODY ---------- */
+  .body-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: clamp(18px, 3vh, 26px) clamp(16px, 4vw, 26px) clamp(30px, 4vh, 40px);
+  }
+  .content-inner{
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .intro {
+    text-align: center;
+    padding: 4px 0 24px;
+  }
+  .intro .emoji { font-size: 40px; margin-bottom: 6px; }
+  .intro h2 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    color: var(--forest-dark);
+    margin-bottom: 4px;
+  }
+  .intro p { font-size: 13px; color: var(--muted); }
+
+  .steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 26px; }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .step .num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--leaf);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+  }
+  .step .body { flex: 1; }
+  .step .title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--forest-dark);
+    margin-bottom: 3px;
+  }
+  .step .desc { font-size: 13px; color: #5c5748; line-height: 1.5; }
+
+  /* ---------- TIPS ---------- */
+  .tips {
+    background: var(--forest-dark);
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 20px;
+  }
+  .tips h3 {
+    font-family: 'Baloo 2', sans-serif;
+    color: var(--gold);
+    font-size: 15px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .tip-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: var(--cream);
+    font-size: 12.5px;
+    line-height: 1.5;
+    padding: 7px 0;
+  }
+  .tip-item .tip-icon { font-size: 16px; flex-shrink: 0; }
+  .tip-item + .tip-item { border-top: 1px solid rgba(255,255,255,0.08); }
+
+  .cta {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    padding-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>How to Play</h1>
+  </div>
+
+  <div class="body-scroll">
+    <div class="content-inner">
+
+      <div class="intro">
+        <div class="emoji">🦁</div>
+        <h2>วิธีการเล่น Zoo Passport</h2>
+        <p>ทำตาม 7 ขั้นตอนนี้เพื่อสะสมตราประทับให้ครบทุกโซน</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <div class="body">
+            <div class="title">รับ Zoo Passport</div>
+            <div class="desc">เพิ่มเพื่อน LINE OA ของสวนสัตว์ แล้วรับ Zoo Passport เพื่อเริ่มภารกิจ</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div class="body">
+            <div class="title">เลือกโซนที่ต้องการ</div>
+            <div class="desc">ดูรายชื่อโซนทั้งหมดในหน้า Passport และเลือกโซนที่อยากไปสำรวจ</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div class="body">
+            <div class="title">สแกน QR Code ที่ป้ายโซน</div>
+            <div class="desc">สแกน QR Code ที่ป้ายของโซนนั้นๆ ด้วยกล้องในแอป LINE เพื่อเข้าสู่ Mini Game</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div class="body">
+            <div class="title">เล่น Mini Game</div>
+            <div class="desc">เล่น Mini Game ให้สำเร็จตามเงื่อนไขของแต่ละโซนก่อนหมดเวลา</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">5</div>
+          <div class="body">
+            <div class="title">รับ Stamp</div>
+            <div class="desc">เมื่อเล่นสำเร็จ คุณจะได้รับตราประทับ (Stamp) ของโซนนั้นทันที</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">6</div>
+          <div class="body">
+            <div class="title">สะสม Stamp ให้ครบ</div>
+            <div class="desc">สะสมตราประทับให้ครบทุกโซนเพื่อปลดล็อกของรางวัล</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">7</div>
+          <div class="body">
+            <div class="title">รับรางวัล</div>
+            <div class="desc">เมื่อสะสมครบทุกโซน รับตำแหน่ง Master Zoo Explorer พร้อมของรางวัลพิเศษจาก Zoo Passport</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tips">
+        <h3>Tips</h3>
+        <div class="tip-item"><span class="tip-icon">⏰</span><span>วางแผนเวลา — บาง Mini Game มีเวลาจำกัด</span></div>
+        <div class="tip-item"><span class="tip-icon">🔭</span><span>สำรวจให้ครบ — อย่าลืมปักหมุดทุกโซนเพื่อรับรางวัลใหม่</span></div>
+        <div class="tip-item"><span class="tip-icon">👥</span><span>สนุกกับเพื่อน — ชวนเพื่อนมาเล่นยิ่งสนุกกว่าเดิม</span></div>
+      </div>
+
+      <p class="cta">Enjoy your adventure! 🦒🐘🐧🐼🐒</p>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '../10-profile/index.html';
+  });
+</script>
+
+</body>
+</html>

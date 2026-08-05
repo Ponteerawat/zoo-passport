@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lion Zone — Mini Game</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: #f0ede4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* กรอบมือถือ (ใช้แบบเดียวกับหน้า 04-lion-zone) */
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: #fdf6e9;
+    border-radius: 36px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 6px solid #2b2b2b;
+  }
+
+  /* Header: ปุ่มย้อนกลับ + ชื่อหน้า + ตัวจับเวลา */
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #333;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  .back-btn:hover { background: rgba(0,0,0,0.06); }
+
+  .header h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .timer {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #4a8c3f;
+  }
+
+  /* กระดานเกม */
+  .board-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px 0;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    width: 100%;
+  }
+
+  .card {
+    aspect-ratio: 1 / 1;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .card:active { transform: scale(0.95); }
+  .card.matched {
+    background: #eaf4e3;
+    cursor: default;
+    opacity: 0.6;
+  }
+  .card.wrong {
+    animation: shake 0.3s ease;
+  }
+  @keyframes shake {
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  .score-wrap {
+    text-align: center;
+    padding: 18px 0 26px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  /* ---- Overlay ตอนเล่นจบ ---- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31,61,26,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+  .overlay.show { display: flex; }
+  .overlay-card {
+    background: #fdf6e9;
+    border-radius: 20px;
+    padding: 30px 26px;
+    width: 240px;
+    text-align: center;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.3);
+  }
+  .overlay-card .emoji { font-size: 48px; margin-bottom: 8px; }
+  .overlay-card h2 { font-size: 20px; color: #2c4a20; margin-bottom: 6px; }
+  .overlay-card p { font-size: 14px; color: #555; margin-bottom: 18px; }
+  .overlay-btn {
+    width: 100%;
+    padding: 13px;
+    background: #4a8c3f;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
+  }
+  .overlay-btn:hover { background: #427a38; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>Lion Zone</h1>
+    <div class="timer">⏱ <span id="timeLeft">30</span></div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="score-wrap">Score: <span id="score">0</span></div>
+
+  <!-- Overlay แสดงผลตอนจบเกม -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-card">
+      <div class="emoji" id="overlayEmoji">🎉</div>
+      <h2 id="overlayTitle">เยี่ยมมาก!</h2>
+      <p id="overlayText">คุณจับคู่รอยเท้าครบแล้ว</p>
+      <button class="overlay-btn" id="overlayBtn">รับตราประทับ</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // สัญลักษณ์ที่ใช้จับคู่ในเกม (รอยเท้า x3, สิงโต x3)
+  const symbols = ['🐾','🦁','🐾','🦁','🐾','🦁'];
+
+  let cards = [];
+  let flipped = [];      // การ์ดที่เปิดอยู่ตอนนี้ (ยังไม่ครบคู่)
+  let matchedCount = 0;
+  let score = 0;
+  let locked = false;    // กันการคลิกรัวระหว่างเช็คคู่
+  let timeLeft = 30;
+  let timerId = null;
+  let gameOver = false;
+
+  const boardEl = document.getElementById('board');
+  const scoreEl = document.getElementById('score');
+  const timeLeftEl = document.getElementById('timeLeft');
+  const overlay = document.getElementById('overlay');
+  const overlayEmoji = document.getElementById('overlayEmoji');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+  const overlayBtn = document.getElementById('overlayBtn');
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildBoard(){
+    cards = shuffle([...symbols]).map((sym, i) => ({ id: i, sym, open: false, matched: false }));
+    boardEl.innerHTML = '';
+    cards.forEach(card => {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.id = card.id;
+      el.textContent = '❓';
+      el.addEventListener('click', () => onCardClick(card.id, el));
+      boardEl.appendChild(el);
+    });
+  }
+
+  function onCardClick(id, el){
+    if(gameOver || locked) return;
+    const card = cards.find(c => c.id === id);
+    if(!card || card.open || card.matched) return;
+
+    card.open = true;
+    el.textContent = card.sym;
+    flipped.push({ card, el });
+
+    if(flipped.length === 2){
+      locked = true;
+      const [a, b] = flipped;
+      if(a.card.sym === b.card.sym){
+        a.card.matched = true;
+        b.card.matched = true;
+        a.el.classList.add('matched');
+        b.el.classList.add('matched');
+        score += 20;
+        scoreEl.textContent = score;
+        matchedCount += 2;
+        flipped = [];
+        locked = false;
+        if(matchedCount === cards.length) endGame(true);
+      } else {
+        a.el.classList.add('wrong');
+        b.el.classList.add('wrong');
+        setTimeout(() => {
+          a.card.open = false;
+          b.card.open = false;
+          a.el.textContent = '❓';
+          b.el.textContent = '❓';
+          a.el.classList.remove('wrong');
+          b.el.classList.remove('wrong');
+          flipped = [];
+          locked = false;
+        }, 600);
+      }
+    }
+  }
+
+  function tick(){
+    timeLeft--;
+    timeLeftEl.textContent = timeLeft;
+    if(timeLeft <= 0){
+      endGame(matchedCount === cards.length);
+    }
+  }
+
+  function endGame(won){
+    if(gameOver) return;
+    gameOver = true;
+    clearInterval(timerId);
+
+    if(won){
+      overlayEmoji.textContent = '🎉';
+      overlayTitle.textContent = 'เยี่ยมมาก!';
+      overlayText.textContent = 'คุณจับคู่รอยเท้าครบแล้ว รับตราประทับ Lion Zone ได้เลย';
+      overlayBtn.textContent = 'รับตราประทับ';
+    } else {
+      overlayEmoji.textContent = '⏰';
+      overlayTitle.textContent = 'หมดเวลา!';
+      overlayText.textContent = 'ลองใหม่อีกครั้งเพื่อรับตราประทับ';
+      overlayBtn.textContent = 'ลองอีกครั้ง';
+    }
+    overlay.classList.add('show');
+  }
+
+  overlayBtn.addEventListener('click', () => {
+    if(matchedCount === cards.length){
+      // เล่นผ่าน -> ไปหน้ารับตราประทับ พร้อมส่ง zone และแต้มที่ทำได้จริงไปด้วย
+      window.location.href = '../06-stamp-received/index.html?zone=lion&points=' + score;
+    } else {
+      // หมดเวลาแบบยังเล่นไม่ผ่าน -> เริ่มเกมใหม่
+      resetGame();
+    }
+  });
+
+  function resetGame(){
+    matchedCount = 0;
+    score = 0;
+    flipped = [];
+    locked = false;
+    timeLeft = 30;
+    gameOver = false;
+    scoreEl.textContent = 0;
+    timeLeftEl.textContent = 30;
+    overlay.classList.remove('show');
+    buildBoard();
+    clearInterval(timerId);
+    timerId = setInterval(tick, 1000);
+  }
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '../04-lion-zone/index.html';
+  });
+
+  // เริ่มเกมทันทีเมื่อโหลดหน้า
+  resetGame();
+</script>
+
+</body>
+</html>

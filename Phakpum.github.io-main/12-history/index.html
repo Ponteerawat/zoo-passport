@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="../assets/js/zoo-state.js"></script>
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --card-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+  }
+
+  .app{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: var(--forest-dark);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 22px);
+    color: var(--gold);
+  }
+
+  /* ---------- SCROLLABLE BODY ---------- */
+  .body-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: clamp(18px, 3vh, 26px) clamp(16px, 4vw, 26px);
+  }
+  .content-inner{
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .summary {
+    text-align: center;
+    padding: 4px 0 20px;
+    font-size: clamp(13px, 1.6vw, 15px);
+    color: #555;
+  }
+  .summary strong { color: var(--leaf); }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+
+  .entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    padding: 12px 14px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .entry .icon-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--leaf);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .entry .icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .entry .info { flex: 1; min-width: 0; }
+  .entry .zone-name {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--forest-dark);
+  }
+  .entry .time {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .entry .points {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ---------- EMPTY STATE ---------- */
+  .empty {
+    text-align: center;
+    padding: 60px 20px 20px;
+    color: var(--muted);
+  }
+  .empty .emoji { font-size: 48px; margin-bottom: 14px; }
+  .empty .title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--forest-dark);
+    margin-bottom: 6px;
+  }
+  .empty .sub { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>History</h1>
+  </div>
+
+  <div class="body-scroll">
+    <div class="content-inner" id="contentInner">
+      <!-- เติมด้วย JS ด้านล่าง -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ข้อมูลไอคอน/ชื่อของแต่ละโซน (ใช้ชุดเดียวกับหน้า My Collection)
+  const zoneMeta = {
+    lion:     { name: 'Lion Zone',     image: '../assets/img/lionlogo.png' },
+    elephant: { name: 'Elephant Zone', image: '../assets/img/Elepantlogo.png' },
+    giraffe:  { name: 'Giraffe Zone',  image: '../assets/img/Girafflogo.png' },
+    penguin:  { name: 'Penguin Zone',  image: '../assets/img/panguinlogo.png' },
+    panda:    { name: 'Panda Zone',    image: '../assets/img/pandalogo.png' },
+    monkey:   { name: 'Monkey Zone',   image: '../assets/img/Monkeylogo.png' },
+  };
+
+  const contentInner = document.getElementById('contentInner');
+  const history = ZooState.getHistory(); // ล่าสุดอยู่บนสุดอยู่แล้ว (เรียงตอนบันทึก)
+
+  if (history.length === 0) {
+    // ยังไม่เคยเล่นเกมเลยสักครั้ง -> ยังไม่มีประวัติให้แสดง
+    contentInner.innerHTML = `
+      <div class="empty">
+        <div class="emoji">🕘</div>
+        <div class="title">ยังไม่มีประวัติการเล่น</div>
+        <div class="sub">ลองไปเล่น Mini Game ที่โซนใดโซนหนึ่งดูสิ<br>ประวัติจะขึ้นที่นี่หลังเล่นจบ</div>
+      </div>
+    `;
+  } else {
+    const summary = document.createElement('p');
+    summary.className = 'summary';
+    summary.innerHTML = `เล่นไปแล้วทั้งหมด <strong>${history.length}</strong> ครั้ง`;
+    contentInner.appendChild(summary);
+
+    const list = document.createElement('div');
+    list.className = 'list';
+
+    history.forEach(entry => {
+      const meta = zoneMeta[entry.zoneId] || { name: entry.zoneId, image: '../assets/img/user.png' };
+      const dt = new Date(entry.timestamp);
+      const timeStr = dt.toLocaleString('th-TH', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      const el = document.createElement('div');
+      el.className = 'entry';
+      el.innerHTML = `
+        <div class="icon-wrap"><img src="${meta.image}" alt="${meta.name}"></div>
+        <div class="info">
+          <div class="zone-name">${meta.name}</div>
+          <div class="time">${timeStr}</div>
+        </div>
+        <div class="points">+${entry.points} pt</div>
+      `;
+      list.appendChild(el);
+    });
+
+    contentInner.appendChild(list);
+  }
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '../10-profile/index.html';
+  });
+</script>
+
+</body>
+</html>

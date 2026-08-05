@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — สแกน QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --danger: #c1533f;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Nunito', sans-serif;
+    color: var(--cream);
+  }
+
+  .app{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+  }
+
+  /* ---------- HEADER (ลอยทับกล้อง) ---------- */
+  .header {
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.16);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.3); }
+  .header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(17px, 2.2vw, 21px);
+    color: var(--gold);
+  }
+
+  /* ---------- CAMERA ---------- */
+  .camera-wrap{
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: #111;
+  }
+  video{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------- SCAN FRAME OVERLAY ---------- */
+  .scan-overlay{
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    pointer-events: none;
+  }
+  .scan-box{
+    width: min(64vw, 280px);
+    height: min(64vw, 280px);
+    position: relative;
+  }
+  .scan-box .corner{
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border: 4px solid var(--leaf-light);
+  }
+  .scan-box .corner.tl{ top:0; left:0; border-right:none; border-bottom:none; border-radius: 10px 0 0 0; }
+  .scan-box .corner.tr{ top:0; right:0; border-left:none; border-bottom:none; border-radius: 0 10px 0 0; }
+  .scan-box .corner.bl{ bottom:0; left:0; border-right:none; border-top:none; border-radius: 0 0 0 10px; }
+  .scan-box .corner.br{ bottom:0; right:0; border-left:none; border-top:none; border-radius: 0 0 10px 0; }
+  .scan-line{
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    height: 3px;
+    background: var(--leaf-light);
+    box-shadow: 0 0 8px var(--leaf-light);
+    top: 0;
+    animation: scan-move 2.2s ease-in-out infinite;
+    border-radius: 2px;
+  }
+  @keyframes scan-move{
+    0%   { top: 4%; }
+    50%  { top: 92%; }
+    100% { top: 4%; }
+  }
+  .scan-hint{
+    margin-top: 22px;
+    font-size: clamp(13px, 1.8vw, 15px);
+    font-weight: 700;
+    color: var(--cream);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    text-align: center;
+    padding: 0 30px;
+  }
+  .zone-chip{
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.4);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 999px;
+  }
+
+  /* ---------- STATE OVERLAYS (permission denied / no camera / success) ---------- */
+  .state-overlay{
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 0 32px;
+    background: rgba(10,14,8,0.92);
+  }
+  .state-overlay.show{ display: flex; }
+  .state-overlay .emoji{ font-size: 46px; margin-bottom: 14px; }
+  .state-overlay h2{ font-family:'Baloo 2', sans-serif; font-size: 19px; margin-bottom: 8px; color: var(--gold); }
+  .state-overlay p{ font-size: 14px; color: var(--cream); opacity: 0.85; line-height: 1.6; margin-bottom: 22px; }
+  .state-btn{
+    padding: 13px 26px;
+    background: var(--leaf);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
+  }
+  .state-btn:hover{ background: #427a38; }
+  .state-btn.secondary{
+    background: transparent;
+    box-shadow: none;
+    color: var(--cream);
+    opacity: 0.75;
+    margin-top: 10px;
+  }
+
+  /* ---------- DEV TEST LINK (สำหรับตอนทดสอบไม่มี QR จริง) ---------- */
+  .dev-skip{
+    position: absolute;
+    left: 0; right: 0;
+    bottom: clamp(18px, 3vh, 28px);
+    z-index: 3;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>สแกน QR ประจำโซน</h1>
+  </div>
+
+  <div class="camera-wrap">
+    <video id="video" playsinline autoplay muted></video>
+  </div>
+
+  <div class="scan-overlay">
+    <div class="scan-box">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="scan-line"></div>
+    </div>
+    <div class="scan-hint">
+      ส่องกล้องไปที่ป้าย QR หน้าโซน<br>เพื่อยืนยันว่ามาถึงจุดนี้จริง
+    </div>
+    <div class="zone-chip" id="zoneChip">📍 —</div>
+  </div>
+
+  <!-- ขึ้นตอนสแกนสำเร็จ -->
+  <div class="state-overlay" id="successOverlay">
+    <div class="emoji">✅</div>
+    <h2>สแกนสำเร็จ!</h2>
+    <p id="successText">ยืนยันตัวตนที่โซนนี้เรียบร้อยแล้ว</p>
+  </div>
+
+  <!-- ขึ้นตอนขอสิทธิ์กล้องไม่ผ่าน/ไม่มีกล้อง -->
+  <div class="state-overlay" id="errorOverlay">
+    <div class="emoji">📷</div>
+    <h2 id="errorTitle">เปิดกล้องไม่ได้</h2>
+    <p id="errorText">กรุณาอนุญาตให้เว็บนี้ใช้กล้อง แล้วลองใหม่อีกครั้ง</p>
+    <button class="state-btn" id="retryBtn">ลองใหม่</button>
+  </div>
+
+  <div class="dev-skip" id="devSkip">โหมดทดสอบ: ข้ามการสแกน</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="../assets/js/zoo-state.js"></script>
+<script>
+  // ---- อ่านว่ากำลังจะสแกนเข้าโซนไหน (ส่งมาจากหน้าแผนที่ ?zone=lion เป็นต้น) ----
+  const params = new URLSearchParams(window.location.search);
+  const zoneId = params.get('zone') || 'lion';
+
+  const ZONE_INFO = {
+    lion:     { name: 'Lion Zone',     emoji: '🦁', code: 'ZOO-LION' },
+    elephant: { name: 'Elephant Zone', emoji: '🐘', code: 'ZOO-ELEPHANT' },
+    giraffe:  { name: 'Giraffe Zone',  emoji: '🦒', code: 'ZOO-GIRAFFE' },
+    penguin:  { name: 'Penguin Zone',  emoji: '🐧', code: 'ZOO-PENGUIN' },
+    panda:    { name: 'Panda Zone',    emoji: '🐼', code: 'ZOO-PANDA' },
+    monkey:   { name: 'Monkey Zone',   emoji: '🐵', code: 'ZOO-MONKEY' },
+  };
+  const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
+  document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
+
+  const video = document.getElementById('video');
+  const successOverlay = document.getElementById('successOverlay');
+  const successText = document.getElementById('successText');
+  const errorOverlay = document.getElementById('errorOverlay');
+  const errorTitle = document.getElementById('errorTitle');
+  const errorText = document.getElementById('errorText');
+  const retryBtn = document.getElementById('retryBtn');
+  const devSkip = document.getElementById('devSkip');
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  let stream = null;
+  let rafId = null;
+  let scanned = false;
+
+  // โซนไหนมีมินิเกมจริงแล้วให้ไปต่อที่เกม โซนที่ยังไม่มีเกม ให้พาไปหน้ารายชื่อโซนไปก่อน
+  function goToZoneContent(){
+    if (zoneId === 'lion') {
+      window.location.href = '../04-lion-zone/index.html';
+    } else {
+      window.location.href = '../03-home/index.html';
+    }
+  }
+
+  function onScanSuccess(decodedText){
+    if (scanned) return;
+    scanned = true;
+    stopCamera();
+
+    const matches = decodedText && decodedText.trim().toUpperCase() === info.code;
+    if (matches) {
+      successText.textContent = `ยืนยันตัวตนที่ ${info.name} เรียบร้อยแล้ว`;
+      successOverlay.classList.add('show');
+      setTimeout(goToZoneContent, 1200);
+    } else {
+      // สแกนติด QR แต่ไม่ใช่ของโซนนี้ -> แจ้งเตือนแล้วให้ลองใหม่
+      errorTitle.textContent = 'QR นี้ไม่ตรงกับโซนนี้';
+      errorText.textContent = `กรุณาสแกน QR ที่ป้าย ${info.name} ให้ถูกจุด`;
+      errorOverlay.classList.add('show');
+    }
+  }
+
+  function tick(){
+    if (scanned) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
+      if (code && code.data) {
+        onScanSuccess(code.data);
+        return;
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  async function startCamera(){
+    errorOverlay.classList.remove('show');
+    successOverlay.classList.remove('show');
+    scanned = false;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+      video.srcObject = stream;
+      await video.play();
+      rafId = requestAnimationFrame(tick);
+    } catch (err) {
+      errorTitle.textContent = 'เปิดกล้องไม่ได้';
+      if (err && err.name === 'NotAllowedError') {
+        errorText.textContent = 'คุณยังไม่ได้อนุญาตให้เว็บนี้ใช้กล้อง ลองอนุญาตแล้วกดลองใหม่';
+      } else if (err && err.name === 'NotFoundError') {
+        errorText.textContent = 'ไม่พบกล้องบนอุปกรณ์นี้';
+      } else {
+        errorText.textContent = 'เกิดข้อผิดพลาดระหว่างเปิดกล้อง ลองใหม่อีกครั้ง';
+      }
+      errorOverlay.classList.add('show');
+    }
+  }
+
+  function stopCamera(){
+    if (rafId) cancelAnimationFrame(rafId);
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+  }
+
+  retryBtn.addEventListener('click', startCamera);
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    stopCamera();
+    window.location.href = '../07-map/index.html';
+  });
+
+  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+  devSkip.addEventListener('click', () => {
+    if (scanned) return;
+    onScanSuccess(info.code);
+  });
+
+  window.addEventListener('beforeunload', stopCamera);
+
+  startCamera();
+</script>
+
+</body>
+</html>

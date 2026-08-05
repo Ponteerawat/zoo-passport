@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — Congratulations</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: #f0ede4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: linear-gradient(180deg, #fdeec2 0%, #fdf6e9 50%);
+    border-radius: 36px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 6px solid #2b2b2b;
+  }
+
+  .content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 26px 28px 0;
+    text-align: center;
+    overflow-y: auto;
+  }
+
+  .content h1 {
+    font-size: 26px;
+    color: #2c4a20;
+    margin-bottom: 26px;
+  }
+
+  .trophy {
+    font-size: 68px;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
+  }
+
+  .content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 16px;
+  }
+  .content p.lead {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c4a20;
+    margin-bottom: 10px;
+  }
+
+  .master-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 2px solid #f0a336;
+    color: #6b4423;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(240,163,54,0.25);
+  }
+
+  .footer {
+    padding: 0 24px 32px;
+  }
+  .cta-btn {
+    width: 100%;
+    padding: 15px;
+    background: #4a8c3f;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
+  }
+  .cta-btn:hover { background: #427a38; }
+  .cta-btn:active { transform: scale(0.97); }
+
+  .confetti {
+    position: absolute;
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+
+  <div class="content">
+    <h1>Congratulations!</h1>
+    <div class="trophy">🏆</div>
+    <p class="lead">🎉 ขอแสดงความยินดี!</p>
+    <p>คุณได้เดินทางช่วยเหลือสัตว์ทุกโซน และรวบรวม Animal Stamp ครบทั้ง 6 ดวงแล้ว</p>
+    <p>จากความกล้าหาญ ความจำ ความรู้ ความรวดเร็ว และความพยายามของคุณ ทำให้สวนสัตว์กลับมาสมบูรณ์อีกครั้ง สัตว์ทุกตัวจึงพร้อมใจกันมอบตำแหน่ง 🏅 Master Zoo Explorer ให้แก่คุณ เพื่อเป็นเกียรติแก่นักเดินทางผู้พิทักษ์สวนสัตว์</p>
+    <p>ขอบคุณที่ร่วมผจญภัยกับ Zoo Explorer และหวังว่าจะได้พบกันอีกในการเดินทางครั้งต่อไป!</p>
+    <div class="master-chip">🐾 Master Zoo Explorer</div>
+  </div>
+
+  <div class="footer">
+    <button class="cta-btn" id="claimBtn">รับรางวัล</button>
+  </div>
+
+</div>
+
+<script>
+  // โรยคอนเฟตตี้ตกแต่งพื้นหลัง
+  const phone = document.getElementById('phone');
+  const colors = ['#4a8c3f', '#f0a336', '#7fc957', '#d9862a', '#386641'];
+  for(let i = 0; i < 24; i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    const size = 6 + Math.random() * 7;
+    c.style.width = size + 'px';
+    c.style.height = size + 'px';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = (Math.random() * 55) + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    phone.appendChild(c);
+  }
+
+  document.getElementById('claimBtn').addEventListener('click', () => {
+    window.location.href = '../10-profile/index.html';
+  });
+</script>
+
+</body>
+</html>

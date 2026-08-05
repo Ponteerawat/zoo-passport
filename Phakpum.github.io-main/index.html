@@ -1,0 +1,81 @@
+65<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoo Test LIFF Login</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="stylesheet" href="/01-login/style.css">
+</head>
+
+<!-- Login Line -->
+<body>
+    <div class="card">
+        <img src="../assets/img/logozoo.png" alt="Zoo Explorer" width="300px" height="300px">
+        <h1>🦁 Zoo Test Login</h1>
+        
+        <div id="login-view">
+            <p>กรุณาล็อกอินด้วยบัญชี LINE</p>
+      <button id="login-btn">Login with LINE</button>
+    </div>
+
+    <div id="profile-view" style="display:none;">
+      <img id="profile-pic" class="profile-pic" src="" alt="profile" />
+      <div id="display-name" class="name"></div>
+      <div id="user-id" class="user-id"></div>
+      <button id="logout-btn">Logout</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="error" class="error"></div>
+  </div>
+
+
+  <script>
+    const LIFF_ID = "2010682949-JSSjvRPA";
+
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    const loginView = document.getElementById("login-view");
+    const profileView = document.getElementById("profile-view");
+
+    async function main() {
+      try {
+        statusEl.textContent = "กำลังเชื่อมต่อ LIFF...";
+        await liff.init({ liffId: LIFF_ID });
+        statusEl.textContent = "";
+        if (liff.isLoggedIn()) {
+          await showProfile();
+        } else {
+          loginView.style.display = "block";
+        }
+      } catch (err) {
+        errorEl.textContent = "LIFF init ล้มเหลว: " + err.message;
+      }
+    }
+
+    async function showProfile() {
+      const profile = await liff.getProfile();
+      document.getElementById("profile-pic").src = profile.pictureUrl || "";
+      document.getElementById("display-name").textContent = profile.displayName;
+      document.getElementById("user-id").textContent = "User ID: " + profile.userId;
+      loginView.style.display = "none";
+      profileView.style.display = "block";
+
+      window.location.href = "../02-welcome/index.html";
+    }
+
+    document.getElementById("login-btn").addEventListener("click", () => {
+      if (!liff.isLoggedIn()) liff.login();
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      liff.logout();
+      window.location.reload();
+    });
+    
+    main();
+  </script>
+
+</body>
+</html>

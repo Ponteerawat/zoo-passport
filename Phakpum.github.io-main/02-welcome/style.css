@@ -1,0 +1,230 @@
+
+  /* ==========================================================
+     1) DESIGN TOKENS
+     สีและตัวแปรกลางของทั้งหน้า เปลี่ยนตรงนี้ที่เดียว
+     สีจะเปลี่ยนทั่วทั้งหน้า
+  ========================================================== */
+  :root{
+    --leaf:       #8BC543;   /* เขียวใบไม้ (หญ้าอ่อน, ตัว O สีเขียว) */
+    --leaf-dark:  #5B9A34;   /* เขียวใบไม้เข้ม (หญ้าเข้ม) */
+    --wood:       #7A4B2C;   /* น้ำตาลไม้ (ป้ายโลโก้) */
+    --wood-dark:  #5E3A21;   /* น้ำตาลไม้เข้ม (เงาป้าย/ตัวหนังสือป้ายย่อย) */
+    --gold:       #F2A93B;   /* ทอง (ตัวหนังสือโลโก้, ตัว O สีทอง) */
+    --gold-dark:  #D98A1F;   /* ทองเข้ม (จุด indicator ที่ active) */
+    --cream:      #FBF4E4;   /* ครีม (พื้นหลังส่วนเนื้อหา) */
+    --sky:        #E4F0DE;   /* เขียวอ่อนมาก (พื้นหลังส่วน hero) */
+    --ink:        #2B2118;   /* น้ำตาลเข้มเกือบดำ (หัวข้อ) */
+    --ink-soft:   #5B4E3F;   /* น้ำตาลอ่อน (ข้อความรอง) */
+  }
+
+
+  /* ==========================================================
+     2) RESET พื้นฐาน
+     เคลียร์ margin/padding ของ browser และบังคับ box-sizing
+     ให้ width/height คำนวณรวม padding+border ไปด้วย (ง่ายต่อการจัดวาง)
+  ========================================================== */
+  *{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ป้องกัน scroll แนวนอน/แนวตั้งเกินจอ และให้สูงเต็มหน้าจอจริง
+     ใช้ทั้ง height:100% (ไว้ให้ลูกอ้างอิง) และ 100dvh (dynamic viewport
+     height สำหรับมือถือที่แถบ address bar โผล่/หด แล้ว 100vh ปกติจะเพี้ยน) */
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Kanit', sans-serif;
+  }
+
+
+  /* ==========================================================
+     3) FULLSCREEN WRAPPER
+     ตัวนี้แทนที่ "กรอบมือถือ" เดิม — ตอนนี้คือทั้งหน้าจอ/หน้าต่าง
+     ไม่ว่าจะเปิดบนคอม แท็บเล็ต หรือมือถือ
+  ========================================================== */
+  .app{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;           /* ทับด้วยหน่วยที่แม่นกว่าบนมือถือ */
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    overflow: hidden;
+  }
+
+
+  /* ==========================================================
+     4) HERO SECTION (ครึ่งบน)
+     พื้นหลังไล่สีฟ้า-เขียวอ่อน + โลโก้ Zoo Explorer
+     ใช้ flex:1 1 46% เพื่อ "กินพื้นที่ตามสัดส่วน" แทนการ fix พิกเซล
+     จะได้ปรับสัดส่วนอัตโนมัติตามความสูงหน้าจอ ทั้งจอคอมและมือถือ
+  ========================================================== */
+  .hero{
+    position: relative;
+    flex: 1 1 46%;
+    min-height: 0;              /* กัน flex overflow บน Safari */
+    background: radial-gradient(circle at 50% 38%,
+                  #EFF7E6 0%, var(--sky) 55%, #cfe6c4 100%);
+    overflow: hidden;
+    /* จัดทุกอย่างข้างในกึ่งกลางทั้งแนวตั้งแนวนอน
+       ไม่ว่า .hero จะสูง/กว้างเท่าไหร่ (มือถือ, คอม, จอไหนก็ตาม)
+       โลโก้จะอยู่กึ่งกลางบล็อกนี้เสมอ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 4vh, 40px);
+  }
+
+
+  /* โลโก้ Zoo Explorer (ไฟล์รูปจริง) — อยู่กึ่งกลาง .hero เสมอ
+     เพราะพ่อ .hero เป็น flex + align/justify-content:center ด้านบน
+     ใช้ max-width/max-height เป็น % ของบล็อกตัวเอง กันรูปล้นเวลาจอเล็ก/แคบ */
+  .hero-logo{
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(320px, 80%);
+    max-height: 90%;
+    object-fit: contain;
+  }
+
+
+  /* ==========================================================
+     5) GRASS DIVIDER
+     แถบหญ้าหยักๆ คั่นระหว่าง hero กับส่วนเนื้อหา
+     ทำจาก 2 เลเยอร์ clip-path (หญ้าเข้ม + หญ้าอ่อนซ้อนทับ)
+     เพื่อให้ดูมีมิติเหมือนใบหญ้าซ้อนกัน
+  ========================================================== */
+  .grass{
+    height: clamp(18px, 3vh, 30px);
+    position: relative;
+    background: var(--leaf-dark);
+    flex-shrink: 0;
+    clip-path: polygon(
+      0% 100%, 0% 40%,
+      3% 0%, 6% 45%, 9% 5%, 12% 42%, 15% 0%, 18% 46%, 21% 8%,
+      24% 42%, 27% 2%, 30% 44%, 33% 6%, 36% 40%, 39% 0%, 42% 46%,
+      45% 4%, 48% 42%, 51% 8%, 54% 44%, 57% 0%, 60% 40%, 63% 6%,
+      66% 46%, 69% 2%, 72% 42%, 75% 8%, 78% 44%, 81% 0%, 84% 46%,
+      87% 6%, 90% 40%, 93% 2%, 96% 44%, 100% 6%, 100% 100%
+    );
+  }
+  .grass::after{
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; top: 40%;
+    background: var(--leaf);
+    clip-path: polygon(
+      0% 100%, 0% 60%,
+      4% 100%, 6% 30%, 10% 100%, 13% 40%, 17% 100%, 20% 25%,
+      24% 100%, 27% 45%, 31% 100%, 34% 20%, 38% 100%, 41% 40%,
+      45% 100%, 48% 30%, 52% 100%, 55% 45%, 59% 100%, 62% 25%,
+      66% 100%, 69% 40%, 73% 100%, 76% 30%, 80% 100%, 83% 45%,
+      87% 100%, 90% 25%, 94% 100%, 97% 40%, 100% 100%
+    );
+    opacity: .85;
+  }
+
+
+  /* ==========================================================
+     6) CONTENT SECTION (ครึ่งล่าง)
+     พื้นหลังครีม: หัวข้อ + คำบรรยาย + จุดบอกขั้นตอน + ปุ่ม + ลิงก์ข้าม
+     จัดกลางทั้งแนวตั้งแนวนอน content-max-width กันตัวอักษรยืดกว้าง
+     เกินไปบนจอคอมพิวเตอร์/แท็บเล็ตจอใหญ่
+  ========================================================== */
+  .content{
+    flex: 1 1 54%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(16px, 3vh, 32px) clamp(20px, 6vw, 60px);
+    gap: clamp(10px, 2vh, 18px);
+    background: var(--cream);
+  }
+
+  /* กล่องจำกัดความกว้างของเนื้อหาตัวหนังสือ/ปุ่ม
+     บนจอกว้าง (คอม/แท็บเล็ต) เนื้อหาจะไม่ยืดเต็มขอบจอ */
+  .content-inner{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 2vh, 18px);
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .content h1{
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+    font-size: clamp(22px, 3.6vw, 34px);
+    color: var(--ink);
+  }
+  .content p{
+    font-size: clamp(14px, 1.8vw, 18px);
+    line-height: 1.65;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  .content p strong{
+    color: var(--wood-dark);
+    font-weight: 600;
+  }
+
+  /* จุดบอกขั้นตอน (onboarding step indicator) */
+  .dots{
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .dot{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #D9CFB8;
+  }
+  .dot.active{
+    width: 20px;
+    border-radius: 4px;
+    background: var(--gold-dark);
+  }
+
+  /* ปุ่มหลัก CTA แบบ 3D กดได้ */
+  .cta{
+    margin-top: 8px;
+    width: 100%;
+    max-width: 300px;
+    padding: clamp(13px, 2vh, 18px) 0;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(180deg, #4CAF54 0%, #2E7D34 100%);
+    box-shadow: 0 6px 0 #1F5A25, 0 10px 18px rgba(46,107,62,.35);
+    color: #fff;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: clamp(15px, 1.8vw, 18px);
+    letter-spacing: .3px;
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .cta:active{
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #1F5A25, 0 4px 10px rgba(46,107,62,.35);
+  }
+
+  .skip{
+    font-size: 13px;
+    color: #A99B84;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  
+  /* จอสูงมาก (มือถือจอยาว) เพิ่มพื้นที่ hero เล็กน้อยให้สมส่วน */
+  @media (max-width: 480px) and (min-height: 800px){
+    .hero{ flex-basis: 48%; }
+  }

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="../assets/js/zoo-state.js"></script>
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --wood: #6b4423;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --card-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* เต็มจอจริง ไม่มีกรอบมือถือปลอมๆ ปรับตามขนาดจอทุกแพลตฟอร์ม */
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+  }
+
+  .app{
+    position: fixed;
+    inset: 0;             /* ยึดขอบกรอบไว้กับขอบจอที่มองเห็นจริงเป๊ะๆ เสมอ
+                              ไม่พึ่งหน่วย vh/dvh/svh ที่บางเบราว์เซอร์คำนวณพลาด
+                              ตอนมีแถบแจ้งเตือนของเบราว์เซอร์โผล่มาบังพื้นที่ */
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: var(--forest-dark);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 22px);
+    color: var(--gold);
+  }
+
+  /* ---------- SCROLLABLE BODY ---------- */
+  .body-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: clamp(18px, 3vh, 30px) clamp(16px, 4vw, 28px) clamp(10px, 2vh, 18px);
+  }
+  .content-inner{
+    width: 100%;
+    max-width: 480px;         /* กันเนื้อหายืดกว้างเกินไปบนจอเดสก์ท็อป/แท็บเล็ต */
+    margin: 0 auto;
+  }
+
+  .avatar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 0 20px;
+  }
+  .avatar-btn {
+    position: relative;
+    width: clamp(84px, 14vw, 104px);
+    height: clamp(84px, 14vw, 104px);
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 50%;
+  }
+  .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--leaf);
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    transition: opacity 0.15s ease;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-btn:hover .avatar { opacity: 0.85; }
+  .avatar-edit-badge {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    border: 3px solid var(--cream);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .avatar-wrap .name {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: clamp(18px, 2.4vw, 21px);
+    font-weight: 800;
+    color: var(--forest-dark);
+  }
+
+  .stats-row {
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+  .stat { flex: 1; text-align: center; }
+  .stat .num {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--leaf);
+  }
+  .stat .label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .stat-divider { width: 1px; background: #eee3ce; margin: 2px 4px; }
+
+  .menu-list { display: flex; flex-direction: column; gap: 10px; }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    padding: 14px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .menu-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.09);
+  }
+  .menu-item .icon { font-size: 18px; width: 22px; text-align: center; }
+  .menu-item .label {
+    flex: 1;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--forest-dark);
+  }
+  .menu-item .chev { color: var(--muted); font-size: 16px; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottom-nav {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--wood);
+    padding: clamp(10px, 2vh, 14px) 0 clamp(12px, 2.4vh, 16px);
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--cream);
+    opacity: 0.75;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .nav-item .nav-icon { font-size: 20px; }
+  .nav-item.active { opacity: 1; }
+  .nav-item:hover { opacity: 1; transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>Profile</h1>
+  </div>
+
+  <div class="body-scroll">
+    <div class="content-inner">
+      <div class="avatar-wrap">
+        <button class="avatar-btn" id="avatarBtn" aria-label="เปลี่ยนรูปโปรไฟล์">
+          <div class="avatar"><img id="avatarImg" src="../assets/img/user.png" alt="Explorer"></div>
+          <span class="avatar-edit-badge">✎</span>
+        </button>
+        <input type="file" id="avatarInput" accept="image/*" capture="user" hidden>
+        <div class="name">Explorer</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="num" id="statStamps">0 / 6</div>
+          <div class="label">Stamps</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <div class="num" id="statPoints">0</div>
+          <div class="label">Points</div>
+        </div>
+      </div>
+
+      <div class="menu-list">
+        <div class="menu-item" id="toCollection">
+          <span class="icon">🐾</span>
+          <span class="label">My Collection</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="menu-item" id="toHistory">
+          <span class="icon">🕘</span>
+          <span class="label">History</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="menu-item" id="toHowToPlay">
+          <span class="icon">📖</span>
+          <span class="label">How to Play</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="menu-item" id="toSettings">
+          <span class="icon">⚙️</span>
+          <span class="label">Settings</span>
+          <span class="chev">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" id="navPassport">
+      <span class="nav-icon">📘</span>
+      <span>Passport</span>
+    </div>
+    <div class="nav-item" id="navMap">
+      <span class="nav-icon">🗺️</span>
+      <span>Map</span>
+    </div>
+    <div class="nav-item active" id="navProfile">
+      <span class="nav-icon">👤</span>
+      <span>Profile</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // แสดงจำนวนตราประทับ/แต้มจริง (ปลดล็อกก็ต่อเมื่อเล่นเกมของโซนนั้นจบแล้วเท่านั้น) และรูปโปรไฟล์ที่ผู้ใช้เคยเลือกไว้
+  const zooState = ZooState.getState();
+  document.getElementById('statStamps').textContent = `${ZooState.getStampCount(zooState)} / ${ZooState.ZONES.length}`;
+  document.getElementById('statPoints').textContent = zooState.points;
+  if (zooState.avatar) {
+    document.getElementById('avatarImg').src = zooState.avatar;
+  }
+
+  // แตะวงกลมโปรไฟล์ -> เปิดตัวเลือกรูปจากเครื่อง/มือถือ -> อ่านไฟล์แล้วเซฟไว้ใช้ทุกหน้า
+  const avatarBtn = document.getElementById('avatarBtn');
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarImg = document.getElementById('avatarImg');
+
+  avatarBtn.addEventListener('click', () => avatarInput.click());
+
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      avatarImg.src = reader.result;
+      ZooState.setAvatar(reader.result);
+    };
+    reader.onerror = () => {
+      alert('เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่นอีกครั้ง');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '../03-home/index.html';
+  });
+
+  document.getElementById('toCollection').addEventListener('click', () => {
+    window.location.href = '../08-collection/index.html';
+  });
+  document.getElementById('toHistory').addEventListener('click', () => {
+    alert('หน้าประวัติการเล่น (History) — ยังไม่ได้สร้าง เพิ่มได้ในขั้นตอนถัดไป');
+  });
+  document.getElementById('toHowToPlay').addEventListener('click', () => {
+    alert('หน้าวิธีเล่น (How to Play) — ยังไม่ได้สร้าง เพิ่มได้ในขั้นตอนถัดไป');
+  });
+  document.getElementById('toSettings').addEventListener('click', () => {
+    alert('หน้าตั้งค่า (Settings) — ยังไม่ได้สร้าง เพิ่มได้ในขั้นตอนถัดไป');
+  });
+
+  document.getElementById('navPassport').addEventListener('click', () => {
+    window.location.href = '../03-home/index.html';
+  });
+  document.getElementById('navMap').addEventListener('click', () => {
+    window.location.href = '../07-map/index.html';
+  });
+</script>
+
+</body>
+</html>

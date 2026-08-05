@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================================
+       APP WRAPPER — เต็มหน้าจอเสมอ (100vw x 100dvh)
+  =========================================================== -->
+  <div class="app">
+
+    <!-- ============ HERO: โลโก้ Zoo Explorer ============ -->
+    <div class="hero">
+      <div class="sun-glow"></div>
+
+        <!-- Logo main -->
+      <img class="hero-logo" src="../assets/img/logozoo.png" alt="Zoo Explorer">
+    </div>
+
+    <!-- ============ CONTENT: ข้อความต้อนรับ + ปุ่ม ============ -->
+    <div class="content">
+      <div class="content-inner">
+        <h1>ยินดีต้อนรับ</h1>
+        <p>
+          สู่การผจญภัยในสวนสัตว์<br>
+          มาร่วมเป็น <strong>Master Zoo Explorer</strong><br>
+          กันเถอะ!
+        </p>
+
+        <!-- จุดบอกขั้นตอน onboarding -->
+        <div class="dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <!-- ปุ่มหลักและลิงก์ข้าม -->
+                <button class="cta start-btn" onclick="window.location.href='../03-home/index.html'">เริ่มต้นการผจญภัย</button>
+        <span class="skip">ข้ามไปก่อน</span>
+      </div>
+    </div>
+
+</body>
+</html>

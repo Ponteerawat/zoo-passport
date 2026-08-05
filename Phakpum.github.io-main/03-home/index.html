@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoo Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="../assets/js/zoo-state.js"></script>
+</head>
+<body>
+
+
+<div class="app-frame" id="appFrame">
+
+  <!-- ============ HOME PAGE ============ -->
+  <div id="homePage">
+    <div class="header">
+      <div class="leaf tl">
+        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 110 C 20 70, 40 40, 90 15 C 70 45, 55 70, 50 110 Z" fill="#5a9c3f" opacity="0.85"/>
+          <path d="M5 100 C 15 65, 35 35, 80 10 C 60 40, 45 65, 40 100 Z" fill="#7fc957" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="leaf tr">
+        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 110 C 20 70, 40 40, 90 15 C 70 45, 55 70, 50 110 Z" fill="#5a9c3f" opacity="0.85"/>
+          <path d="M5 100 C 15 65, 35 35, 80 10 C 60 40, 45 65, 40 100 Z" fill="#7fc957" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="logo-wrap">
+        <div class="logo-icons"><img src="../assets/img/logozoo.png" alt="Zoo Explorer" width="200px" height="200px"></div>
+        <div class="logo-title">ZOO EXPLOROR</div>
+        <div class="logo-sub">ZOO EXPLORER</div>
+      </div>
+    </div>
+
+    <div class="body-scroll">
+      <div class="progress-heading">Your Progress</div>
+      <div class="progress-count" id="progressCount">0 / 6 Stamps</div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+
+      <div class="zone-list" id="zoneList"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active" id="navPassport">
+        <span class="nav-icon" style="font-size:22px;">📘</span>
+        <span class="nav-label">Passport</span>
+      </div>
+      <div class="nav-item" id="navMap">
+        <span class="nav-icon" style="font-size:22px;">🗺️</span>
+        <span class="nav-label">Map</span>
+      </div>
+      <div class="nav-item" id="navProfile">
+        <span class="nav-icon" style="font-size:22px;">👤</span>
+        <span class="nav-label">Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ZONE DETAIL PAGE ============ -->
+  <div class="detail-page" id="detailPage">
+    <div class="detail-header">
+      <button class="back-btn" id="backBtn">←</button>
+      <div class="detail-title" id="detailHeaderTitle">Zone</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-avatar" id="detailAvatar">🦁</div>
+      <div class="detail-name" id="detailName">Lion Zone</div>
+
+      <div class="info-card story-card">
+        <div class="info-card-title" id="detailStoryTitle">Story</div>
+        <div class="info-card-text" id="detailStoryText">...</div>
+      </div>
+
+      <div class="info-card mission-card">
+        <div class="info-card-label">🎯 ภารกิจของคุณ</div>
+        <div class="info-card-text" id="detailMissionText">...</div>
+      </div>
+
+      <div class="info-card reward-card">
+        <div class="info-card-label">Reward</div>
+        <div class="info-card-text" id="detailRewardText">...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const zones = [
+  { id:'lion', name:'Lion Zone', image:'../assets/img/lionlogo.png',
+    story: {
+      title: 'The Lost Paw Prints',
+      text: 'สิงโตผู้พิทักษ์แห่งทุ่งหญ้าสะวันนาได้ทำรอยเท้าแห่งความกล้าหาญ (Courage Paw Print) หายไประหว่างการลาดตระเวน หากไม่มีรอยเท้านี้ สิงโตจะไม่สามารถนำทางสัตว์ตัวอื่นได้'
+    },
+    mission: 'ช่วยจับคู่รอยเท้าให้ถูกต้อง เพื่อค้นหารอยเท้าที่หายไป',
+    reward: '🏅 Lion Stamp'
+  },
+  { id:'elephant', name:'Elephant Zone', image:'../assets/img/Elepantlogo.png',
+    story: {
+      title: 'The Forgotten Food',
+      text: 'ช้างผู้มีความจำเป็นเลิศ กำลังเตรียมอาหารให้สัตว์ทุกตัว แต่ครั้งนี้เขากลับจำตำแหน่งของอาหารไม่ได้ หากหาอาหารไม่เจอ สัตว์ทั้งสวนสัตว์จะไม่มีอาหารในวันนี้'
+    },
+    mission: 'จดจำตำแหน่งอาหารทั้งหมดให้ถูกต้อง',
+    reward: '🏅 Elephant Stamp'
+  },
+  { id:'giraffe', name:'Giraffe Zone', image:'../assets/img/Girafflogo.png',
+    story: {
+      title: 'The Wise Giraffe',
+      text: 'ยีราฟผู้รอบรู้เป็นผู้ดูแลหอคอยสังเกตการณ์ของสวนสัตว์ ก่อนจะมอบตราประทับให้ เขาจะทดสอบความรู้เกี่ยวกับสัตว์ของคุณ'
+    },
+    mission: 'ตอบคำถามเกี่ยวกับยีราฟให้ถูกต้อง',
+    reward: '🏅 Giraffe Stamp'
+  },
+  { id:'penguin', name:'Penguin Zone', image:'../assets/img/panguinlogo.png',
+    story: {
+      title: 'Fish Festival',
+      text: 'เหล่าเพนกวินกำลังเตรียมงานเทศกาลปลา แต่ปลาที่ต้องใช้กลับกระจัดกระจายไปทั่ว หากเก็บปลาไม่ทัน งานเทศกาลจะเริ่มไม่ได้'
+    },
+    mission: 'ช่วยเพนกวินเก็บปลาให้ครบก่อนหมดเวลา',
+    reward: '🏅 Penguin Stamp'
+  },
+  { id:'panda', name:'Panda Zone', image:'../assets/img/pandalogo.png',
+    story: {
+      title: 'Bamboo Harvest',
+      text: 'แพนด้าผู้ใจดีต้องเก็บต้นไผ่เพื่อเตรียมอาหารสำหรับครอบครัว แต่ไผ่ในป่ากระจัดกระจายอยู่หลายแห่ง'
+    },
+    mission: 'ช่วยแพนด้าเก็บต้นไผ่ให้ครบก่อนหมดเวลา',
+    reward: '🏅 Panda Stamp'
+  },
+  { id:'monkey', name:'Monkey Zone', image:'../assets/img/Monkeylogo.png',
+    story: {
+      title: 'The Lost Bananas',
+      text: 'ลิงจอมซนกำลังเก็บกล้วยสำหรับเพื่อนๆ แต่กล้วยกลับหล่นหายไปทั่วป่า เขาต้องการผู้ช่วยที่ว่องไวในการรวบรวมกล้วยทั้งหมด'
+    },
+    mission: 'ช่วยลิงเก็บกล้วยให้ครบตามจำนวนที่กำหนด',
+    reward: '🏅 Monkey Stamp'
+  },
+];
+
+  // สถานะปลดล็อกจริง (มาจาก localStorage) — ตราจะติ๊กถูก/นับเพิ่มก็ต่อเมื่อเล่นเกมของโซนนั้นจบแล้วเท่านั้น
+  let completed = ZooState.getState().stamps;
+
+  const zoneListEl = document.getElementById('zoneList');
+  const progressCountEl = document.getElementById('progressCount');
+  const progressFillEl = document.getElementById('progressFill');
+
+  const homePage = document.getElementById('homePage');
+  const detailPage = document.getElementById('detailPage');
+  const detailAvatar = document.getElementById('detailAvatar');
+  const detailName = document.getElementById('detailName');
+  const detailStoryTitle = document.getElementById('detailStoryTitle');
+  const detailStoryText = document.getElementById('detailStoryText');
+  const detailMissionText = document.getElementById('detailMissionText');
+  const detailRewardText = document.getElementById('detailRewardText');
+  const detailHeaderTitle = document.getElementById('detailHeaderTitle');
+  const backBtn = document.getElementById('backBtn');
+
+  let currentZoneId = null;
+
+ function renderHome(){
+  zoneListEl.innerHTML = '';
+  zones.forEach(z => {
+    const row = document.createElement('div');
+    row.className = 'zone-row' + (completed[z.id] ? ' done' : '');
+    const avatarContent = z.image
+      ? `<img src="${z.image}" alt="${z.name}">`
+      : z.emoji;
+    row.innerHTML = `
+      <div class="zone-avatar">${avatarContent}</div>
+      <div class="zone-name">${z.name}</div>
+      <div class="zone-check">✓</div>
+      <div class="zone-arrow">›</div>
+    `;
+    row.addEventListener('click', () => openZone(z.id));
+    zoneListEl.appendChild(row);
+  });
+
+  const doneCount = Object.values(completed).filter(Boolean).length;
+  progressCountEl.textContent = `${doneCount} / ${zones.length} Stamps`;
+  progressFillEl.style.width = `${(doneCount / zones.length) * 100}%`;
+}
+
+  function openZone(id){
+  const zone = zones.find(z => z.id === id);
+  if(!zone) return;
+  currentZoneId = id;
+
+  detailAvatar.innerHTML = zone.image
+    ? `<img src="${zone.image}" alt="${zone.name}">`
+    : zone.emoji;
+  detailName.textContent = zone.name;
+  detailHeaderTitle.textContent = zone.name;
+  detailStoryTitle.textContent = zone.story.title;
+  detailStoryText.textContent = zone.story.text;
+  detailMissionText.textContent = zone.mission;
+  detailRewardText.textContent = zone.reward;
+
+  homePage.style.display = 'none';
+  detailPage.style.display = 'flex';
+}
+
+  backBtn.addEventListener('click', () => {
+    detailPage.style.display = 'none';
+    homePage.style.display = 'flex';
+  });
+
+  // เมนูล่าง: พาสปอร์ต(หน้านี้) / แผนที่ / โปรไฟล์
+  document.getElementById('navMap').addEventListener('click', () => {
+    window.location.href = '../07-map/index.html';
+  });
+  document.getElementById('navProfile').addEventListener('click', () => {
+    window.location.href = '../10-profile/index.html';
+  });
+
+  renderHome();
+</script>
+
+</body>
+</html>

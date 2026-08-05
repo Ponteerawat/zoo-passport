@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lion Zone — ได้รับตราประทับ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: #f0ede4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: linear-gradient(180deg, #fdf1cf 0%, #fdf6e9 45%);
+    border-radius: 36px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 6px solid #2b2b2b;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .header h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+  .close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  .close-btn:hover { background: rgba(0,0,0,0.06); }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 30px 0;
+    text-align: center;
+  }
+
+  .badge-ring {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #fff;
+    border: 6px solid #4a8c3f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(74,140,63,0.25);
+    margin-bottom: 26px;
+    position: relative;
+  }
+  .badge-ring::before,
+  .badge-ring::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px dashed rgba(74,140,63,0.35);
+  }
+  .badge-ring .paw {
+    font-size: 68px;
+    color: #4a8c3f;
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+  }
+
+  .content h2 {
+    font-size: 24px;
+    color: #2c4a20;
+    margin-bottom: 6px;
+  }
+  .content p {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .zone-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #6b4423;
+    color: #fdf6e9;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    margin-bottom: 34px;
+  }
+
+  .footer {
+    padding: 0 24px 32px;
+  }
+  .cta-btn {
+    width: 100%;
+    padding: 15px;
+    background: #4a8c3f;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
+  }
+  .cta-btn:hover { background: #427a38; }
+  .cta-btn:active { transform: scale(0.97); }
+
+  /* คอนเฟตตี้เล็กๆ ประดับพื้นหลัง */
+  .confetti {
+    position: absolute;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+
+  <div class="header">
+    <h1>Lion Zone</h1>
+    <button class="close-btn" id="closeBtn" aria-label="ปิด">✕</button>
+  </div>
+
+  <div class="content">
+    <div class="badge-ring"><span class="paw">🐾</span></div>
+    <h2>ยินดีด้วย!</h2>
+    <p>คุณได้รับตราประทับ</p>
+    <div class="zone-chip">🦁 Lion Zone</div>
+  </div>
+
+  <div class="footer">
+    <button class="cta-btn" id="viewPassportBtn">ดูพาสปอร์ต</button>
+  </div>
+
+</div>
+
+<script src="../assets/js/zoo-state.js"></script>
+<script>
+  // อ่านว่าเพิ่งเล่นโซนไหนจบ และได้แต้มเท่าไรจริงๆ จาก query string ที่หน้ามินิเกมส่งมา
+  // แล้วค่อยปลดล็อกตราประทับ + เพิ่มแต้ม ณ ตอนนี้เท่านั้น (ไม่ใช่ค่าคงที่)
+  const params = new URLSearchParams(window.location.search);
+  const zoneId = params.get('zone') || 'lion';
+  const pointsEarned = parseInt(params.get('points'), 10) || 0;
+  ZooState.completeZone(zoneId, pointsEarned);
+
+  // สุ่มโรยคอนเฟตตี้เล็กๆ ไว้เป็นพื้นหลังตกแต่ง
+  const phone = document.getElementById('phone');
+  const colors = ['#4a8c3f', '#f0a336', '#7fc957', '#d9862a'];
+  for(let i = 0; i < 18; i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    const size = 6 + Math.random() * 6;
+    c.style.width = size + 'px';
+    c.style.height = size + 'px';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = (Math.random() * 40) + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    phone.appendChild(c);
+  }
+
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    window.location.href = '../03-home/index.html';
+  });
+  document.getElementById('viewPassportBtn').addEventListener('click', () => {
+    window.location.href = '../03-home/index.html';
+  });
+</script>
+
+</body>
+</html>
