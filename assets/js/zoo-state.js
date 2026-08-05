@@ -11,7 +11,7 @@
   function defaultState() {
     const stamps = {};
     ZONES.forEach(z => { stamps[z] = false; });
-    return { stamps, points: 0, avatar: null };
+    return { stamps, points: 0, avatar: null, history: [] };
   }
 
   function getState() {
@@ -23,7 +23,8 @@
       return {
         stamps: Object.assign(base.stamps, parsed.stamps || {}),
         points: typeof parsed.points === 'number' ? parsed.points : 0,
-        avatar: parsed.avatar || null,
+       avatar: parsed.avatar || null,
+        history: Array.isArray(parsed.history) ? parsed.history : [],
       };
     } catch (e) {
       return base;
@@ -48,6 +49,7 @@
     if (!alreadyDone && ZONES.indexOf(zoneId) !== -1) {
       state.stamps[zoneId] = true;
       state.points += (pointsEarned || 0);
+      state.history.unshift({ zoneId, timestamp: Date.now(), pointsEarned: pointsEarned || 0 });
       saveState(state);
     }
     return { state, alreadyDone };
@@ -60,5 +62,10 @@
     return state;
   }
 
-  global.ZooState = { ZONES, getState, saveState, getStampCount, completeZone, setAvatar };
+ function getHistory() {
+    const state = getState();
+    return state.history || [];
+  }
+
+  global.ZooState = { ZONES, getState, saveState, getStampCount, completeZone, setAvatar, getHistory };
 })(window);
