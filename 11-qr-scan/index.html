@@ -250,12 +250,12 @@
   const zoneId = params.get('zone') || 'lion';
 
   const ZONE_INFO = {
-    lion:     { name: 'Lion Zone',     emoji: '🦁', code: 'ZOO-LION' },
-    elephant: { name: 'Elephant Zone', emoji: '🐘', code: 'ZOO-ELEPHANT' },
-    giraffe:  { name: 'Giraffe Zone',  emoji: '🦒', code: 'ZOO-GIRAFFE' },
-    penguin:  { name: 'Penguin Zone',  emoji: '🐧', code: 'ZOO-PENGUIN' },
-    panda:    { name: 'Panda Zone',    emoji: '🐼', code: 'ZOO-PANDA' },
-    monkey:   { name: 'Monkey Zone',   emoji: '🐵', code: 'ZOO-MONKEY' },
+    lion:     { name: 'Lion Zone',     emoji: '🦁', code: 'https://game-lion.vercel.app/' },
+    elephant: { name: 'Elephant Zone', emoji: '🐘', code: 'https://game-elephant.vercel.app/' },
+    giraffe:  { name: 'Giraffe Zone',  emoji: '🦒', code: 'https://game-giraffe.vercel.app/' },
+    penguin:  { name: 'Penguin Zone',  emoji: '🐧', code: 'https://game-penguin.vercel.app/' },
+    panda:    { name: 'Panda Zone',    emoji: '🐼', code: 'https://game-panda.vercel.app/' },
+    monkey:   { name: 'Monkey Zone',   emoji: '🐵', code: 'https://game-monkey.vercel.app/' },
   };
   const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
