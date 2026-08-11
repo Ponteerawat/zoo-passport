@@ -242,7 +242,7 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="../assets/js/jsqr.min.js"></script>
 <script src="../assets/js/zoo-state.js"></script>
 <script>
   // ---- อ่านว่ากำลังจะสแกนเข้าโซนไหน (ส่งมาจากหน้าแผนที่ ?zone=lion เป็นต้น) ----
@@ -367,7 +367,13 @@
 
   window.addEventListener('beforeunload', stopCamera);
 
-  startCamera();
+  if (!window.jsQR) {
+    errorTitle.textContent = 'โหลดตัวอ่าน QR ไม่สำเร็จ';
+    errorText.textContent = 'ไฟล์ jsqr.min.js อาจไม่อยู่ที่ assets/js/ ลองเช็ค path แล้วรีเฟรชอีกครั้ง';
+    errorOverlay.classList.add('show');
+  } else {
+    startCamera();
+  }
 </script>
 
 </body>
