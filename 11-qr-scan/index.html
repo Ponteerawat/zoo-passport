@@ -242,23 +242,33 @@
 
 </div>
 
-<script src="../assets/js/jsqr.min.js?v=2"></script>
-<script src="../assets/js/zoo-state.js?v=2"></script>
+<script src="../assets/js/jsqr.min.js?v=3"></script>
+<script src="../assets/js/zoo-state.js?v=3"></script>
 <script>
   // ---- อ่านว่ากำลังจะสแกนเข้าโซนไหน (ส่งมาจากหน้าแผนที่ ?zone=lion เป็นต้น) ----
   const params = new URLSearchParams(window.location.search);
   const zoneId = params.get('zone') || 'lion';
 
   const ZONE_INFO = {
-    lion:     { name: 'Lion Zone',     emoji: '🦁', code: 'https://game-lion.vercel.app/' },
-    elephant: { name: 'Elephant Zone', emoji: '🐘', code: 'https://game-elephant.vercel.app/' },
-    giraffe:  { name: 'Giraffe Zone',  emoji: '🦒', code: 'https://game-giraffe.vercel.app/' },
-    penguin:  { name: 'Penguin Zone',  emoji: '🐧', code: 'https://game-penguin.vercel.app/' },
-    panda:    { name: 'Panda Zone',    emoji: '🐼', code: 'https://game-panda.vercel.app/' },
-    monkey:   { name: 'Monkey Zone',   emoji: '🐵', code: 'https://game-monkey.vercel.app/' },
+    lion:     { name: 'Lion Zone',     emoji: '🦁' },
+    elephant: { name: 'Elephant Zone', emoji: '🐘' },
+    giraffe:  { name: 'Giraffe Zone',  emoji: '🦒' },
+    penguin:  { name: 'Penguin Zone',  emoji: '🐧' },
+    panda:    { name: 'Panda Zone',    emoji: '🐼' },
+    monkey:   { name: 'Monkey Zone',   emoji: '🐵' },
   };
   const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
+
+  // ลิงก์เกม AR แยกตามโซน (deploy บน vercel) — นี่คือสิ่งที่ QR แต่ละป้ายควรจะเข้ารหัสไว้
+  const ZONE_GAME_URL = {
+    lion:     'https://game-lion.vercel.app/',
+    elephant: 'https://game-elephant-ar.vercel.app/',
+    giraffe:  'https://game-giraffe.vercel.app/',
+    panda:    'https://game-panda.vercel.app/',
+    monkey:   'https://game-mokey-ar-cfit.vercel.app/',
+    // penguin: ยังไม่มีลิงก์เกม
+  };
 
   const video = document.getElementById('video');
   const successOverlay = document.getElementById('successOverlay');
@@ -276,15 +286,6 @@
   let rafId = null;
   let scanned = false;
 
-  // โซนไหนมีมินิเกมจริงแล้วให้ไปต่อที่เกม โซนที่ยังไม่มีเกม ให้พาไปหน้ารายชื่อโซนไปก่อน
- const ZONE_GAME_URL = {
-    lion:     'https://game-lion.vercel.app/',
-    elephant: 'https://game-elephant-ar.vercel.app/',
-    giraffe:  'https://game-giraffe.vercel.app/',
-    panda:    'https://game-panda.vercel.app/',
-    monkey:   'https://game-mokey-ar-cfit.vercel.app/',
-  };
-
   function goToZoneContent(){
     const gameUrl = ZONE_GAME_URL[zoneId];
     if (gameUrl) {
@@ -294,21 +295,31 @@
     }
   }
 
+  // ตัด scheme (http://, https://, http//, https:// พิมพ์ผิดแบบไหนก็ตัดออกหมด)
+  // ตัด "/" ท้าย และแปลงเป็นตัวพิมพ์เล็ก เพื่อเทียบแค่ตัวโดเมน/พาธจริงๆ
+  function extractDomain(str){
+    return (str || '')
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:?\/*/i, '')
+      .replace(/\/+$/, '');
+  }
+
   function onScanSuccess(decodedText){
     if (scanned) return;
     scanned = true;
     stopCamera();
 
-    function normalizeCode(str){
-      return (str || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-    }
-    const matches = decodedText && normalizeCode(decodedText) === normalizeCode(info.code);
+    const expectedUrl = ZONE_GAME_URL[zoneId];
+    const expectedDomain = extractDomain(expectedUrl);
+    const scannedDomain = extractDomain(decodedText);
+    const matches = !!decodedText && !!expectedDomain && scannedDomain.includes(expectedDomain);
+
     if (matches) {
       successText.textContent = `ยืนยันตัวตนที่ ${info.name} เรียบร้อยแล้ว`;
       successOverlay.classList.add('show');
       setTimeout(goToZoneContent, 1200);
     } else {
-      // สแกนติด QR แต่ไม่ใช่ของโซนนี้ -> แจ้งเตือนแล้วให้ลองใหม่
       errorTitle.textContent = 'QR นี้ไม่ตรงกับโซนนี้';
       errorText.textContent = `กรุณาสแกน QR ที่ป้าย ${info.name} ให้ถูกจุด`;
       errorOverlay.classList.add('show');
@@ -374,7 +385,7 @@
   // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
   devSkip.addEventListener('click', () => {
     if (scanned) return;
-    onScanSuccess(info.code);
+    onScanSuccess(ZONE_GAME_URL[zoneId] || '');
   });
 
   window.addEventListener('beforeunload', stopCamera);
