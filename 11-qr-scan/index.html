@@ -277,9 +277,18 @@
   let scanned = false;
 
   // โซนไหนมีมินิเกมจริงแล้วให้ไปต่อที่เกม โซนที่ยังไม่มีเกม ให้พาไปหน้ารายชื่อโซนไปก่อน
+ const ZONE_GAME_URL = {
+    lion:     'https://game-lion.vercel.app/',
+    elephant: 'https://game-elephant-ar.vercel.app/',
+    giraffe:  'https://game-giraffe.vercel.app/',
+    panda:    'https://game-panda.vercel.app/',
+    monkey:   'https://game-mokey-ar-cfit.vercel.app/',
+  };
+
   function goToZoneContent(){
-    if (zoneId === 'lion') {
-      window.location.href = '../04-lion-zone/index.html';
+    const gameUrl = ZONE_GAME_URL[zoneId];
+    if (gameUrl) {
+      window.location.href = gameUrl;
     } else {
       window.location.href = '../03-home/index.html';
     }
@@ -290,7 +299,10 @@
     scanned = true;
     stopCamera();
 
-    const matches = decodedText && decodedText.trim().toUpperCase() === info.code;
+    function normalizeCode(str){
+      return (str || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+    const matches = decodedText && normalizeCode(decodedText) === normalizeCode(info.code);
     if (matches) {
       successText.textContent = `ยืนยันตัวตนที่ ${info.name} เรียบร้อยแล้ว`;
       successOverlay.classList.add('show');
