@@ -319,9 +319,9 @@
       successText.textContent = `ยืนยันตัวตนที่ ${info.name} เรียบร้อยแล้ว`;
       successOverlay.classList.add('show');
       setTimeout(goToZoneContent, 1200);
-    } else {
+    }  else {
       errorTitle.textContent = 'QR นี้ไม่ตรงกับโซนนี้';
-      errorText.textContent = `กรุณาสแกน QR ที่ป้าย ${info.name} ให้ถูกจุด`;
+      errorText.textContent = `กรุณาสแกน QR ที่ป้าย ${info.name} ให้ถูกจุด (สแกนได้ว่า: ${decodedText})`;
       errorOverlay.classList.add('show');
     }
   }
