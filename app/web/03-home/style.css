@@ -247,6 +247,7 @@
     cursor:pointer;
     transition: opacity 0.2s ease, transform 0.2s ease;
   }
+
   .nav-icon:hover{ opacity:1; transform: translateY(-2px); }
 
   .nav-item{
