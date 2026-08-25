@@ -198,12 +198,12 @@
   // href: หน้ารายละเอียดของโซนนั้นๆ (ตอนนี้มีจริงแค่ Lion Zone ส่วนโซนอื่นยังไม่ได้สร้างหน้า)
   const stampState = ZooState.getState().stamps;
   const zones = [
-    { id:'lion',     name:'Lion',     image:'../assets/img/lionlogo.png',    href:'../04-lion-zone/index.html' },
-    { id:'elephant', name:'Elephant', image:'../assets/img/Elepantlogo.png', href:'../03-home/index.html' },
-    { id:'giraffe',  name:'Giraffe',  image:'../assets/img/Girafflogo.png',  href:'../03-home/index.html' },
-    { id:'penguin',  name:'Penguin',  image:'../assets/img/panguinlogo.png', href:'../03-home/index.html' },
-    { id:'panda',    name:'Panda',    image:'../assets/img/pandalogo.png',   href:'../03-home/index.html' },
-    { id:'monkey',   name:'Monkey',   image:'../assets/img/Monkeylogo.png',  href:'../03-home/index.html' },
+    { id:'lion',     name:'Lion',     image:'../assets/img/lionlogo.png',    href:'https://mywebar.com/p/Project_2_c9toz5pubb' },
+    { id:'elephant', name:'Elephant', image:'../assets/img/Elepantlogo.png', href:'https://mywebar.com/p/Project_1_m4zof44vk6' },
+    { id:'giraffe',  name:'Giraffe',  image:'../assets/img/Girafflogo.png',  href:'https://mywebar.com/p/Project_2_bd8ea5f0ec' },
+    { id:'penguin',  name:'Penguin',  image:'../assets/img/panguinlogo.png', href:'https://mywebar.com/p/Project_0_d1rkybo8q3' },
+    { id:'panda',    name:'Panda',    image:'../assets/img/pandalogo.png',   href:'https://mywebar.com/p/Project_4_fsuh5vgdi' },
+    { id:'monkey',   name:'Monkey',   image:'../assets/img/Monkeylogo.png',  href:'https://mywebar.com/p/Project_3_gmetd5s95j' },
   ].map(z => Object.assign(z, { done: !!stampState[z.id] }));
 
   const grid = document.getElementById('grid');
