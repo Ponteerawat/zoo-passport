@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Penguin AR Exhibition Mini-Game</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- External Libraries (MediaPipe & Three.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- css -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans overflow-hidden select-none h-screen w-screen m-0 p-0">
+
+    <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
+
+        <!-- Video Feed (สำหรับส่งเฟรมให้ MediaPipe Process) -->
+        <video id="webcam" class="hidden" playsinline muted autoplay></video>
+
+        <!-- Canvas Layer 1: เลเยอร์ Three.js แสดงโมเดลเพนกวิน 3D -->
+        <canvas id="threeCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
+
+        <!-- Canvas Layer 2: เลเยอร์แสดงผล AR Hand Skeleton และกราฟิกเกม 2D -->
+        <canvas id="gameCanvas" class="absolute inset-0 w-full h-full z-20 pointer-events-auto"></canvas>
+
+        <!-- UI Overlay Layer (Glassmorphism HUD) -->
+        <div id="uiLayer" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-4 sm:p-6">
+
+            <!-- Top HUD Bar -->
+            <div class="flex justify-between items-start w-full gap-2">
+                <div class="glass-pill px-4 py-2 sm:px-6 sm:py-3 rounded-2xl flex items-center gap-4 sm:gap-6">
+                    <div>
+                        <span class="text-[10px] sm:text-xs text-sky-300 font-semibold tracking-wider block">LEVEL</span>
+                        <span id="levelTxt" class="text-xl sm:text-3xl font-black text-amber-400">1</span>
+                    </div>
+                    <div class="h-6 sm:h-8 w-[1px] bg-white/20"></div>
+                    <div>
+                        <span class="text-[10px] sm:text-xs text-sky-300 font-semibold tracking-wider block">SCORE (เป้าหมาย 100)</span>
+                        <span id="scoreTxt" class="text-xl sm:text-3xl font-black text-white">0</span>
+                    </div>
+                </div>
+
+                <!-- AI System Status Indicator -->
+                <div id="aiStatus" class="glass-pill px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium text-amber-300 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="aiStatusTxt">กำลังเตรียมระบบติดตามมือ...</span>
+                </div>
+
+                <div class="glass-pill px-4 py-2 sm:px-6 sm:py-3 rounded-2xl text-right">
+                    <span class="text-[10px] sm:text-xs text-sky-300 font-semibold tracking-wider block">TIME LEFT</span>
+                    <span id="timeTxt" class="text-xl sm:text-3xl font-black text-rose-400">45</span>
+                </div>
+            </div>
+
+            <!-- Bottom HUD Bar -->
+            <div class="flex justify-between items-end w-full">
+                <button id="restartBtn" class="pointer-events-auto glass-pill px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold hover:bg-white/20 active:scale-95 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    เริ่มใหม่
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal 1: หน้าจอเริ่มต้น (Start Screen) -->
+        <div id="startModal" class="absolute inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center gap-6">
+                <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-3xl shadow-inner">🐧</div>
+                <div>
+                    <span class="text-xs font-semibold text-sky-400 tracking-widest uppercase">Zoo Interactive Exhibition</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Penguin AR Feeding</h1>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                        แตะและลากปลาไปใส่ปากน้องเพนกวินได้เลยด้วยนิ้ว หรือเปิดโหมด AR เพื่อควบคุมด้วยมือจริงผ่านกล้อง<br>
+                        <span class="text-amber-400 font-semibold block mt-1">🎯 เก็บให้ครบ 100 คะแนนเพื่อผ่านภารกิจ! (ระวังระเบิดล่ะ)</span>
+                    </p>
+                </div>
+                <div class="w-full flex flex-col gap-3">
+                    <button id="startTouchBtn" class="pointer-events-auto w-full py-3.5 sm:py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+                        <span>👆</span> เล่นด้วยนิ้ว/เมาส์ (แตะลากป้อนอาหาร)
+                    </button>
+                    <button id="startARBtn" class="pointer-events-auto w-full py-3.5 sm:py-4 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-2xl shadow-lg shadow-sky-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+                        <span>📷</span> ใช้โหมด AR (กล้อง + AI Hand Tracking)
+                    </button>
+                    <p class="text-[10px] sm:text-xs text-slate-400 leading-relaxed mt-1">
+                        * บนมือถือ โหมด AR ต้องเล่นในแนวนอนเท่านั้น
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: บังคับหมุนจอแนวนอนก่อนเข้าโหมด AR (เฉพาะมือถือ) -->
+        <div id="rotateOverlay" class="hidden absolute inset-0 z-[60] bg-slate-950 flex flex-col items-center justify-center text-center p-6 pointer-events-auto">
+            <img src="pic/rotate mobile-Photoroom.png" alt="Rotate Device" class="rotate-hint-img w-24 h-24 sm:w-32 sm:h-32 mb-5" onerror="this.style.display='none';">
+            <h2 class="text-lg sm:text-2xl font-bold text-white mb-2">โปรดหมุนโทรศัพท์เป็นแนวนอน</h2>
+            <p class="text-xs sm:text-sm text-slate-300 mb-8 max-w-xs">โหมด AR (กล้อง + AI Hand Tracking) รองรับการเล่นในแนวนอนเท่านั้น</p>
+            <button id="cancelARRotateBtn" class="pointer-events-auto px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-xl transition active:scale-95">
+                ยกเลิก กลับไปเล่นด้วยนิ้วแทน
+            </button>
+        </div>
+
+
+        <!-- Modal 2: หน้าจอแนะนำวิธีเล่น (Instructions Modal) -->
+        <div id="instructionModal" class="hidden absolute inset-0 z-40 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center gap-5">
+                <h2 class="text-xl sm:text-2xl font-bold text-amber-300">คู่มือการใช้งานระบบ AR Control</h2>
+
+                <div class="space-y-3 text-left w-full text-xs sm:text-sm text-slate-200">
+                    <div class="bg-white/5 p-3 sm:p-4 rounded-2xl border border-white/10 flex items-start gap-3">
+                        <span class="text-xl">👌</span>
+                        <div>
+                            <strong class="text-sky-300 block">จีบนิ้ว (Pinch Gesture):</strong>
+                            แตะนิ้วโป้งเข้าหานิ้วชี้ เพื่อ "จับปลา" 
+                        </div>
+                    </div>
+                    <div class="bg-white/5 p-3 sm:p-4 rounded-2xl border border-white/10 flex items-start gap-3">
+                        <span class="text-xl">🖐️</span>
+                        <div>
+                            <strong class="text-sky-300 block">กางนิ้ว (Release):</strong>
+                            ปล่อยนิ้วออกจากกัน เพื่อ "ปล่อยปลา" ลงในปากเพนกวิน
+                        </div>
+                    </div>
+                    <div class="bg-white/5 p-3 sm:p-4 rounded-2xl border border-rose-500/30 flex items-start gap-3">
+                        <span class="text-xl">💣</span>
+                        <div>
+                            <strong class="text-rose-400 block">ระวังระเบิด!:</strong>
+                            ห้ามป้อนระเบิดเด็ดขาด จะถูกหักคะแนนความยากจะเพิ่มขึ้นเรื่อยๆ
+                        </div>
+                    </div>
+                </div>
+
+                <div id="btnStartGame" class="mt-2 w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-2xl shadow-lg shadow-emerald-500/25 transition transform active:scale-95 cursor-pointer">
+                    เริ่มเล่นเกม! 🚀
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 3: หน้าจอจบเกม (Game Over Modal - หมดเวลา) -->
+        <div id="gameOverModal" class="hidden absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center gap-5">
+                <h2 class="text-2xl sm:text-3xl font-black text-rose-400">หมดเวลา! (TIME'S UP)</h2>
+                <p class="text-xs sm:text-sm text-slate-300">คุณยังทำภารกิจไม่สำเร็จ ลองใหม่อีกครั้งนะ</p>
+
+                <div class="bg-white/5 w-full py-4 rounded-2xl border border-white/10">
+                    <span class="text-xs text-sky-300 uppercase tracking-widest block font-semibold">คะแนนรวมสุทธิ</span>
+                    <span id="finalScore" class="text-4xl sm:text-5xl font-black text-white mt-1">0</span>
+                </div>
+
+                <button id="playAgainBtn" class="pointer-events-auto w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-2xl shadow-lg shadow-sky-500/25 active:scale-95 transition">
+                    เล่นอีกครั้ง (Play Again)
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal 4: หน้าจอชนะเกม (Mission Complete Modal / Passport Stamp) -->
+        <div id="missionCompleteModal" class="hidden absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="final-card">
+                <!-- ตราประทับ / รูปเพนกวิน -->
+                <div class="final-badge">
+                    <img id="final-stamp-img" src="pic/panguinlogo.png" alt="Penguin Stamp" onerror="this.style.display='none'; document.getElementById('penguin-fallback-icon').classList.remove('hidden');">
+                    <div id="penguin-fallback-icon" class="hidden">🐧</div>
+                </div>
+
+                <!-- หัวข้อ -->
+                <h1 class="final-title">ภารกิจสำเร็จ! 🎉</h1>
+
+                <!-- กล่องรางวัลด้านใน -->
+                <div class="final-reward-box">
+                    <div class="final-congrats">🏆 ยินดีด้วย! คุณได้รับ</div>
+                    <div class="final-reward-name">Animal Stamp: Penguin Zone</div>
+                </div>
+
+                <!-- ข้อความขอบคุณ -->
+                <p class="final-desc">น้องเพนกวินอิ่มแปล้ กลับบ้านอย่างมีความสุขแล้ว! 🐧💖</p>
+
+                <div class="final-divider"></div>
+
+                <!-- สถิติการเก็บ -->
+                <div class="final-stats">
+                    <div class="final-stat-pill">
+                        <div class="final-stat-icon">💎</div>
+                        <div class="final-stat-text">
+                            <span class="final-stat-label">POINT</span>
+                            <span class="final-stat-value" id="winScore">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ปุ่มแอ็กชัน -->
+                <div class="final-actions">
+                    <button id="playAgainWinBtn" class="final-btn final-btn--primary">
+                        เล่นอีกครั้ง <span>🔁</span>
+                    </button>
+                    <button id="viewPassportBtn" class="final-btn final-btn--secondary">
+                        ดูพาสปอร์ต <span>🛂</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast แจ้งเตือนเล็กๆ (ใช้กับปุ่มดูพาสปอร์ต) -->
+        <div id="arToast"></div>
+
+        <!-- Modal 5: แจ้งเตือนเมื่อไม่สามารถเข้าถึงกล้องได้ -->
+        <div id="cameraErrorModal" class="hidden absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-400/30 flex items-center justify-center text-2xl">⚠️</div>
+                <h2 class="text-lg sm:text-xl font-bold text-rose-300">ไม่สามารถเข้าถึงกล้องได้</h2>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    ไม่เป็นไร คุณยังเล่นเกมต่อได้ด้วยเมาส์หรือสัมผัสหน้าจอแทนการใช้กล้อง
+                </p>
+                <button id="dismissCameraErrorBtn" class="pointer-events-auto w-full py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl transition active:scale-95">
+                    เข้าใจแล้ว เล่นด้วยเมาส์/สัมผัส
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- game.js -->
+    <script src="js/game.js"></script>
+</body>
+</html>

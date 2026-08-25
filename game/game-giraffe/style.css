@@ -1,0 +1,716 @@
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    position: fixed;
+}
+
+#app {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    z-index: 10;
+    overflow-y: auto;
+
+    background-image: url("assert/background_girraf.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#gameCanvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: url(assert/body_bg.png);
+}
+
+:root {
+    --bg-color: #fdf6e2;
+    --primary-yellow: #f8c134;
+    --wood-brown: #7c482b;
+    --green-leaf: #58a700;
+    --card-bg: #fff8e7;
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: 'Kanit', 'Fredoka', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* App Container Layout */
+#app {
+    width: 100%;
+    max-width: 420px;
+    height: 90vh;
+    max-height: 840px;
+    background-color: var(--bg-color);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 6px solid #5c3a21;
+}
+
+/* Screens */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    z-index: 10;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* UI Components */
+.title-banner {
+    background: linear-gradient(180deg, #ffd754 0%, #f1a80a 100%);
+    border: 4px solid var(--wood-brown);
+    border-radius: 18px;
+    padding: 10px 20px;
+    text-align: center;
+    color: #3e1e0a;
+    box-shadow: 0 4px 0 var(--wood-brown);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.title-banner h1 {
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.subtitle {
+    background-color: var(--green-leaf);
+    color: white;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.btn {
+    background: linear-gradient(180deg, #7cd922 0%, #4b9703 100%);
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 12px 40px;
+    border-radius: 30px;
+    border: 3px solid #2d5a02;
+    box-shadow: 0 5px 0 #2d5a02;
+    cursor: pointer;
+    margin: 12px 0;
+    transition: transform 0.1s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #2d5a02;
+}
+
+/* Cards */
+.card {
+    width: 100%;
+    background: var(--card-bg);
+    border: 3px solid #e2c99a;
+    border-radius: 15px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--wood-brown);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Leaderboard Table */
+table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 4px 8px;
+}
+
+.rank-num {
+    font-weight: bold;
+    color: var(--wood-brown);
+}
+
+/* Game Viewport & Canvas */
+#game-screen {
+    padding: 0;
+    position: relative;
+    touch-action: none;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    touch-action: none;
+    display: block;
+}
+
+/* In-Game HUD */
+.hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.hud-pill {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid var(--primary-yellow);
+}
+
+/* Game Over Dialog */
+.game-over-box {
+    background: #fff8e7;
+    border: 5px solid var(--wood-brown);
+    border-radius: 20px;
+    padding: 20px;
+    width: 85%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    margin-top: 40px;
+}
+/* ============================================================
+   RESPONSIVE ENHANCEMENTS (appended — existing rules untouched)
+   รองรับทุกขนาดหน้าจอ: มือถือจอเล็ก, มือถือทั่วไป, แท็บเล็ต, เดสก์ท็อป,
+   แนวนอน (landscape), และอุปกรณ์ที่มีรอยบาก/ขอบโค้ง (notch / safe-area)
+   ============================================================ */
+
+/* --- Safe-area (notch / gesture bar) support, ไม่กระทบ layout เดิม --- */
+.screen {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(16px + env(safe-area-inset-left, 0px));
+    padding-right: calc(16px + env(safe-area-inset-right, 0px));
+}
+
+.hud {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+}
+
+/* --- รูปยีราฟหน้า Start ให้ปรับขนาดตามจอเสมอ (กัน overflow บนจอเล็ก) --- */
+#start-screen img {
+    max-width: 70%;
+    width: auto;
+    height: auto;
+    max-height: 32vh;
+    display: block;
+    margin: 4px auto;
+}
+
+/* --- Fluid typography: ปรับขนาดตัวอักษร/ปุ่มไหลลื่นตามความกว้างจอ --- */
+.title-banner h1 {
+    font-size: clamp(20px, 6vw, 28px);
+}
+
+.subtitle {
+    font-size: clamp(11px, 3vw, 13px);
+}
+
+.card-title {
+    font-size: clamp(12px, 3vw, 15px);
+}
+
+.card p,
+.card li {
+    font-size: clamp(13px, 3.6vw, 16px);
+}
+
+.btn {
+    font-size: clamp(16px, 5vw, 22px);
+    padding: clamp(10px, 3vw, 12px) clamp(24px, 8vw, 40px);
+    min-height: 44px; /* ขนาดกดสัมผัสขั้นต่ำตามหลัก accessibility */
+}
+
+.hud-pill {
+    font-size: clamp(12px, 3.5vw, 16px);
+    padding: clamp(4px, 1.5vw, 6px) clamp(8px, 3vw, 14px);
+}
+
+/* --- จอมือถือจิ๋ว (เช่น iPhone SE / Android เก่า, กว้าง <= 340px) --- */
+@media (max-width: 340px) {
+    .title-banner {
+        margin-top: 12px;
+        margin-bottom: 12px;
+        padding: 8px 14px;
+    }
+
+    .card {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .hud-pill {
+        border-width: 1.5px;
+    }
+}
+
+/* --- แนวนอน (landscape) บนมือถือ/จอเตี้ย: ลดระยะห่างและตัวอักษรลง
+       เพื่อให้เนื้อหาทั้งหมดอยู่ในจอโดยไม่ล้น --- */
+@media (orientation: landscape) and (max-height: 500px) {
+    .title-banner {
+        margin-top: 6px;
+        margin-bottom: 6px;
+        padding: 6px 16px;
+    }
+
+    .title-banner h1 {
+        font-size: clamp(16px, 4vw, 20px);
+    }
+
+    .subtitle {
+        font-size: 10px;
+    }
+
+    .card {
+        padding: 6px 10px;
+        margin-bottom: 6px;
+    }
+
+    .card p,
+    .card li {
+        font-size: 12px;
+    }
+
+    #start-screen img {
+        max-height: 20vh;
+    }
+
+    .btn {
+        font-size: 15px;
+        padding: 6px 22px;
+        margin: 6px 0;
+        min-height: 36px;
+    }
+
+    .hud-pill {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+
+    .game-over-box {
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .game-over-box h1 {
+        font-size: 22px !important;
+    }
+
+    .game-over-box h2 {
+        font-size: 18px !important;
+    }
+}
+
+/* --- แท็บเล็ตขึ้นไป (>= 600px): คืนดีไซน์กรอบแอปแบบการ์ดตรงกลางจอ
+       แทนการเต็มจอ ให้ดูเป็นสัดส่วนสวยงามบนจอใหญ่ --- */
+@media (min-width: 600px) {
+    #app {
+        width: 100% !important;
+        max-width: 480px !important;
+        height: 90vh !important;
+        max-height: 860px !important;
+        margin: 0 auto !important;
+        border: 6px solid #5c3a21 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+}
+
+/* --- จอใหญ่มาก / เดสก์ท็อปกว้าง (>= 1200px): ให้กรอบแอปมีสัดส่วนอ่านง่ายขึ้น --- */
+@media (min-width: 1200px) {
+    #app {
+        max-width: 520px !important;
+        max-height: 900px !important;
+    }
+}
+
+/* --- รองรับหน่วย viewport แบบ dynamic (dvh/svh) พร้อม fallback สำหรับ
+       เบราว์เซอร์ที่ยังไม่รองรับ ป้องกันปัญหาแถบ URL บนมือถือบัง UI --- */
+@supports (height: 100svh) {
+    @media (max-width: 599px) {
+        #app {
+            height: 100svh !important;
+        }
+    }
+}
+
+/* --- จอเตี้ยมาก (เช่น เปิดแป้นพิมพ์/แถบเบราว์เซอร์บังพื้นที่เยอะ) --- */
+@media (max-height: 420px) {
+    .screen {
+        justify-content: flex-start;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE ROUND 2 — ครอบคลุมตัวหนังสือ/องค์ประกอบที่ใช้
+   inline style="font-size:...px" ในไฟล์ HTML (ซึ่งปกติจะ "ชนะ"
+   กฎ CSS ธรรมดา) จึงต้องใช้ !important เพื่อให้ตัวหนังสือเหล่านี้
+   ไหลลื่นตามขนาดจอไปด้วย — ยังคงไม่แก้ไข/ลบกฎเดิมใด ๆ ทั้งสิ้น
+   ============================================================ */
+
+/* กัน text overflow ของข้อความไทยที่อาจยาวเกินกรอบบนจอแคบ */
+.screen,
+.card,
+.game-over-box {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ป้ายข้อความ "ADVENTURE" ใต้หัวข้อหลัก */
+.title-banner > div:first-of-type {
+    font-size: clamp(11px, 3.2vw, 14px) !important;
+}
+
+/* ลิสต์ "วิธีเล่น" และย่อหน้า "DID YOU KNOW" ในหน้า Start */
+#start-screen ul[style],
+#start-screen .card p[style] {
+    font-size: clamp(13px, 3.8vw, 16px) !important;
+    line-height: 1.5;
+}
+
+/* ตัวเลข/ข้อความผลลัพธ์ในหน้า Game Over ให้ไหลลื่นตามจอ */
+#result-title {
+    font-size: clamp(20px, 6vw, 28px) !important;
+}
+
+#final-status {
+    font-size: clamp(22px, 7vw, 30px) !important;
+}
+
+#final-height {
+    font-size: clamp(26px, 8vw, 36px) !important;
+}
+
+#final-score {
+    font-size: clamp(20px, 6vw, 28px) !important;
+}
+
+.game-over-box p[style] {
+    font-size: clamp(11px, 3vw, 14px) !important;
+}
+
+/* ปุ่มในหน้า Game Over (มี inline font-size เฉพาะตัว) */
+#gameover-screen button:nth-of-type(1) {
+    font-size: clamp(15px, 5vw, 18px) !important;
+    padding: clamp(9px, 2.6vw, 12px) clamp(24px, 7vw, 40px) !important;
+}
+
+#gameover-screen button:nth-of-type(2),
+#gameover-screen button:nth-of-type(3) {
+    font-size: clamp(13px, 4vw, 16px) !important;
+    padding: clamp(7px, 2.2vw, 8px) clamp(18px, 6vw, 24px) !important;
+}
+
+/* ตารางอันดับ (leaderboard) เผื่อเปิดใช้งานในอนาคต ให้ scroll ได้แนวนอน
+   บนจอแคบแทนที่จะบีบคอลัมน์จนอ่านไม่ออก */
+table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    font-size: clamp(12px, 3.2vw, 14px) !important;
+}
+
+/* จอมือถือจิ๋วมาก ๆ (<=340px) ลดตัวเลขผลลัพธ์ลงอีกนิด กันล้นกรอบ */
+@media (max-width: 340px) {
+    #final-height {
+        font-size: clamp(22px, 8vw, 30px) !important;
+    }
+
+    #result-title,
+    #final-score {
+        font-size: clamp(17px, 6vw, 22px) !important;
+    }
+}
+
+/* แนวนอนจอเตี้ย: ย่อตัวเลขผลลัพธ์และปุ่มในหน้า Game Over เพิ่มเติม */
+@media (orientation: landscape) and (max-height: 500px) {
+    #result-title,
+    #final-status,
+    #final-score {
+        font-size: 18px !important;
+        margin-bottom: 4px !important;
+    }
+
+    #final-height {
+        font-size: 24px !important;
+    }
+
+    .game-over-box p[style] {
+        font-size: 11px !important;
+        margin-top: 2px !important;
+    }
+
+    #gameover-screen button:nth-of-type(1),
+    #gameover-screen button:nth-of-type(2),
+    #gameover-screen button:nth-of-type(3) {
+        font-size: 13px !important;
+        padding: 6px 16px !important;
+        margin: 4px 0 !important;
+    }
+}
+
+/* ============================================================
+   PASSPORT BUTTON — LOCK / UNLOCK STATE
+   ปุ่ม "ดูพาสปอต" จะถูกล็อกไว้จนกว่าผู้เล่นจะทำคะแนนถึงเกณฑ์ที่กำหนด
+   (ควบคุมโดย js/game.js — ปลดล็อกอัตโนมัติเมื่อ bestScore >= PASS_SCORE)
+   ============================================================ */
+.passport-btn:disabled,
+.passport-btn.locked {
+    background: linear-gradient(180deg, #cfd8dc 0%, #97a2a8 100%) !important;
+    border-color: #5f686c !important;
+    box-shadow: 0 5px 0 #5f686c !important;
+    color: #eef2f3 !important;
+    cursor: not-allowed !important;
+    opacity: 0.75;
+    filter: grayscale(0.4);
+}
+
+.passport-btn:disabled:active,
+.passport-btn.locked:active {
+    transform: none !important;
+    box-shadow: 0 5px 0 #5f686c !important;
+}
+
+.passport-lock-hint {
+    font-size: clamp(11px, 3vw, 13px) !important;
+    color: #8a6d55;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.passport-lock-hint.hidden {
+    display: none !important;
+}
+
+/* ============================================================
+   VICTORY DECORATION — Mission Complete screen
+   แสดงเฉพาะเมื่อผู้เล่นผ่านเกณฑ์คะแนน (สลับ .hidden ด้วย js/game.js)
+   ใช้ asset ที่มีอยู่ในโปรเจกต์ (โลโก้/ยีราฟ) ร่วมกับ confetti ที่วาดด้วย CSS
+   เพื่อให้ไม่ต้องพึ่งไฟล์ภาพเพิ่มเติม และยังคง responsive ทุกขนาดจอ
+   ============================================================ */
+.victory-decor {
+    position: relative;
+    width: 100%;
+    min-height: 96px;
+    margin-bottom: 6px;
+}
+
+.victory-decor.hidden {
+    display: none !important;
+}
+
+.confetti {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.confetti span {
+    position: absolute;
+    top: 0;
+    font-size: clamp(15px, 4.5vw, 20px);
+    animation: confetti-fall 1.9s ease-in infinite;
+    opacity: 0;
+}
+
+.confetti span:nth-child(1) { left: 4%;  animation-delay: 0s;    }
+.confetti span:nth-child(2) { left: 26%; animation-delay: 0.35s; }
+.confetti span:nth-child(3) { left: 48%; animation-delay: 0.65s; }
+.confetti span:nth-child(4) { left: 70%; animation-delay: 0.15s; }
+.confetti span:nth-child(5) { left: 90%; animation-delay: 0.5s;  }
+
+@keyframes confetti-fall {
+    0%   { transform: translateY(-8px) rotate(0deg);  opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translateY(74px) rotate(280deg); opacity: 0; }
+}
+
+.victory-badge {
+    position: relative;
+    width: clamp(66px, 20vw, 88px);
+    height: clamp(66px, 20vw, 88px);
+    margin: 0 auto 6px;
+}
+
+.badge-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 3px solid var(--primary-yellow);
+    box-shadow: 0 4px 0 #a37200, 0 6px 14px rgba(0, 0, 0, 0.25);
+    animation: badge-pop 0.5s ease-out;
+}
+
+.badge-medal {
+    position: absolute;
+    bottom: -4px;
+    right: -6px;
+    font-size: clamp(18px, 5.5vw, 24px);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+    animation: badge-pop 0.6s ease-out 0.1s both;
+}
+
+@keyframes badge-pop {
+    0%   { transform: scale(0); }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.victory-mascot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.mascot-img {
+    width: clamp(34px, 11vw, 48px);
+    height: auto;
+    object-fit: contain;
+}
+
+.speech-bubble {
+    position: relative;
+    background: #fff;
+    color: var(--wood-brown);
+    font-weight: bold;
+    font-size: clamp(11px, 3.4vw, 14px);
+    padding: 6px 12px;
+    border-radius: 14px;
+    border: 2px solid var(--wood-brown);
+    white-space: nowrap;
+}
+
+.speech-bubble::after {
+    content: "";
+    position: absolute;
+    left: -8px;
+    bottom: 8px;
+    border-width: 6px 8px 6px 0;
+    border-style: solid;
+    border-color: transparent var(--wood-brown) transparent transparent;
+}
+
+/* --- จอมือถือจิ๋ว / แนวนอนจอเตี้ย: ย่อองค์ประกอบชัยชนะให้พอดีจอ --- */
+@media (max-width: 340px) {
+    .victory-decor {
+        min-height: 78px;
+    }
+
+    .speech-bubble {
+        font-size: 10px;
+        padding: 4px 9px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .victory-decor {
+        min-height: 60px;
+        margin-bottom: 2px;
+    }
+
+    .victory-badge {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 2px;
+    }
+
+    .badge-medal {
+        font-size: 15px;
+    }
+
+    .mascot-img {
+        width: 26px;
+    }
+
+    .speech-bubble {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .confetti {
+        top: -16px;
+        height: 24px;
+    }
+}

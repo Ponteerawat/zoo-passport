@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panda Bamboo Quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+        
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="rotate-overlay">
+            <img id="rotate-img" src="pic/rotate mobile-Photoroom.png" alt="Rotate Device" onerror="this.src='https://placehold.co/150x150/000/fff?text=Rotate\nDevice'; this.style.filter='none';">
+            <h2>โปรดหมุนโทรศัพท์เป็นแนวนอน</h2>
+            <p>เกมนี้รองรับการเล่นในแนวนอนเท่านั้น</p>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="game-ui">
+            <div class="hud-top">
+                <div class="hud-item"><i class="fas fa-layer-group text-level"></i> <span id="ui-level">ด่าน 1/5</span></div>
+                <div class="hud-item"><i class="fas fa-heart text-life"></i> x <span id="ui-lives">3</span></div>
+                <div class="hud-item"><i class="fas fa-leaf text-bamboo"></i> <span id="ui-bamboo">0/3</span></div>
+                <div class="hud-item"><i class="fas fa-coins text-coin"></i> <span id="ui-score">0</span></div>
+                <button id="btn-pause" class="bg-gray-200 text-gray-800 p-2 rounded-full shadow hover:bg-gray-300 pointer-events-auto w-10 h-10 flex items-center justify-center">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+
+            <div id="toast-msg">⚠️ เก็บไผ่ยังไม่ครบ!</div>
+
+            <div class="mobile-controls" id="mobile-controls">
+                <div class="d-pad">
+                    <div class="control-btn btn-up" id="btn-up"><i class="fas fa-chevron-up"></i></div>
+                    <div class="control-btn btn-left" id="btn-left"><i class="fas fa-chevron-left"></i></div>
+                    <div class="control-btn btn-right" id="btn-right"><i class="fas fa-chevron-right"></i></div>
+                    <div class="control-btn btn-down" id="btn-down"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="action-buttons">
+                    <div class="control-btn btn-jump" id="btn-jump"><i class="fas fa-arrow-up"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-start" class="screen">
+            <h1 class="title">Panda Adventure</h1>
+            <p class="subtitle">การผจญภัยในป่าไผ่</p>
+            <button class="btn" onclick="sound.init(); startGame();">เริ่มเล่น</button>
+        </div>
+
+        <div id="screen-gameover" class="screen hidden">
+            <h1 class="title text-red-500">Game Over</h1>
+            <p class="subtitle">แพนด้าหมดแรงแล้ว...</p>
+            <button class="btn" onclick="sound.init(); resetGame();">เล่นอีกครั้ง</button>
+        </div>
+
+        <div id="screen-levelcomplete" class="screen hidden">
+            <h1 class="title text-green-400">ผ่านด่าน!</h1>
+            <div class="text-2xl mb-2">ไผ่ในด่านนี้: <span id="lc-bamboo" class="text-green-300 font-bold"></span></div>
+            <div class="text-xl mb-4 text-gray-300">ไผ่รวมทั้งหมด: <span id="lc-total-bamboo" class="text-green-400 font-bold"></span> ต้น</div>
+            <div class="text-2xl mb-6">คะแนน: <span id="lc-score" class="text-yellow-400 font-bold"></span></div>
+            <button class="btn" onclick="sound.init(); nextLevel();">ด่านต่อไป</button>
+        </div>
+
+        <!-- หน้าต่างจบเกมด่านสุดท้าย (ภารกิจสำเร็จ!) -->
+        <div id="screen-finalcomplete" class="screen hidden" style="background: rgba(0, 0, 0, 0.85);">
+            <div class="final-card">
+                <!-- ตราประทับ / รูปแพนด้า -->
+                <div class="final-badge">
+                    <img id="final-stamp-img" src="pic/pandalogo.png" alt="Panda Stamp" onerror="this.style.display='none'; document.getElementById('lion-fallback-icon').classList.remove('hidden');">
+                    <div id="lion-fallback-icon" class="hidden">🐼</div>
+                </div>
+
+                <!-- หัวข้อ -->
+                <h1 class="final-title">ภารกิจสำเร็จ! 🎉</h1>
+
+                <!-- กล่องรางวัลด้านใน -->
+                <div class="final-reward-box">
+                    <div class="final-congrats">🏆 ยินดีด้วย! คุณได้รับ</div>
+                    <div class="final-reward-name">Animal Stamp: Panda Zone</div>
+                </div>
+
+                <!-- ข้อความขอบคุณ -->
+                <p class="final-desc">แพนด้ากลับถึงบ้านพร้อมไผ่แสนอร่อย ครบทุกด่านแล้ว!</p>
+
+                <div class="final-divider"></div>
+
+                <!-- สถิติการเก็บ -->
+                <div class="final-stats">
+                    <div class="final-stat-pill">
+                        <div class="final-stat-icon">💎</div>
+                        <div class="final-stat-text">
+                            <span class="final-stat-label">POINT</span>
+                            <span class="final-stat-value" id="final-point">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ปุ่มแอ็กชัน -->
+                <div class="final-actions">
+                    <button class="final-btn final-btn--primary" onclick="sound.init(); startGame();">
+                        เล่นอีกครั้ง <i class="fas fa-rotate-right"></i>
+                    </button>
+                    <button class="final-btn final-btn--secondary" onclick="sound.init(); showPassport();">
+                        ดูพาสปอร์ต <i class="fas fa-gift" style="color:#facc15;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-pause" class="screen hidden" style="background: rgba(0,0,0,0.5);">
+            <h1 class="title">หยุดพัก</h1>
+            <button class="btn" onclick="sound.init(); resumeGame();">เล่นต่อ</button>
+            <button class="btn bg-red-500 box-shadow-red" onclick="location.reload()">ออก</button>
+        </div>
+    </div>
+
+    <!-- configGame -->
+    <script src="js/configGame.js"></script>
+
+</body>
+</html>

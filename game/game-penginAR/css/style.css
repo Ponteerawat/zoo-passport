@@ -1,0 +1,285 @@
+/* Custom Global Styles for Zoo Exhibition UI */
+* {
+    font-family: 'Kanit', 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+    touch-action: none;
+    /* ป้องกัน Gesture สโตรกเลื่อนหน้าจอบนอุปกรณ์เคลื่อนที่ */
+}
+
+/* Glassmorphism Styling System */
+.glass-card {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.glass-pill {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mirror Image สำหรับ Video Feed เพื่อไม่ให้กล้องแสดงผลสลับซ้ายขวา */
+#webcam {
+    transform: scaleX(-1);
+}
+
+/* ==================================================================
+   Rotate-to-landscape hint (บังคับหมุนจอก่อนเข้าโหมด AR บนมือถือ)
+   ================================================================== */
+.rotate-hint-img {
+    animation: rotateHint 2s infinite ease-in-out;
+    filter: invert(1);
+}
+
+@keyframes rotateHint {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ==================================================================
+   Passport Stamp Card (หน้าจอภารกิจสำเร็จ) — สไตล์เดียวกับเกมแพนด้า
+   ใช้ clamp() อิง vh/vw เพื่อรองรับทุกขนาดจอ รวมถึงมือถือแนวนอนจอเตี้ย
+   ================================================================== */
+.final-card {
+    background: #fff;
+    color: #1f2937;
+    border-radius: clamp(16px, 3vh, 28px);
+    border: 3px dashed #fb923c;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    width: min(92vw, 420px);
+    max-height: 94vh;
+    overflow-y: auto;
+    padding: clamp(12px, 3vh, 28px) clamp(16px, 4vw, 30px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.final-card::-webkit-scrollbar {
+    width: 5px;
+}
+
+.final-card::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.final-badge {
+    width: clamp(52px, 13vh, 96px);
+    height: clamp(52px, 13vh, 96px);
+    border-radius: 50%;
+    border: 4px solid #38bdf8;
+    box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+    background: #e0f2fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-bottom: clamp(6px, 1.6vh, 14px);
+}
+
+.final-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.final-badge #penguin-fallback-icon {
+    font-size: clamp(1.4rem, 4vh, 2.5rem);
+}
+
+.final-title {
+    font-size: clamp(1.05rem, 3.4vh, 1.6rem);
+    font-weight: 800;
+    color: #0284c7;
+    margin: 0 0 clamp(6px, 1.6vh, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.final-reward-box {
+    background: #f0f9ff;
+    border: 2px dashed #38bdf8;
+    border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: clamp(8px, 1.8vh, 14px);
+    margin-bottom: clamp(8px, 1.8vh, 14px);
+}
+
+.final-congrats {
+    color: #0369a1;
+    font-weight: 700;
+    font-size: clamp(0.7rem, 1.8vh, 0.9rem);
+    margin-bottom: 2px;
+}
+
+.final-reward-name {
+    color: #ea580c;
+    font-weight: 800;
+    font-size: clamp(0.85rem, 2.4vh, 1.15rem);
+}
+
+.final-desc {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: clamp(0.68rem, 1.7vh, 0.875rem);
+    margin: 0 0 clamp(6px, 1.6vh, 12px);
+}
+
+.final-divider {
+    width: 90%;
+    height: 1px;
+    background: #e5e7eb;
+    margin-bottom: clamp(8px, 1.8vh, 14px);
+}
+
+.final-stats {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-bottom: clamp(10px, 2.2vh, 18px);
+}
+
+.final-stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #fff5e0, #ffe8c2);
+    border-radius: 999px;
+    padding: clamp(6px, 1.4vh, 10px) clamp(10px, 2vw, 16px);
+}
+
+.final-stat-icon {
+    width: clamp(26px, 5.2vh, 38px);
+    height: clamp(26px, 5.2vh, 38px);
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.85rem, 2.2vh, 1.2rem);
+    flex-shrink: 0;
+}
+
+.final-stat-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+}
+
+.final-stat-label {
+    font-size: clamp(0.55rem, 1.3vh, 0.68rem);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #b45309;
+}
+
+.final-stat-value {
+    font-size: clamp(0.9rem, 2.6vh, 1.35rem);
+    font-weight: 800;
+    color: #92400e;
+}
+
+.final-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+}
+
+.final-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: clamp(8px, 1.8vh, 12px) 10px;
+    font-size: clamp(0.72rem, 1.9vh, 0.95rem);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.final-btn:active {
+    transform: scale(0.95);
+}
+
+.final-btn--primary {
+    background: #10b981;
+    box-shadow: 0 6px 14px rgba(16, 185, 129, 0.35);
+}
+
+.final-btn--primary:hover {
+    background: #059669;
+}
+
+.final-btn--secondary {
+    background: #0ea5e9;
+    box-shadow: 0 6px 14px rgba(14, 165, 233, 0.35);
+}
+
+.final-btn--secondary:hover {
+    background: #0284c7;
+}
+
+/* จอเตี้ยมาก (มือถือแนวนอนขนาดเล็ก) ตัดส่วนที่ไม่จำเป็นออกเพื่อไม่ให้ล้น */
+@media (max-height: 380px) {
+    .final-badge {
+        display: none;
+    }
+
+    .final-desc {
+        display: none;
+    }
+}
+
+@media (max-width: 340px) {
+    .final-actions {
+        flex-direction: column;
+    }
+}
+
+/* ==================================================================
+   Toast แจ้งเตือนเล็กๆ (เช่นตอนกด "ดูพาสปอร์ต")
+   ================================================================== */
+#arToast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: rgba(15, 23, 42, 0.92);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 70;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+}
+
+#arToast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
