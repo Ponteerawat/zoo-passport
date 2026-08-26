@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-state.js"></script>
 </head>
 <body>
 
@@ -30,7 +30,7 @@
         </svg>
       </div>
       <div class="logo-wrap">
-        <div class="logo-icons"><img src="../assets/img/logozoo.png" alt="Zoo Explorer" width="200px" height="200px"></div>
+        <div class="logo-icons"><img src="../../../assets/img/logozoo.png" alt="Zoo Explorer" width="200px" height="200px"></div>
         <div class="logo-title">ZOO EXPLOROR</div>
         <div class="logo-sub">ZOO EXPLORER</div>
       </div>
@@ -48,8 +48,8 @@
 
     <div class="bottom-nav">
       <div class="nav-item active" id="navPassport">
-        <span class="nav-icon" style="font-size:22px;"><img src="../assets/img/open-book.png" alt="" width="50px" height="50px"></span>
-        <span class="nav-label">Passport</span>
+         <span class="nav-icon" style="font-size:22px;">📖</span>
+          <span class="nav-label">Passport</span>
       </div>
       <div class="nav-item" id="navMap">
         <span class="nav-icon" style="font-size:22px;">🗺️</span>
@@ -93,7 +93,7 @@
 
 <script>
 const zones = [
-  { id:'lion', name:'Lion Zone', image:'../assets/img/lionlogo.png',
+  { id:'lion', name:'Lion Zone', image:'../../../assets/img/lionlogo.png',
     story: {
       title: 'นักล่าแห่งทุ่งหญ้า',
       text: 'สิงโตจอมพลังกำลังฝึกวิ่งล่าสัตว์ในทุ่งหญ้ากว้าง แต่เหยื่อวิ่งหลบซ้าย ขวา และตรงหน้าอย่างรวดเร็ว สิงโตต้องอาศัยทั้งความเร็วและความแม่นยำ'
@@ -101,7 +101,7 @@ const zones = [
     mission: 'ช่วยสิงโตวิ่งผ่านเส้นทาง 3 เลน หลบสิ่งกีดขวาง และเก็บเนื้อให้ครบตามจำนวนที่กำหนด เมื่อสิงโตได้อาหารครบ มันก็พร้อมกลับไปดูแลครอบครัว',
     reward: '🏅 Lion Stamp'
   },
-  { id:'elephant', name:'Elephant Zone', image:'../assets/img/Elepantlogo.png',
+  { id:'elephant', name:'Elephant Zone', image:'../../../assets/img/Elepantlogo.png',
     story: {
       title: 'มื้ออร่อยของเจ้าช้าง',
       text: 'ถึงเวลาอาหารกลางวันแล้ว! แต่เจ้าช้างตัวใหญ่รออาหารอยู่ไกลเกินไป คนดูแลสวนสัตว์จึงขอให้คุณช่วยป้อนอาหารแทน'
@@ -109,7 +109,7 @@ const zones = [
     mission: 'เล็งและโยนอาหาร ให้เข้าปากช้างให้ได้มากที่สุด ยิ่งโยนแม่น ช้างก็ยิ่งอิ่มและมีความสุข',
     reward: '🏅 Elephant Stamp'
   },
-  { id:'giraffe', name:'Giraffe Zone', image:'../assets/img/Girafflogo.png',
+  { id:'giraffe', name:'Giraffe Zone', image:'../../../assets/img/Girafflogo.png',
     story: {
       title: 'ยีราฟผู้เฝ้ามองท้องฟ้า',
       text: 'ยีราฟประจำสวนสัตว์ได้รับหน้าที่คอยสังเกตเส้นทางและมองหาต้นไม้ที่มีใบอ่อนที่สุดให้เพื่อนสัตว์ แต่วันนี้... ต้นไม้เติบโตสูงกว่าปกติ! ยีราฟต้องยืดคอให้สูงที่สุดเพื่อมองเห็นเส้นทางด้านหน้า แต่ลำพังมันทำไม่สำเร็จ'
@@ -117,7 +117,7 @@ const zones = [
     mission: 'ช่วยยีราฟยืดคอให้สูงถึงระดับที่กำหนด เพื่อให้มันสามารถมองเห็นต้นทางและค้นหาใบไม้แสนอร่อยได้สำเร็จ',
     reward: '🏅 Giraffe Stamp'
   },
-  { id:'penguin', name:'Penguin Zone', image:'../assets/img/panguinlogo.png',
+  { id:'penguin', name:'Penguin Zone', image:'../../../assets/img/panguinlogo.png',
     story: {
       title: 'นักตกปลาตัวน้อย',
       text: 'อากาศเย็นสบายในโซนเพนกวิน แต่ปลาวันนี้ว่ายน้ำเร็วผิดปกติ เหล่าเพนกวินจึงจับปลาได้ยากกว่าทุกวัน พวกมันต้องการผู้ช่วย!'
@@ -125,7 +125,7 @@ const zones = [
     mission: 'ช่วยเพนกวินจับปลาให้ได้ตามจำนวนที่กำหนด เมื่อเพนกวินได้อาหารครบ ทุกตัวก็จะพร้อมกลับไปพักผ่อนบนก้อนน้ำแข็ง',
     reward: '🏅 Penguin Stamp'
   },
-  { id:'panda', name:'Panda Zone', image:'../assets/img/pandalogo.png',
+  { id:'panda', name:'Panda Zone', image:'../../../assets/img/pandalogo.png',
     story: {
       title: 'การผจญภัยในป่าไผ่',
       text: 'เช้าวันนี้ แพนด้าน้อยออกตามหาไผ่ต้นโปรด แต่ระหว่างทาง เต็มไปด้วยหลุม ทางต่างระดับ และอุปสรรคมากมาย มันไม่สามารถเดินทางเพียงลำพังได้'
@@ -133,7 +133,7 @@ const zones = [
     mission: 'ช่วยแพนด้ากระโดดผ่านอุปสรรค หลบหลุม และเก็บไม้ไผ่ให้ได้มากที่สุดจนถึงเส้นชัย',
     reward: '🏅 Panda Stamp'
   },
-  { id:'monkey', name:'Monkey Zone', image:'../assets/img/Monkeylogo.png',
+  { id:'monkey', name:'Monkey Zone', image:'../../../assets/img/Monkeylogo.png',
     story: {
       title: 'ภารกิจเก็บกล้วย',
       text: 'ลมแรงพัดผ่านป่าลิง ทำให้กล้วยสุกจำนวนมากหล่นลงมาจากต้น หากปล่อยไว้ ผลไม้จะเสียหายหมด เจ้าลิงตัวน้อยจึงรีบออกมาเก็บกล้วย แต่ต้องการผู้ช่วยอีกแรง'
