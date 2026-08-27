@@ -501,7 +501,7 @@ const CONFIG = {
     { emoji: '🪨', name: 'ก้อนหิน' },
     { emoji: '🗑️', name: 'ถังขยะ' },
   ],
-  FOOD_CHANCE: 0.6,
+  FOOD_CHANCE: 0.5,
 };
 
 // -------------------- State --------------------
@@ -1147,10 +1147,9 @@ startBtn.addEventListener('click', () => {
 
 replayBtn.addEventListener('click', resetGame);
 
-// TODO: Implement the full Passport feature in a future update.
-// Currently, clicking the button only displays a development alert.
+
 passportBtn.addEventListener('click', () => {
-  alert('Passport feature is currently under development.');
+  window.location.href = '/app/web/06-stamp-received/index.html';
 });
 
 // เริ่มต้นระบบ 3D
