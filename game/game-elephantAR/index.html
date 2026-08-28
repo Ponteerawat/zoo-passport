@@ -11,7 +11,7 @@
   window.ZOO_LIFF_ID = '1234567890-AbCdEfGh';               // LIFF ID จากเฟส 3
 
   // ★ URL ของแอปหลัก (Zoo Passport) — ใช้ตอนกดปุ่ม "ดูพาสปอร์ต" เพื่อกลับไปหน้า stamp-received ★
-  window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "https://your-zoo-app.vercel.app";
+  window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "http://127.0.0.1:5500";
 </script>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="js/zoo-api-client.js"></script>
@@ -97,7 +97,7 @@
         <button id="replay-btn" class="mission-btn replay">เล่นอีกครั้ง 🔁</button>
 
         <!-- ★ ปุ่มกลับไปหน้าพาสปอร์ต — เชื่อมจริงแล้วใน js/game.js ★ -->
-        <button id="passport-btn" class="mission-btn passport">ดูพาสปอร์ต 🎫</button>
+        <button id="passport-btn" class="mission-btn passport">รับตราประทับ 🎁</button>
       </div>
     </div>
   </div>

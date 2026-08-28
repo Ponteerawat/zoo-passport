@@ -20,6 +20,11 @@
 
     <!-- css -->
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- ★ URL ของแอปหลัก (Zoo Passport) — เปลี่ยนเป็น URL จริงตอน deploy บน Vercel ★ -->
+    <script>
+        window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "http://127.0.0.1:5500";
+    </script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans overflow-hidden select-none h-screen w-screen m-0 p-0">
 
@@ -201,7 +206,7 @@
                         เล่นอีกครั้ง <span>🔁</span>
                     </button>
                     <button id="viewPassportBtn" class="final-btn final-btn--secondary">
-                        ดูพาสปอร์ต <span>🛂</span>
+                        รับตราประทับ 🎁<span>🛂</span>
                     </button>
                 </div>
             </div>

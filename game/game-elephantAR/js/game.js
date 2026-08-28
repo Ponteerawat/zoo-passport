@@ -81,7 +81,6 @@ function init3D() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // การจัดแสงสมจริงแบบทุ่งหญ้ายามเย็น
   const ambientLight = new THREE.AmbientLight(0xdde5ed, 0.85);
   scene.add(ambientLight);
 
@@ -103,7 +102,6 @@ function init3D() {
   animate3D();
 }
 
-/* พยายามโหลด model_elephant.fbx ถ้าโหลดไม่ได้จะใช้วิธีสร้างโมเดลช้าง 3D สมจริงทดแทน */
 function loadElephantModel() {
   const fbxLoader = new THREE.FBXLoader();
   fbxLoader.load(
@@ -111,7 +109,6 @@ function loadElephantModel() {
     (fbx) => {
       elephantGroup = fbx;
 
-      // คำนวณ Bounding Box เพื่อปรับสเกลและตำแหน่งให้พอดี
       const box = new THREE.Box3().setFromObject(fbx);
       const size = new THREE.Vector3();
       box.getSize(size);
@@ -119,18 +116,16 @@ function loadElephantModel() {
       const scale = 3.2 / maxDim;
       fbx.scale.set(scale, scale, scale);
 
-      // จัดกึ่งกลาง
       const center = new THREE.Vector3();
       box.getCenter(center);
       fbx.position.sub(center.multiplyScalar(scale));
       fbx.position.y = -0.8;
-      fbx.rotation.y = Math.PI; // หันหน้ามาหาผู้เล่น
+      fbx.rotation.y = Math.PI;
 
       fbx.traverse((child) => {
         if (child.isMesh) {
           child.castShadow = true;
           child.receiveShadow = true;
-          // ถ้าไม่มีวัสดุ ให้ใส่วัสดุหนังช้างสีเทาสมจริง
           if (!child.material || child.material.name === 'Default') {
             child.material = new THREE.MeshStandardMaterial({
               color: 0x60656c,
@@ -152,12 +147,10 @@ function loadElephantModel() {
   );
 }
 
-/* สร้างโมเดลช้างสมจริง 3D ด้วยรูปทรงกายวิภาค (Realistic Asian Elephant) */
 function createRealisticProceduralElephant() {
   elephantGroup = new THREE.Group();
   elephantGroup.position.set(0, -0.7, 0);
 
-  // วัสดุผิวหนังช้างสมจริง
   const skinMat = new THREE.MeshStandardMaterial({
     color: 0x5e636b,
     roughness: 0.88,
@@ -174,7 +167,6 @@ function createRealisticProceduralElephant() {
   });
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0d1117 });
 
-  // ลำตัวทรงกล้ามเนื้อ (Torso)
   const bodyGeo = new THREE.SphereGeometry(1.3, 32, 32);
   bodyGeo.scale(1, 0.92, 1.35);
   const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
@@ -182,7 +174,6 @@ function createRealisticProceduralElephant() {
   bodyMesh.castShadow = true;
   elephantGroup.add(bodyMesh);
 
-  // ขาช้างทรงเสา 4 ข้าง
   const legGeo = new THREE.CylinderGeometry(0.32, 0.38, 1.2, 20);
   const legPositions = [
     [-0.65, -0.6, 0.75], [0.65, -0.6, 0.75],
@@ -195,18 +186,15 @@ function createRealisticProceduralElephant() {
     elephantGroup.add(leg);
   });
 
-  // ส่วนหัว (Head)
   headGroup = new THREE.Group();
   headGroup.position.set(0, 0.95, 0.9);
 
-  // โหนกศีรษะช้างเอเชีย
   const headGeo = new THREE.SphereGeometry(0.85, 32, 32);
   headGeo.scale(1, 1.05, 1.1);
   const headMesh = new THREE.Mesh(headGeo, skinMat);
   headMesh.castShadow = true;
   headGroup.add(headMesh);
 
-  // หูช้างแผ่นใหญ่ทรงธรรมชาติ
   const earGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.05, 32);
   earGeo.scale(1.2, 1, 0.4);
 
@@ -225,7 +213,6 @@ function createRealisticProceduralElephant() {
 
   headGroup.add(leftEar, rightEar);
 
-  // ดวงตาช้าง
   const eyeGeo = new THREE.SphereGeometry(0.07, 16, 16);
   const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
   leftEye.position.set(-0.4, 0.18, 0.78);
@@ -233,7 +220,6 @@ function createRealisticProceduralElephant() {
   rightEye.position.set(0.4, 0.18, 0.78);
   headGroup.add(leftEye, rightEye);
 
-  // งาช้างโค้งเรียว (Tusks)
   const tuskCurve = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, -0.3, 0.3),
@@ -251,7 +237,6 @@ function createRealisticProceduralElephant() {
 
   headGroup.add(leftTusk, rightTusk);
 
-  // งวงช้างแบ่งข้อเรียวต่อกัน (Articulated Trunk)
   trunkGroup = new THREE.Group();
   trunkGroup.position.set(0, -0.2, 0.85);
 
@@ -272,9 +257,7 @@ function createRealisticProceduralElephant() {
   scene.add(elephantGroup);
 }
 
-/* ฉากถนนลาดยาง + ทุ่งหญ้าสะวันนายามเย็น */
 function createEnvironment() {
-  // พื้นทุ่งหญ้า
   const groundGeo = new THREE.PlaneGeometry(40, 40);
   const groundMat = new THREE.MeshStandardMaterial({ color: 0x3d4e38, roughness: 0.95 });
   const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -283,7 +266,6 @@ function createEnvironment() {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // ถนนลาดยาง 3D
   const roadGeo = new THREE.PlaneGeometry(4.2, 40);
   const roadMat = new THREE.MeshStandardMaterial({ color: 0x22262b, roughness: 0.8 });
   const road = new THREE.Mesh(roadGeo, roadMat);
@@ -292,7 +274,6 @@ function createEnvironment() {
   road.receiveShadow = true;
   scene.add(road);
 
-  // เส้นเหลืองกลางถนน
   const lineGeo = new THREE.PlaneGeometry(0.15, 40);
   const lineMat = new THREE.MeshBasicMaterial({ color: 0xffcb05 });
   const line = new THREE.Mesh(lineGeo, lineMat);
@@ -301,7 +282,6 @@ function createEnvironment() {
   scene.add(line);
 }
 
-/* อนิเมชันเคลื่อนไหวสมจริงของช้าง */
 function animate3D() {
   requestAnimationFrame(animate3D);
   const dt = clock.getDelta();
@@ -309,34 +289,29 @@ function animate3D() {
 
   if (elephantGroup) {
     if (elephantAnimState === 'idle') {
-      // หายใจโยกตัวตามขากล้ามเนื้อ
       elephantGroup.position.y = -0.7 + Math.sin(time * 1.8) * 0.025;
 
       if (headGroup) {
         headGroup.rotation.x = Math.sin(time * 1.2) * 0.02;
-        // สะบัดหูเบาๆ
         if (leftEar) leftEar.rotation.z = -0.15 + Math.sin(time * 2.2) * 0.05;
         if (rightEar) rightEar.rotation.z = 0.15 - Math.sin(time * 2.2) * 0.05;
-        // แกว่งงวงธรรมชาติ
         if (trunkGroup) trunkGroup.rotation.x = 0.2 + Math.sin(time * 2) * 0.12;
       }
     }
     else if (elephantAnimState === 'happy') {
-      // ชูงวงขึ้นสูง + ยักหัวผงกดีใจ
       animTimer += dt * 6;
       elephantGroup.position.y = -0.7 + Math.abs(Math.sin(animTimer)) * 0.22;
       if (headGroup) {
         headGroup.rotation.x = -0.25;
-        if (trunkGroup) trunkGroup.rotation.x = -0.75; // ชูงวงสูง
+        if (trunkGroup) trunkGroup.rotation.x = -0.75;
       }
       if (animTimer > Math.PI * 2) elephantAnimState = 'idle';
     }
     else if (elephantAnimState === 'sad') {
-      // สั่นหัวปฏิเสธขยะ
       animTimer += dt * 8;
       if (headGroup) {
         headGroup.rotation.y = Math.sin(animTimer) * 0.2;
-        if (trunkGroup) trunkGroup.rotation.x = 0.45; // งวงตก
+        if (trunkGroup) trunkGroup.rotation.x = 0.45;
       }
       if (animTimer > Math.PI * 2) {
         if (headGroup) headGroup.rotation.y = 0;
@@ -622,6 +597,10 @@ function saveBestTime(t) {
   try { localStorage.setItem('elephant_game_best_time', String(t)); } catch (e) {}
 }
 
+function updateBestTimeDisplay(finalSec) {
+  const best = getBestTime();
+  let statsText = `เวลาที่ใช้: ${finalSec} วินาที`;
+
   if (best === null || finalSec < best) {
     saveBestTime(finalSec);
     statsText += ' — สถิติใหม่! 🏆';
@@ -629,3 +608,63 @@ function saveBestTime(t) {
     statsText += ` (สถิติที่ดีที่สุด: ${best} วินาที)`;
   }
   $('win-stats').textContent = statsText;
+}
+
+/* ==================================================================
+   ▶️ เริ่มเกม / ชนะเกม / เล่นใหม่ — ★ ส่วนที่เพิ่มเข้ามาใหม่ ★
+   ================================================================== */
+function startGame() {
+  score = 0;
+  gameActive = true;
+  scoreValEl.textContent = score;
+
+  tutorialOverlay.classList.add('hidden');
+  winOverlay.classList.add('hidden');
+
+  if (!renderer) {
+    init3D();
+  }
+
+  startTimer();
+  spawnItem();
+}
+
+function triggerWin() {
+  gameActive = false;
+  clearInterval(timerInterval);
+
+  const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+  finalScoreValEl.textContent = score;
+  updateBestTimeDisplay(elapsedSec);
+
+  winOverlay.classList.remove('hidden');
+  playSound('win');
+}
+
+function resetGame() {
+  startGame();
+}
+
+/* ==================================================================
+   🎁 กลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม
+   ================================================================== */
+function goToPassport() {
+  const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+  const url = `${base}/app/web/06-stamp-received/index.html?zone=elephant&points=${encodeURIComponent(score)}`;
+  window.location.href = url;
+}
+
+/* ==================================================================
+   🔘 ผูกปุ่มทั้งหมดเข้ากับฟังก์ชัน
+   ================================================================== */
+if (startBtn) {
+  startBtn.addEventListener('click', startGame);
+}
+
+if (replayBtn) {
+  replayBtn.addEventListener('click', resetGame);
+}
+
+if (passportBtn) {
+  passportBtn.addEventListener('click', goToPassport);
+}

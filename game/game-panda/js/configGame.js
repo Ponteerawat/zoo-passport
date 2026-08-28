@@ -893,7 +893,9 @@ function showFinalCompletion() {
     document.getElementById('screen-gameover').classList.add('hidden');
     document.getElementById('screen-pause').classList.add('hidden');
 
-    document.getElementById('final-point').innerText = 100;
+    // แสดงคะแนนจริงของผู้เล่น (เดิม fix ไว้ที่ 100 ตายตัว ตอนนี้ใช้ game.score จริง
+    // เพื่อให้ตรงกับคะแนนที่จะส่งไปหน้าพาสปอร์ตตอนกด "ดูพาสปอร์ต")
+    document.getElementById('final-point').innerText = game.score;
 
     document.getElementById('screen-finalcomplete').classList.remove('hidden');
 
@@ -904,8 +906,13 @@ function showFinalCompletion() {
     }
 }
 
+// ★★★ ฟังก์ชันกลางสำหรับกลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม ★★★
+// zone id ของเกมนี้คือ "panda" และคะแนนที่ส่งไปคือ game.score
+// เดิมฟังก์ชันนี้แค่ขึ้น toast ข้อความ ไม่ได้พาไปไหนจริง ตอนนี้ redirect จริงแล้ว
 function showPassport() {
-    showToast("🎁 เปิดพาสปอร์ตสะสมตราประทับของคุณแล้ว!");
+    const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+    const url = `${base}/app/web/06-stamp-received/index.html?zone=panda&points=${encodeURIComponent(game.score)}`;
+    window.location.href = url;
 }
 
 function checkItemCollisions() {
