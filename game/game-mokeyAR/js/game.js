@@ -53,7 +53,7 @@ let spawnInterval = null;
 let timerInterval = null;
 
 // ==========================================
-// 🐵 จุดที่ 1: กำหนดตัวละครน้องลิง (ตัวแปร player) 
+// 🐵 จุดที่ 1: กำหนดตัวละครน้องลิง (ตัวแปร player)
 // สามารถเปลี่ยนรูป emoji และขนาดได้ที่นี่ครับ
 // ==========================================
 const player = {
@@ -96,7 +96,7 @@ function spawnItem() {
 
   const isPoison = Math.random() < 0.38;
   const itemSize = Math.max(22, canvas.width * 0.035);
-  
+
   items.push({
     x: Math.random() * (canvas.width - 60) + 30,
     y: -20,
@@ -204,16 +204,17 @@ function restartGame() {
   startTimers();
 }
 
-btnViewCollection.addEventListener('click', () => {
-  const isHidden = stampsCollectionWrap.hasAttribute('hidden');
-  if (isHidden) {
-    stampsCollectionWrap.removeAttribute('hidden');
-    btnViewCollection.innerHTML = '🙈 ซ่อนคอลเลกชัน';
-  } else {
-    stampsCollectionWrap.setAttribute('hidden', '');
-    btnViewCollection.innerHTML = '📖 ดูคอลเลกชัน';
-  }
-});
+// ★★★ ฟังก์ชันกลางสำหรับกลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม ★★★
+// zone id ของเกมนี้คือ "monkey" และคะแนนที่ส่งไปคือ score
+// เดิมปุ่ม btn-view-collection ไม่มี event listener เลย ตอนนี้ผูกให้เรียกฟังก์ชันนี้แล้ว
+function goToPassport() {
+  const base = (window.ZOO_APP_BASE_URL || '').replace(/\/$/, '');
+  const url = `${base}/06-stamp-received/index.html?zone=monkey&points=${encodeURIComponent(score)}`;
+  window.location.href = url;
+}
+
+// ★ ปุ่ม "พาสปอร์ต" ในการ์ดจบเกม — เดิมไม่มี handler เลย ตอนนี้เชื่อมกับ goToPassport() แล้ว ★
+btnViewCollection.addEventListener('click', goToPassport);
 
 function getIdleSkillLabel() {
   return controlMode === 'touch' ? '⚡ แตะปุ่มเพื่อใช้สกิล' : 'ตา: ปกติ';
@@ -397,7 +398,7 @@ function onResults(results) {
 
   const landmarks = results.multiFaceLandmarks[0];
   const noseTip = landmarks[1];
-  
+
   const eyeX = (1 - noseTip.x) * canvas.width;
   targetX = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, eyeX));
 
