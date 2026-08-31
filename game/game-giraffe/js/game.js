@@ -23,7 +23,7 @@ function goToPassport() {
     if (!isPassportUnlocked()) return;
 
     const base = (window.ZOO_APP_BASE_URL || '').replace(/\/$/, '');
-    const url = `${base}/06-stamp-received/index.html?zone=giraffe&points=${encodeURIComponent(bestScore)}`;
+    const url = `${base}/app/web/06-stamp-received/index.html?zone=giraffe&points=${encodeURIComponent(bestScore)}`;
     window.location.href = url;
 }
 
@@ -561,6 +561,9 @@ function drawBeehive(obs) {
 // ============================================================================
 // --- GIRAFFE IMAGE ASSETS (2D fallback) ---
 
+// ยังไม่มีไฟล์ภาพยีราฟจริง ปล่อยว่างไว้ก่อน เกมจะใช้ภาพวาด Canvas สำรองแทนอัตโนมัติ
+// (ถ้ามีไฟล์ภาพจริงในอนาคต ใส่ path ตรงนี้ เช่น head: 'giraffe-head.png')
+const GIRAFFE_ASSETS = { head: '', body: '', neck: '' };
 
 const giraffeImages = { head: null, body: null, neck: null };
 Object.keys(GIRAFFE_ASSETS).forEach(key => {

@@ -33,7 +33,7 @@ body {
     z-index: 10;
     overflow-y: auto;
 
-    background-image: url("assert/background_girraf.png");
+    background-image: url("/assets/img/bg_giraffe.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
