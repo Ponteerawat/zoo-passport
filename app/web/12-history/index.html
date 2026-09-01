@@ -177,10 +177,10 @@
   };
 
   const contentInner = document.getElementById('contentInner');
-  const history = ZooState.getHistory(); // ล่าสุดอยู่บนสุดอยู่แล้ว (เรียงตอนบันทึก)
-
+  const history = ZooState.getHistory(); 
+  
   if (history.length === 0) {
-    // ยังไม่เคยเล่นเกมเลยสักครั้ง -> ยังไม่มีประวัติให้แสดง
+    
     contentInner.innerHTML = `
       <div class="empty">
         <div class="emoji">🕘</div>
