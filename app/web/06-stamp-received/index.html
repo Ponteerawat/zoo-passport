@@ -64,6 +64,7 @@
     justify-content: center;
     margin-bottom: 26px;
     position: relative;
+    overflow: hidden;
   }
   .badge-ring::before,
   .badge-ring::after {
@@ -74,9 +75,21 @@
     border: 2px dashed rgba(0,0,0,0.15);
   }
   .badge-ring .paw {
-    font-size: 68px;
-    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
-  }
+  font-size: 70px;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.badge-ring .paw img {
+  width: 210px;
+  height: 210px;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
 
   .content h2 {
     font-size: 24px;
@@ -100,6 +113,13 @@
     padding: 8px 20px;
     border-radius: 999px;
     margin-bottom: 34px;
+  }
+  .zone-chip img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .footer {
@@ -149,11 +169,12 @@
 <script src="../../../assets/js/zoo-state.js"></script>
 <script>
   const ZONE_CONFIG = {
-    lion:     { name: 'Lion Zone',     emoji: '🦁', color: '#4a8c3f' },
-    elephant: { name: 'Elephant Zone', emoji: '🐘', color: '#5b7fa6' },
-    penguin:  { name: 'Penguin Zone',  emoji: '🐧', color: '#2b6cb0' },
-    monkey:   { name: 'Monkey Zone',   emoji: '🐒', color: '#a0662b' },
-    panda:    { name: 'Panda Zone',    emoji: '🐼', color: '#333333' },
+    lion:     { name: 'Lion Zone',     Image: '/assets/img/Stamp-Lion.png', color: '#4a8c3f' },
+    elephant: { name: 'Elephant Zone', Image: '/assets/img/Stamp-Elephant.png', color: '#5b7fa6' },
+    giraffe:  { name: 'Giraffe Zone',  Image: '/assets/img/Stamp-Giraffe.png', color: '#d9862a' },
+    penguin:  { name: 'Penguin Zone',  Image: '/assets/img/Stamp-Penguin.png', color: '#2b6cb0' },
+    monkey:   { name: 'Monkey Zone',   Image: '/assets/img/Stamp-Monkey.png', color: '#a0662b' },
+    panda:    { name: 'Panda Zone',    Image: '/assets/img/Stamp-Panda.png', color: '#333333' },
   };
 
   const params = new URLSearchParams(window.location.search);
@@ -163,8 +184,8 @@
 
   document.title = `${zone.name} — ได้รับตราประทับ`;
   document.getElementById('zoneTitle').textContent = zone.name;
-  document.getElementById('badgeEmoji').textContent = zone.emoji;
-  document.getElementById('zoneChip').innerHTML = `${zone.emoji} ${zone.name}`;
+  document.getElementById('badgeEmoji').innerHTML = `<img src="${zone.Image}" alt="${zone.name}">`;
+  document.getElementById('zoneChip').innerHTML = `<img src="${zone.Image}" alt="${zone.name}"> ${zone.name}`;
 
   const badgeRing = document.getElementById('badgeRing');
   badgeRing.style.border = `6px solid ${zone.color}`;
