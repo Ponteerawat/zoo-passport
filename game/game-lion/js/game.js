@@ -306,7 +306,7 @@ let spawnTimer = 0;
 let lionY = 0;
 let velocityY = 0;
 const gravity = -0.018;
-const jumpPower = 0.25;
+const jumpPower = 0.45;
 let isGrounded = true;
 
 function createMeatMesh() {
@@ -394,7 +394,7 @@ window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (key === 'arrowleft' || key === 'a') moveLeft();
     if (key === 'arrowright' || key === 'd') moveRight();
-    if (key === 'arrowup' || key === 'w' || key === ' ') {
+    if (key === 'arrowup' || key === 'w' || key === 's' || key === ' ') {
         e.preventDefault();
         jump();
     }
@@ -579,10 +579,48 @@ function restartGame() {
 }
 
 function goToPassport() {
-    // ใช้ Origin ปัจจุบัน หรือ Relative Path แทน localhost
     const base = window.ZOO_APP_BASE_URL || window.location.origin;
     const url = `${base}/app/web/06-stamp-received/index.html?zone=lion&points=${encodeURIComponent(meatCollected)}`;
     window.location.href = url;
 }
 
 animate();
+
+// --- 9. SWIPE CONTROLS FOR MOBILE ---
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+container.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+container.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    const threshold = 30; // ระยะทางขั้นต่ำในการปัด (พิกเซล)
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (Math.abs(diffX) > threshold) {
+            if (diffX > 0) {
+                moveRight();
+            } else {
+                moveLeft();
+            }
+        }
+    } else {
+        if (Math.abs(diffY) > threshold) {
+            if (diffY < 0) {
+                jump();
+            }
+        }
+    }
+}
