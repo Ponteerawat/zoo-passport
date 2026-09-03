@@ -15,6 +15,15 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
+    // Path aliases
+    "baseUrl": ".",
+    "paths": {
+      "@repo/database": ["./packages/database/src/index.ts"],
+      "@repo/database/*": ["./packages/database/src/*"],
+      "@repo/supabase": ["packages/supabase/src/index.ts"],
+      "@repo/supabase/*": ["packages/supabase/src/*"]
+    },
+
     // Best practices
     "strict": true,
     "skipLibCheck": true,
