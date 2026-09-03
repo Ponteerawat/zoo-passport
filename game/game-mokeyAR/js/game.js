@@ -208,7 +208,7 @@ function restartGame() {
 // zone id ของเกมนี้คือ "monkey" และคะแนนที่ส่งไปคือ score
 // เดิมปุ่ม btn-view-collection ไม่มี event listener เลย ตอนนี้ผูกให้เรียกฟังก์ชันนี้แล้ว
 function goToPassport() {
-  const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+  const base = window.ZOO_APP_BASE_URL || window.location.origin;
   const url = `${base}/app/web/06-stamp-received/index.html?zone=monkey&points=${encodeURIComponent(score)}`;
   window.location.href = url;
 }

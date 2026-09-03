@@ -578,10 +578,9 @@ function restartGame() {
     startTimer();
 }
 
-// ★★★ ฟังก์ชันกลางสำหรับกลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม ★★★
-// zone id ของเกมนี้คือ "lion" และคะแนนที่ได้คือ meatCollected
 function goToPassport() {
-    const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+    // ใช้ Origin ปัจจุบัน หรือ Relative Path แทน localhost
+    const base = window.ZOO_APP_BASE_URL || window.location.origin;
     const url = `${base}/app/web/06-stamp-received/index.html?zone=lion&points=${encodeURIComponent(meatCollected)}`;
     window.location.href = url;
 }

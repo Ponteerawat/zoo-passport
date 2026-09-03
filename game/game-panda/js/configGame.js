@@ -910,7 +910,7 @@ function showFinalCompletion() {
 // zone id ของเกมนี้คือ "panda" และคะแนนที่ส่งไปคือ game.score
 // เดิมฟังก์ชันนี้แค่ขึ้น toast ข้อความ ไม่ได้พาไปไหนจริง ตอนนี้ redirect จริงแล้ว
 function showPassport() {
-    const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+    const base = window.ZOO_APP_BASE_URL || window.location.origin;
     const url = `${base}/app/web/06-stamp-received/index.html?zone=panda&points=${encodeURIComponent(game.score)}`;
     window.location.href = url;
 }
