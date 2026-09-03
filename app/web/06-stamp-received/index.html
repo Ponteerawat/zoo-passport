@@ -2,63 +2,47 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lion Zone — ได้รับตราประทับ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ได้รับตราประทับ</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    height: 100%;
+  }
+
   body {
     font-family: 'Segoe UI', 'Tahoma', sans-serif;
-    background: #f0ede4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    background: linear-gradient(180deg, #fdf1cf 0%, #fdf6e9 45%);
+    min-height: 100dvh;
   }
 
   .phone {
-    width: 320px;
-    height: 640px;
-    background: linear-gradient(180deg, #fdf1cf 0%, #fdf6e9 45%);
-    border-radius: 36px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 480px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: transparent;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     position: relative;
-    border: 6px solid #2b2b2b;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .header {
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 14px 16px;
     position: relative;
   }
   .header h1 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     font-size: 18px;
     font-weight: 700;
     color: #333;
   }
-  .close-btn {
-    margin-left: auto;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #333;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s;
-  }
-  .close-btn:hover { background: rgba(0,0,0,0.06); }
 
   .content {
     flex: 1;
@@ -75,13 +59,12 @@
     height: 150px;
     border-radius: 50%;
     background: #fff;
-    border: 6px solid #4a8c3f;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(74,140,63,0.25);
     margin-bottom: 26px;
     position: relative;
+    overflow: hidden;
   }
   .badge-ring::before,
   .badge-ring::after {
@@ -89,13 +72,24 @@
     position: absolute;
     inset: -6px;
     border-radius: 50%;
-    border: 2px dashed rgba(74,140,63,0.35);
+    border: 2px dashed rgba(0,0,0,0.15);
   }
   .badge-ring .paw {
-    font-size: 68px;
-    color: #4a8c3f;
-    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
-  }
+  font-size: 70px;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.badge-ring .paw img {
+  width: 210px;
+  height: 210px;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
 
   .content h2 {
     font-size: 24px;
@@ -120,6 +114,13 @@
     border-radius: 999px;
     margin-bottom: 34px;
   }
+  .zone-chip img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
 
   .footer {
     padding: 0 24px 32px;
@@ -127,7 +128,6 @@
   .cta-btn {
     width: 100%;
     padding: 15px;
-    background: #4a8c3f;
     color: #fff;
     border: none;
     border-radius: 30px;
@@ -135,12 +135,9 @@
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.15s ease, background 0.2s ease;
-    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
   }
-  .cta-btn:hover { background: #427a38; }
   .cta-btn:active { transform: scale(0.97); }
 
-  /* คอนเฟตตี้เล็กๆ ประดับพื้นหลัง */
   .confetti {
     position: absolute;
     border-radius: 2px;
@@ -153,15 +150,14 @@
 <div class="phone" id="phone">
 
   <div class="header">
-    <h1>Lion Zone</h1>
-    <button class="close-btn" id="closeBtn" aria-label="ปิด">✕</button>
+    <h1 id="zoneTitle">Zone</h1>
   </div>
 
   <div class="content">
-    <div class="badge-ring"><span class="paw">🐾</span></div>
+    <div class="badge-ring" id="badgeRing"><span class="paw" id="badgeEmoji">🐾</span></div>
     <h2>ยินดีด้วย!</h2>
     <p>คุณได้รับตราประทับ</p>
-    <div class="zone-chip">🦁 Lion Zone</div>
+    <div class="zone-chip" id="zoneChip">🐾 Zone</div>
   </div>
 
   <div class="footer">
@@ -170,18 +166,42 @@
 
 </div>
 
-<script src="../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-state.js"></script>
 <script>
-  // อ่านว่าเพิ่งเล่นโซนไหนจบ และได้แต้มเท่าไรจริงๆ จาก query string ที่หน้ามินิเกมส่งมา
-  // แล้วค่อยปลดล็อกตราประทับ + เพิ่มแต้ม ณ ตอนนี้เท่านั้น (ไม่ใช่ค่าคงที่)
+  const ZONE_CONFIG = {
+    lion:     { name: 'Lion Zone',     Image: '/assets/img/Stamp-Lion.png', color: '#4a8c3f' },
+    elephant: { name: 'Elephant Zone', Image: '/assets/img/Stamp-Elephant.png', color: '#5b7fa6' },
+    giraffe:  { name: 'Giraffe Zone',  Image: '/assets/img/Stamp-Giraffe.png', color: '#d9862a' },
+    penguin:  { name: 'Penguin Zone',  Image: '/assets/img/Stamp-Penguin.png', color: '#2b6cb0' },
+    monkey:   { name: 'Monkey Zone',   Image: '/assets/img/Stamp-Monkey.png', color: '#a0662b' },
+    panda:    { name: 'Panda Zone',    Image: '/assets/img/Stamp-Panda.png', color: '#333333' },
+  };
+
   const params = new URLSearchParams(window.location.search);
   const zoneId = params.get('zone') || 'lion';
   const pointsEarned = parseInt(params.get('points'), 10) || 0;
+  const zone = ZONE_CONFIG[zoneId] || ZONE_CONFIG.lion;
+
+  document.title = `${zone.name} — ได้รับตราประทับ`;
+  document.getElementById('zoneTitle').textContent = zone.name;
+  document.getElementById('badgeEmoji').innerHTML = `<img src="${zone.Image}" alt="${zone.name}">`;
+  document.getElementById('zoneChip').innerHTML = `<img src="${zone.Image}" alt="${zone.name}"> ${zone.name}`;
+
+  const badgeRing = document.getElementById('badgeRing');
+  badgeRing.style.border = `6px solid ${zone.color}`;
+  badgeRing.style.boxShadow = `0 8px 20px ${zone.color}40`;
+
+  const ctaBtn = document.getElementById('viewPassportBtn');
+  ctaBtn.style.background = zone.color;
+  ctaBtn.style.boxShadow = `0 4px 10px ${zone.color}59`;
+  ctaBtn.addEventListener('mouseenter', () => ctaBtn.style.filter = 'brightness(0.9)');
+  ctaBtn.addEventListener('mouseleave', () => ctaBtn.style.filter = 'brightness(1)');
+
   ZooState.completeZone(zoneId, pointsEarned);
 
-  // สุ่มโรยคอนเฟตตี้เล็กๆ ไว้เป็นพื้นหลังตกแต่ง
+  // สุ่มโรยคอนเฟตตี้ เริ่มจากใต้หัวข้อลงไป จะได้ไม่ทับตัวหนังสือด้านบน
   const phone = document.getElementById('phone');
-  const colors = ['#4a8c3f', '#f0a336', '#7fc957', '#d9862a'];
+  const colors = [zone.color, '#f0a336', '#d9862a'];
   for(let i = 0; i < 18; i++){
     const c = document.createElement('div');
     c.className = 'confetti';
@@ -189,17 +209,14 @@
     c.style.width = size + 'px';
     c.style.height = size + 'px';
     c.style.left = Math.random() * 100 + '%';
-    c.style.top = (Math.random() * 40) + '%';
+    c.style.top = (18 + Math.random() * 35) + '%';
     c.style.background = colors[Math.floor(Math.random() * colors.length)];
     c.style.transform = `rotate(${Math.random() * 360}deg)`;
     phone.appendChild(c);
   }
 
-  document.getElementById('closeBtn').addEventListener('click', () => {
-    window.location.href = '../03-home/index.html';
-  });
-  document.getElementById('viewPassportBtn').addEventListener('click', () => {
-    window.location.href = '../03-home/index.html';
+  ctaBtn.addEventListener('click', () => {
+    window.location.href = '../../../app/web/03-home/index.html';
   });
 </script>
 

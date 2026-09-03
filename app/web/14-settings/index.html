@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Settings — Zoo Passport</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: linear-gradient(180deg, #fdf1cf 0%, #fdf6e9 45%);
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100dvh;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+  }
+  .back-btn {
+    background: #333;
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header h1 {
+    font-size: 20px;
+    color: #2c4a20;
+  }
+  .content {
+    flex: 1;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .section-title {
+    font-size: 14px;
+    color: #777;
+    margin: 10px 4px 4px;
+    font-weight: 700;
+  }
+  .setting-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    cursor: pointer;
+  }
+  .setting-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .setting-icon {
+    font-size: 20px;
+  }
+  .setting-text h3 {
+    font-size: 15px;
+    color: #333;
+  }
+  .setting-text p {
+    font-size: 12px;
+    color: #888;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 26px;
+  }
+  .slider:before {
+    position: absolute; content: "";
+    height: 20px; width: 20px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+  }
+  input:checked + .slider { background-color: #4a8c3f; }
+  input:checked + .slider:before { transform: translateX(22px); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <h1>Settings</h1>
+  </div>
+
+  <div class="content">
+    <div class="section-title">Preferences</div>
+    
+    <div class="setting-card">
+      <div class="setting-info">
+        <span class="setting-icon">🔊</span>
+        <div class="setting-text">
+          <h3>Sound Effects</h3>
+          <p>Play audio feedback</p>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" checked id="soundToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-card">
+      <div class="setting-info">
+        <span class="setting-icon">🎵</span>
+        <div class="setting-text">
+          <h3>Background Music</h3>
+          <p>Play ambient zoo sounds</p>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="musicToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="section-title">System & Info</div>
+
+    <div class="setting-card" onclick="showAbout()">
+      <div class="setting-info">
+        <span class="setting-icon">ℹ️</span>
+        <div class="setting-text">
+          <h3>About App</h3>
+          <p>Zoo Passport v1.0.0</p>
+        </div>
+      </div>
+      <span style="color: #aaa;">›</span>
+    </div>
+
+    <div class="setting-card" onclick="resetData()">
+      <div class="setting-info">
+        <span class="setting-icon">🗑️</span>
+        <div class="setting-text">
+          <h3 style="color: #d9534f;">Reset Progress</h3>
+          <p>Clear all stamps and points</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../../assets/js/zoo-state.js"></script>
+<script>
+  function goBack() {
+    window.location.href = '../10-profile/index.html';
+  }
+
+  function showAbout() {
+    alert('Zoo Passport Application\nVersion: 1.0.0\nCreated for learning and exploration adventures!');
+  }
+
+  function resetData() {
+    if (confirm('คุณต้องการรีเซ็ตข้อมูลพาสปอร์ตทั้งหมดใช่หรือไม่?')) {
+      localStorage.clear();
+      alert('รีเซ็ตข้อมูลเรียบร้อยแล้ว');
+      window.location.href = '../03-home/index.html';
+    }
+  }
+</script>
+</body>
+</html>

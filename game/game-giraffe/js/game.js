@@ -14,29 +14,17 @@ function showStartScreen() {
     document.getElementById('gameover-screen').classList.add('hidden');
 }
 
-// ============================================================================
-// ปุ่ม "ดูพาสปอต" — ยังไม่ได้เชื่อมจริง รอ path/URL ของหน้า Passport (Zoo Passport LIFF)
-// ============================================================================
-// เมื่อพร้อมเชื่อมจริง ให้เลือกวิธีใดวิธีหนึ่งด้านล่าง (แล้วลบ alert() ทิ้ง):
-//
-// 1) ถ้าเกมนี้ถูกเปิดอยู่ใน LIFF เดียวกันกับหน้า Passport (mini-app เดียวกัน,
-//    ใช้ history/routerภายใน) ให้เปลี่ยนหน้าในแอปแทนการ redirect ทั้งหน้า เช่น
-//      window.location.href = '/passport';               // path ภายในแอปเดียวกัน
-//
-// 2) ถ้า Passport เป็นคนละ LIFF app (คนละ liffId) ให้ redirect ไป LIFF URL ตรง ๆ เช่น
-//      window.location.href = 'https://liff.line.me/xxxxxxxx-xxxxxxxx';
-//
-// 3) ถ้าเกมนี้ถูกฝัง (embed) อยู่ใน iframe ภายใน Zoo Passport app และอยากให้
-//    หน้าแม่ (parent) เป็นคนเปลี่ยนหน้าแทน ให้ยิง postMessage ออกไปแทน เช่น
-//      window.parent.postMessage({ type: 'NAVIGATE_TO_PASSPORT' }, '*');
-//      // แล้วฝั่ง Zoo Passport (parent) ต้อง addEventListener('message', ...) ดักรับเอง
+// ★★★ ฟังก์ชันกลางสำหรับกลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม ★★★
+// zone id ของเกมนี้คือ "giraffe" และคะแนนที่ส่งไปคือ bestScore
+// (ค่าเดียวกับที่ใช้ปลดล็อกปุ่มนี้ ผ่าน isPassportUnlocked())
 function goToPassport() {
     // Safety net: even though the button is disabled/hidden until the score
     // requirement is met, guard here too in case it's ever triggered another way.
     if (!isPassportUnlocked()) return;
 
-    // TODO: ใส่ลิงก์/route ของหน้า Passport จริงตามวิธีด้านบน แล้วลบบรรทัด alert() นี้ทิ้ง
-    
+    const base = (window.ZOO_APP_BASE_URL || '').replace(/\/$/, '');
+    const url = `${base}/app/web/06-stamp-received/index.html?zone=giraffe&points=${encodeURIComponent(bestScore)}`;
+    window.location.href = url;
 }
 
 // Passport unlocks permanently the first time the player's best score ever
@@ -573,6 +561,9 @@ function drawBeehive(obs) {
 // ============================================================================
 // --- GIRAFFE IMAGE ASSETS (2D fallback) ---
 
+// ยังไม่มีไฟล์ภาพยีราฟจริง ปล่อยว่างไว้ก่อน เกมจะใช้ภาพวาด Canvas สำรองแทนอัตโนมัติ
+// (ถ้ามีไฟล์ภาพจริงในอนาคต ใส่ path ตรงนี้ เช่น head: 'giraffe-head.png')
+const GIRAFFE_ASSETS = { head: '', body: '', neck: '' };
 
 const giraffeImages = { head: null, body: null, neck: null };
 Object.keys(GIRAFFE_ASSETS).forEach(key => {

@@ -6,11 +6,282 @@
 <title>Zoo Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
 <script src="../../../assets/js/zoo-state.js"></script>
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --wood: #6b4423;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --card-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  .app-frame {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    position: relative;
+    padding-bottom: 75px; /* เว้นพื้นที่ด้านล่างไม่ให้เนื้อหาโดน bottom-nav บัง */
+  }
+
+  /* HOME PAGE */
+  #homePage {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header {
+    position: relative;
+    background: var(--forest-dark);
+    padding: clamp(20px, 3.5vh, 32px) 20px clamp(24px, 4vh, 36px);
+    text-align: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .leaf { position: absolute; width: 80px; height: 80px; pointer-events: none; }
+  .leaf.tl { top: -10px; left: -10px; transform: rotate(-20deg); }
+  .leaf.tr { top: -10px; right: -10px; transform: scaleX(-1deg) rotate(-20deg); }
+  .logo-wrap { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+  .logo-icons img { width: clamp(80px, 14vw, 100px); height: auto; object-fit: contain; margin-bottom: 8px; }
+  .logo-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 3.5vw, 28px);
+    color: var(--gold);
+    line-height: 1.1;
+  }
+  .logo-sub {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(12px, 1.8vw, 14px);
+    color: var(--leaf-light);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .body-scroll {
+    flex: 1;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: clamp(16px, 2.5vh, 24px) clamp(16px, 4vw, 24px);
+  }
+  .progress-heading {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .progress-count {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--forest-dark);
+    margin-bottom: 8px;
+  }
+  .progress-bar-track {
+    width: 100%;
+    height: 12px;
+    background: #e6dec9;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--leaf);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+
+  .zone-list { display: flex; flex-direction: column; gap: 12px; }
+  .zone-row {
+    display: flex;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .zone-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  }
+  .zone-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #eee3ce;
+  }
+  .zone-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .zone-name {
+    flex: 1;
+    margin-left: 14px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--forest-dark);
+  }
+  .zone-check {
+    display: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--leaf);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+  }
+  .zone-row.done .zone-check { display: flex; }
+  .zone-arrow { color: var(--muted); font-size: 18px; font-weight: 700; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--wood);
+    padding: clamp(10px, 2vh, 14px) 0 clamp(12px, 2.4vh, 16px);
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--cream);
+    opacity: 0.75;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .nav-item .nav-icon { font-size: 20px; }
+  .nav-item.active { opacity: 1; }
+  .nav-item:hover { opacity: 1; transform: translateY(-2px); }
+
+  /* ZONE DETAIL PAGE */
+  .detail-page {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: var(--forest-dark);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .detail-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 22px);
+    color: var(--gold);
+  }
+  .detail-body {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vh, 30px) clamp(16px, 4vw, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .detail-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--leaf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-name {
+    text-align: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--forest-dark);
+    margin-bottom: 4px;
+  }
+  .info-card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .info-card-title, .info-card-label {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--forest-dark);
+    margin-bottom: 6px;
+  }
+  .info-card-text {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+</style>
 </head>
 <body>
-
 
 <div class="app-frame" id="appFrame">
 
@@ -30,7 +301,7 @@
         </svg>
       </div>
       <div class="logo-wrap">
-        <div class="logo-icons"><img src="../../../assets/img/logozoo.png" alt="Zoo Explorer" width="200px" height="200px"></div>
+        <div class="logo-icons"><img src="../../../assets/img/logozoo.png" alt="Zoo Explorer"></div>
         <div class="logo-title">ZOO EXPLOROR</div>
         <div class="logo-sub">ZOO EXPLORER</div>
       </div>
@@ -42,23 +313,7 @@
       <div class="progress-bar-track">
         <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
       </div>
-
       <div class="zone-list" id="zoneList"></div>
-    </div>
-
-    <div class="bottom-nav">
-      <div class="nav-item active" id="navPassport">
-         <span class="nav-icon" style="font-size:22px;">📖</span>
-          <span class="nav-label">Passport</span>
-      </div>
-      <div class="nav-item" id="navMap">
-        <span class="nav-icon" style="font-size:22px;">🗺️</span>
-        <span class="nav-label">Map</span>
-      </div>
-      <div class="nav-item" id="navProfile">
-        <span class="nav-icon" style="font-size:22px;">👤</span>
-        <span class="nav-label">Profile</span>
-      </div>
     </div>
   </div>
 
@@ -86,6 +341,22 @@
         <div class="info-card-label">Reward</div>
         <div class="info-card-text" id="detailRewardText">...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="navPassport">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Passport</span>
+    </div>
+    <div class="nav-item" id="navMap">
+      <span class="nav-icon">📷</span>
+      <span class="nav-label">Scan QR</span>
+    </div>
+    <div class="nav-item" id="navProfile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
     </div>
   </div>
 
@@ -143,27 +414,24 @@ const zones = [
   },
 ];
 
-  // สถานะปลดล็อกจริง (มาจาก localStorage) — ตราจะติ๊กถูก/นับเพิ่มก็ต่อเมื่อเล่นเกมของโซนนั้นจบแล้วเท่านั้น
-  let completed = ZooState.getState().stamps;
+let completed = ZooState.getState().stamps;
 
-  const zoneListEl = document.getElementById('zoneList');
-  const progressCountEl = document.getElementById('progressCount');
-  const progressFillEl = document.getElementById('progressFill');
+const zoneListEl = document.getElementById('zoneList');
+const progressCountEl = document.getElementById('progressCount');
+const progressFillEl = document.getElementById('progressFill');
 
-  const homePage = document.getElementById('homePage');
-  const detailPage = document.getElementById('detailPage');
-  const detailAvatar = document.getElementById('detailAvatar');
-  const detailName = document.getElementById('detailName');
-  const detailStoryTitle = document.getElementById('detailStoryTitle');
-  const detailStoryText = document.getElementById('detailStoryText');
-  const detailMissionText = document.getElementById('detailMissionText');
-  const detailRewardText = document.getElementById('detailRewardText');
-  const detailHeaderTitle = document.getElementById('detailHeaderTitle');
-  const backBtn = document.getElementById('backBtn');
+const homePage = document.getElementById('homePage');
+const detailPage = document.getElementById('detailPage');
+const detailAvatar = document.getElementById('detailAvatar');
+const detailName = document.getElementById('detailName');
+const detailStoryTitle = document.getElementById('detailStoryTitle');
+const detailStoryText = document.getElementById('detailStoryText');
+const detailMissionText = document.getElementById('detailMissionText');
+const detailRewardText = document.getElementById('detailRewardText');
+const detailHeaderTitle = document.getElementById('detailHeaderTitle');
+const backBtn = document.getElementById('backBtn');
 
-  let currentZoneId = null;
-
- function renderHome(){
+function renderHome(){
   zoneListEl.innerHTML = '';
   zones.forEach(z => {
     const row = document.createElement('div');
@@ -186,10 +454,9 @@ const zones = [
   progressFillEl.style.width = `${(doneCount / zones.length) * 100}%`;
 }
 
-  function openZone(id){
+function openZone(id){
   const zone = zones.find(z => z.id === id);
   if(!zone) return;
-  currentZoneId = id;
 
   detailAvatar.innerHTML = zone.image
     ? `<img src="${zone.image}" alt="${zone.name}">`
@@ -205,20 +472,23 @@ const zones = [
   detailPage.style.display = 'flex';
 }
 
-  backBtn.addEventListener('click', () => {
-    detailPage.style.display = 'none';
-    homePage.style.display = 'flex';
-  });
+backBtn.addEventListener('click', () => {
+  detailPage.style.display = 'none';
+  homePage.style.display = 'flex';
+});
 
-  // เมนูล่าง: พาสปอร์ต(หน้านี้) / แผนที่ / โปรไฟล์
-  document.getElementById('navMap').addEventListener('click', () => {
-    window.location.href = '../07-map/index.html';
-  });
-  document.getElementById('navProfile').addEventListener('click', () => {
-    window.location.href = '../10-profile/index.html';
-  });
+document.getElementById('navMap').addEventListener('click', () => {
+  window.location.href = '../11-qr-scan/index.html';
+});
+document.getElementById('navProfile').addEventListener('click', () => {
+  window.location.href = '../10-profile/index.html';
+});
+document.getElementById('navPassport').addEventListener('click', () => {
+  detailPage.style.display = 'none';
+  homePage.style.display = 'flex';
+});
 
-  renderHome();
+renderHome();
 </script>
 
 </body>

@@ -8,10 +8,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Monkey Banana Catch - Speed Challenge</title>
-  
+
+  <!-- ★ URL ของแอปหลัก (Zoo Passport) — เปลี่ยนเป็น URL จริงตอน deploy บน Vercel ★ -->
+  <script>
+    window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "http://127.0.0.1:5500";
+  </script>
+
   <!-- CSS Style -->
   <link rel="stylesheet" href="css/style.css">
-  
+
   <!-- MediaPipe Libraries for Eye Tracking -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
@@ -19,7 +24,7 @@
 <body>
 
   <h1>🐒 Monkey Banana Catch 🍌</h1>
-  
+
   <div id="game-container">
     <div id="ui">
       <div class="badge">⏱️ เวลา: <span id="timer" style="color: #38bdf8;">60</span> วินาที</div><br>
@@ -63,7 +68,7 @@
 
           <div class="result-actions">
             <button class="btn-result btn-result-primary" id="btn-restart">🔄 เล่นอีกครั้ง</button>
-            <button class="btn-result btn-result-secondary" id="btn-view-collection"> พาสปอร์ต</button>
+            <button class="btn-result btn-result-secondary" id="btn-view-collection"> รับตราประทับ 🎁</button>
           </div>
 
           <!-- แสตมป์ใหม่ที่ได้รับในรอบนี้ -->
@@ -83,7 +88,7 @@
 
   <p id="status">กำลังเปิดกล้องและเชื่อมต่อระบบตรวจจับสายตา...</p>
 
-  
+
   <!-- JavaScript: จัดการโหมดเต็มจอ / responsive -->
   <script src="js/responsive.js"></script>
   <!-- JavaScript Game Logic -->

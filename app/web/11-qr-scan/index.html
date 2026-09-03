@@ -35,7 +35,7 @@
     background: #000;
   }
 
-  /* ---------- HEADER (ลอยทับกล้อง) ---------- */
+  /* ---------- HEADER ---------- */
   .header {
     position: relative;
     z-index: 3;
@@ -145,7 +145,7 @@
     border-radius: 999px;
   }
 
-  /* ---------- STATE OVERLAYS (permission denied / no camera / success) ---------- */
+  /* ---------- STATE OVERLAYS ---------- */
   .state-overlay{
     position: absolute;
     inset: 0;
@@ -174,15 +174,8 @@
     box-shadow: 0 4px 10px rgba(74,140,63,0.35);
   }
   .state-btn:hover{ background: #427a38; }
-  .state-btn.secondary{
-    background: transparent;
-    box-shadow: none;
-    color: var(--cream);
-    opacity: 0.75;
-    margin-top: 10px;
-  }
 
-  /* ---------- DEV TEST LINK (สำหรับตอนทดสอบไม่มี QR จริง) ---------- */
+  /* ---------- DEV TEST SKIP & MENU ---------- */
   .dev-skip{
     position: absolute;
     left: 0; right: 0;
@@ -190,10 +183,73 @@
     z-index: 3;
     text-align: center;
     font-size: 12px;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.7);
     text-decoration: underline;
     cursor: pointer;
   }
+  
+  .dev-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .dev-modal.show { display: flex; }
+  .dev-card {
+    background: #1a2417;
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .dev-card h3 {
+    font-family: 'Baloo 2', sans-serif;
+    color: var(--gold);
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .dev-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+    margin-bottom: 16px;
+  }
+  .dev-item {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--cream);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+  .dev-item:hover {
+    background: var(--leaf);
+  }
+  .dev-close {
+    background: transparent;
+    border: 1px solid var(--muted);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .dev-close:hover { color: var(--cream); border-color: var(--cream); }
 </style>
 </head>
 <body>
@@ -223,14 +279,12 @@
     <div class="zone-chip" id="zoneChip">📍 —</div>
   </div>
 
-  <!-- ขึ้นตอนสแกนสำเร็จ -->
   <div class="state-overlay" id="successOverlay">
     <div class="emoji">✅</div>
     <h2>สแกนสำเร็จ!</h2>
     <p id="successText">ยืนยันตัวตนที่โซนนี้เรียบร้อยแล้ว</p>
   </div>
 
-  <!-- ขึ้นตอนขอสิทธิ์กล้องไม่ผ่าน/ไม่มีกล้อง -->
   <div class="state-overlay" id="errorOverlay">
     <div class="emoji">📷</div>
     <h2 id="errorTitle">เปิดกล้องไม่ได้</h2>
@@ -238,16 +292,26 @@
     <button class="state-btn" id="retryBtn">ลองใหม่</button>
   </div>
 
-  <div class="dev-skip" id="devSkip">โหมดทดสอบ: ข้ามการสแกน</div>
+  <div class="dev-skip" id="devSkip">🔧 โหมดทดสอบ: เลือกเกมที่จะลิ้งไป</div>
+
+  <!-- Modal สำหรับเลือกเกมทดสอบ -->
+  <div class="dev-modal" id="devModal">
+    <div class="dev-card">
+      <h3>เลือกเกมเพื่อทดสอบ</h3>
+      <div class="dev-list" id="devList">
+        <!-- รายการเกมจะถูกสร้างด้วย JavaScript อัตโนมัติจากโครงสร้างโฟลเดอร์ game -->
+      </div>
+      <button class="dev-close" id="devClose">ปิด</button>
+    </div>
+  </div>
 
 </div>
 
 <script src="../../../assets/js/jsqr.min.js?v=3"></script>
 <script src="../../../assets/js/zoo-state.js?v=3"></script>
 <script>
-  // ---- อ่านว่ากำลังจะสแกนเข้าโซนไหน (ส่งมาจากหน้าแผนที่ ?zone=lion เป็นต้น) ----
   const params = new URLSearchParams(window.location.search);
-  const zoneId = params.get('zone') || 'lion';
+  const zoneId = params.get('zone');
 
   const ZONE_INFO = {
     lion:     { name: 'Lion Zone',     emoji: '🦁' },
@@ -257,17 +321,18 @@
     panda:    { name: 'Panda Zone',    emoji: '🐼' },
     monkey:   { name: 'Monkey Zone',   emoji: '🐵' },
   };
-  const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
+
+  const info = ZONE_INFO[zoneId] || { name: 'General Zone', emoji: '📍' };
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
 
-  // ลิงก์เกม AR แยกตามโซน (deploy บน vercel) — นี่คือสิ่งที่ QR แต่ละป้ายควรจะเข้ารหัสไว้
+  // กำหนด path ลิงก์ตรงไปยังโฟลเดอร์ game แต่ละอันตามโครงสร้างโปรเจกต์ของคุณ
   const ZONE_GAME_URL = {
-    lion:     'https://game-lion.vercel.app/',
-    elephant: 'https://game-elephant-ar.vercel.app/',
-    giraffe:  'https://game-giraffe.vercel.app/',
-    panda:    'https://game-panda.vercel.app/',
-    monkey:   'https://game-mokey-ar-cfit.vercel.app/',
-    // penguin: ยังไม่มีลิงก์เกม
+    lion:     '../../../game/game-lion/index.html',
+    elephant: '../../../game/game-elephantAR/index.html',
+    giraffe:  '../../../game/game-giraffe/index.html',
+    penguin:  '../../../game/game-penguinAR/index.html',
+    panda:    '../../../game/game-panda/index.html',
+    monkey:   '../../../game/game-monkeyAR/index.html',
   };
 
   const video = document.getElementById('video');
@@ -277,7 +342,11 @@
   const errorTitle = document.getElementById('errorTitle');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
+  
   const devSkip = document.getElementById('devSkip');
+  const devModal = document.getElementById('devModal');
+  const devList = document.getElementById('devList');
+  const devClose = document.getElementById('devClose');
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -286,41 +355,23 @@
   let rafId = null;
   let scanned = false;
 
-  function goToZoneContent(){
-    const gameUrl = ZONE_GAME_URL[zoneId];
-    if (gameUrl) {
-      window.location.href = gameUrl;
-    } else {
-      window.location.href = '../03-home/index.html';
-    }
+  function goToZoneContent(targetUrl){
+    stopCamera();
+    window.location.href = targetUrl;
   }
 
-  // ตัด scheme (http://, https://, http//, https:// พิมพ์ผิดแบบไหนก็ตัดออกหมด)
-  // ตัด "/" ท้าย และแปลงเป็นตัวพิมพ์เล็ก เพื่อเทียบแค่ตัวโดเมน/พาธจริงๆ
-  function extractDomain(str){
-    return (str || '')
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:?\/*/i, '')
-      .replace(/\/+$/, '');
-  }
-
-  function onScanSuccess(decodedText){
+  function onScanSuccess(decodedText, customTargetUrl = null){
     if (scanned) return;
     scanned = true;
     stopCamera();
 
-    const matches = !!(decodedText && decodedText.trim().length > 0);
+    const targetUrl = customTargetUrl || ZONE_GAME_URL[zoneId] || '../03-home/index.html';
 
-    if (matches) {
-      successText.textContent = `ยืนยันตัวตนที่ ${info.name} เรียบร้อยแล้ว`;
-      successOverlay.classList.add('show');
-      setTimeout(goToZoneContent, 1200);
-    } else {
-      errorTitle.textContent = 'สแกนไม่สำเร็จ';
-      errorText.textContent = 'กรุณาลองสแกนอีกครั้ง';
-      errorOverlay.classList.add('show');
-    }
+    successText.textContent = `ยืนยันตัวตนสำเร็จ กำลังพามุ่งหน้าสู่เกม...`;
+    successOverlay.classList.add('show');
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 1200);
   }
 
   function tick(){
@@ -376,13 +427,28 @@
 
   document.getElementById('backBtn').addEventListener('click', () => {
     stopCamera();
-    window.location.href = '../07-map/index.html';
+    window.location.href = '../../../app/web/03-home/index.html';
   });
 
-  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+  // สร้างรายการปุ่มเลือกโซนเกมในเมนูทดสอบอัตโนมัติ
+  Object.keys(ZONE_GAME_URL).forEach(key => {
+    const zoneData = ZONE_INFO[key] || { name: key, emoji: '🎮' };
+    const btn = document.createElement('button');
+    btn.className = 'dev-item';
+    btn.innerHTML = `<span>${zoneData.emoji}</span> <span>${zoneData.name}</span>`;
+    btn.addEventListener('click', () => {
+      devModal.classList.remove('show');
+      onScanSuccess('manual-test', ZONE_GAME_URL[key]);
+    });
+    devList.appendChild(btn);
+  });
+
+  // เปิด-ปิด Modal โหมดทดสอบ
   devSkip.addEventListener('click', () => {
-    if (scanned) return;
-    onScanSuccess(ZONE_GAME_URL[zoneId] || '');
+    devModal.classList.add('show');
+  });
+  devClose.addEventListener('click', () => {
+    devModal.classList.remove('show');
   });
 
   window.addEventListener('beforeunload', stopCamera);
