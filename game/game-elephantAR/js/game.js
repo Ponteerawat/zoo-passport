@@ -649,7 +649,7 @@ function resetGame() {
    🎁 กลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม
    ================================================================== */
 function goToPassport() {
-  const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+  const base = window.ZOO_APP_BASE_URL || window.location.origin;
   const url = `${base}/app/web/06-stamp-received/index.html?zone=elephant&points=${encodeURIComponent(score)}`;
   window.location.href = url;
 }

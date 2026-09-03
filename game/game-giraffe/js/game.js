@@ -22,7 +22,7 @@ function goToPassport() {
     // requirement is met, guard here too in case it's ever triggered another way.
     if (!isPassportUnlocked()) return;
 
-    const base = (window.ZOO_APP_BASE_URL || '').replace(/\/$/, '');
+    const base = window.ZOO_APP_BASE_URL || window.location.origin;
     const url = `${base}/app/web/06-stamp-received/index.html?zone=giraffe&points=${encodeURIComponent(bestScore)}`;
     window.location.href = url;
 }
