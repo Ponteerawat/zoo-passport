@@ -1,0 +1,376 @@
+:root {
+  --poke-blue: #007aff;
+  --poke-yellow: #ffcb05;
+  --poke-gold: #f5a623;
+  --poke-red: #ff3b30;
+  --poke-green: #34c759;
+  --glass-bg: rgba(15, 23, 42, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --font-main: 'Kanit', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  font-family: var(--font-main);
+  background: #090c10;
+  color: #fff;
+}
+
+#game {
+  position: relative;
+  width: 100%;
+  height: var(--app-height, 100vh);
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #2a384c 0%, #0f172a 100%);
+}
+
+/* กล้อง AR & Canvas 3D */
+#camera-feed {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none;
+  z-index: 1;
+}
+
+#webgl-container {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#scene-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* -------------------- HUD ด้านบนสไตล์ Pokémon GO -------------------- */
+#hud-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 0 16px;
+  z-index: 40;
+}
+
+.hud-badge {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  padding: 6px 16px;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+
+  font-size: clamp(12px, 3.6vw, 15px);
+  font-weight: 600;
+}
+
+.score-highlight {
+  background: linear-gradient(135deg, #ffcb05, #f5a623);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  font-size: 1.15em;
+}
+
+#camera-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  color: #fff; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
+}
+#camera-btn:active { transform: scale(0.9); }
+
+/* การ์ดชื่อโมเดลช้าง */
+#pokemon-card {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 68px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 20px;
+  text-align: center;
+  z-index: 30;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+#pokemon-card .cp-tag { font-size: 11px; color: var(--poke-yellow); font-weight: 800; letter-spacing: 1px; }
+#pokemon-card .name { font-size: 16px; font-weight: 700; color: #fff; }
+
+/* -------------------- เป้าเล็ง Target Ring -------------------- */
+#target-ring {
+  position: absolute;
+  left: 50%; top: 48%;
+  transform: translate(-50%, -50%);
+  width: 190px; height: 190px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  animation: rotateRing 14s linear infinite;
+}
+@keyframes rotateRing { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+#target-ring-inner {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--poke-green);
+  box-shadow: 0 0 18px var(--poke-green), inset 0 0 18px var(--poke-green);
+  animation: shrinkRing 2.2s ease-in-out infinite alternate;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+#target-ring.bad #target-ring-inner {
+  border-color: var(--poke-red);
+  box-shadow: 0 0 18px var(--poke-red), inset 0 0 18px var(--poke-red);
+}
+@keyframes shrinkRing {
+  0% { transform: scale(1); opacity: 0.95; }
+  100% { transform: scale(0.35); opacity: 0.35; }
+}
+
+/* -------------------- แท่นป้อนอาหาร & ไอเทม -------------------- */
+#pedestal {
+  position: absolute;
+  left: 50%; bottom: 6%;
+  transform: translateX(-50%);
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,203,5,0.25) 0%, rgba(255,203,5,0) 70%);
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 30px rgba(255,203,5,0.25);
+  pointer-events: none;
+  z-index: 8;
+}
+
+#items-layer { position: absolute; inset: 0; z-index: 35; pointer-events: none; }
+.item {
+  position: absolute;
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%, #ffffff, #e2e8f0);
+  border: 3px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 46px;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.45), inset 0 -4px 8px rgba(0,0,0,0.15);
+  will-change: transform;
+}
+.item:active { cursor: grabbing; }
+
+#item-label {
+  position: absolute;
+  left: 50%; bottom: 18.5%;
+  transform: translateX(-50%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 14px; font-weight: 600;
+  z-index: 30;
+  opacity: 0; transition: opacity 0.25s;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+#item-label.show { opacity: 1; }
+
+/* ข้อความ Feedback & Popups */
+#feedback-layer { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
+.poke-popup {
+  position: absolute;
+  left: 50%; top: 36%;
+  transform: translate(-50%, -50%) scale(0.5);
+  font-weight: 800; font-size: 32px;
+  text-align: center; text-transform: uppercase;
+  font-style: italic;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.7), 0 0 20px currentColor;
+  animation: popupAnim 0.95s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.poke-popup.excellent { color: #50e3c2; }
+.poke-popup.bad { color: #ff4757; }
+@keyframes popupAnim {
+  0% { opacity: 0; transform: translate(-50%, -20%) scale(0.5) rotate(-5deg); }
+  30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(2deg); }
+  100% { opacity: 0; transform: translate(-50%, -100%) scale(1) rotate(0deg); }
+}
+
+/* หน้าต่าง Overlays */
+.overlay {
+  position: absolute; inset: 0;
+  background: rgba(10, 15, 26, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex; justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  z-index: 100; padding: 20px;
+}
+.overlay.hidden { display: none; }
+
+.card {
+  background: linear-gradient(160deg, #1e293b, #0f172a);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 28px;
+  padding: 30px 24px;
+  max-width: 380px; width: 100%;
+  margin: auto 0;
+  flex-shrink: 0;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  animation: cardIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes cardIn { 0% { opacity: 0; transform: scale(0.82) translateY(30px); } }
+
+.card h2 { margin: 0 0 12px 0; font-size: 26px; color: var(--poke-yellow); text-shadow: 0 2px 10px rgba(255,203,5,0.3); }
+.card p { margin: 10px 0; font-size: 15px; color: #cbd5e1; line-height: 1.5; }
+.card ul { text-align: left; margin: 16px 0; padding: 0 0 0 10px; list-style: none; font-size: 14px; }
+.card li { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+
+.primary-btn {
+  margin-top: 16px; width: 100%;
+  border: none;
+  background: linear-gradient(135deg, #ffcb05, #f5a623);
+  color: #0f172a;
+  font-family: var(--font-main);
+  font-weight: 800; font-size: 18px;
+  padding: 14px 0;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(245,166,35,0.4);
+  transition: transform 0.15s;
+}
+.primary-btn:active { transform: scale(0.96); }
+
+/* -------------------- 🎉 การ์ด "ภารกิจสำเร็จ" (Mission Complete) -------------------- */
+.mission-card {
+  background: #fffaf0;
+  border: 3px dashed #ffb74d;
+  border-radius: 28px;
+  padding: 30px 24px 26px;
+  max-width: 380px;
+  width: 100%;
+  margin: auto 0;
+  flex-shrink: 0;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+  animation: cardIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: #3a3a3a;
+}
+
+.mission-title {
+  color: #ff8c1a;
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 18px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.mission-badge-wrap {
+  width: 128px; height: 128px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18), 0 0 0 4px #eafaf0;
+}
+.mission-badge-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.mission-sub {
+  font-size: 14px; font-weight: 600;
+  color: #8a8f98;
+  margin: 4px 0 2px;
+}
+.mission-stamp-name {
+  font-size: 19px; font-weight: 800;
+  color: #2f855a;
+  margin: 0 0 14px;
+}
+
+.mission-desc {
+  font-size: 14px; color: #6b7280;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.mission-score-box {
+  background: linear-gradient(135deg, #fff4e0, #ffe8c2);
+  border: 1.5px solid rgba(245,166,35,0.35);
+  border-radius: 16px;
+  padding: 12px 16px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  margin: 0 0 20px;
+}
+.mission-score-label {
+  font-size: 14px; font-weight: 700;
+  color: #a3651a;
+  letter-spacing: 0.3px;
+}
+.mission-score-number {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #ffcb05, #f5a623);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 14px rgba(245,166,35,0.45);
+}
+
+.mission-btn-row { display: flex; flex-direction: column; gap: 12px; }
+.mission-btn {
+  border: none;
+  width: 100%;
+  font-family: var(--font-main);
+  font-weight: 800; font-size: 16px;
+  padding: 14px 0;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.mission-btn:active { transform: scale(0.96); }
+.mission-btn.replay {
+  background: linear-gradient(135deg, #34c759, #28a745);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(52,199,89,0.35);
+}
+.mission-btn.passport {
+  background: linear-gradient(135deg, #ffb74d, #ff8c1a);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255,140,26,0.35);
+}
+
+#toast {
+  position: absolute;
+  left: 50%; bottom: 24%;
+  transform: translate(-50%, 20px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 8px 20px; border-radius: 20px;
+  font-size: 13px; opacity: 0; transition: all 0.3s;
+  pointer-events: none; z-index: 90;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }

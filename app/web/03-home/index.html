@@ -6,11 +6,282 @@
 <title>Zoo Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<script src="../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-state.js"></script>
+<style>
+  :root{
+    --cream: #f6f1e6;
+    --forest-dark: #1f3d1a;
+    --leaf: #5a9c3f;
+    --leaf-light: #7fc957;
+    --wood: #6b4423;
+    --gold: #f0a336;
+    --ink: #2c2418;
+    --muted: #9a9384;
+    --card-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  .app-frame {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    position: relative;
+    padding-bottom: 75px; /* เว้นพื้นที่ด้านล่างไม่ให้เนื้อหาโดน bottom-nav บัง */
+  }
+
+  /* HOME PAGE */
+  #homePage {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header {
+    position: relative;
+    background: var(--forest-dark);
+    padding: clamp(20px, 3.5vh, 32px) 20px clamp(24px, 4vh, 36px);
+    text-align: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .leaf { position: absolute; width: 80px; height: 80px; pointer-events: none; }
+  .leaf.tl { top: -10px; left: -10px; transform: rotate(-20deg); }
+  .leaf.tr { top: -10px; right: -10px; transform: scaleX(-1deg) rotate(-20deg); }
+  .logo-wrap { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+  .logo-icons img { width: clamp(80px, 14vw, 100px); height: auto; object-fit: contain; margin-bottom: 8px; }
+  .logo-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 3.5vw, 28px);
+    color: var(--gold);
+    line-height: 1.1;
+  }
+  .logo-sub {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(12px, 1.8vw, 14px);
+    color: var(--leaf-light);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .body-scroll {
+    flex: 1;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: clamp(16px, 2.5vh, 24px) clamp(16px, 4vw, 24px);
+  }
+  .progress-heading {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .progress-count {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--forest-dark);
+    margin-bottom: 8px;
+  }
+  .progress-bar-track {
+    width: 100%;
+    height: 12px;
+    background: #e6dec9;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--leaf);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+
+  .zone-list { display: flex; flex-direction: column; gap: 12px; }
+  .zone-row {
+    display: flex;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .zone-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  }
+  .zone-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #eee3ce;
+  }
+  .zone-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .zone-name {
+    flex: 1;
+    margin-left: 14px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--forest-dark);
+  }
+  .zone-check {
+    display: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--leaf);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+  }
+  .zone-row.done .zone-check { display: flex; }
+  .zone-arrow { color: var(--muted); font-size: 18px; font-weight: 700; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--wood);
+    padding: clamp(10px, 2vh, 14px) 0 clamp(12px, 2.4vh, 16px);
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--cream);
+    opacity: 0.75;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .nav-item .nav-icon { font-size: 20px; }
+  .nav-item.active { opacity: 1; }
+  .nav-item:hover { opacity: 1; transform: translateY(-2px); }
+
+  /* ZONE DETAIL PAGE */
+  .detail-page {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
+    background: var(--forest-dark);
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--cream);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+  .detail-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 22px);
+    color: var(--gold);
+  }
+  .detail-body {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vh, 30px) clamp(16px, 4vw, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .detail-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--leaf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-name {
+    text-align: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--forest-dark);
+    margin-bottom: 4px;
+  }
+  .info-card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .info-card-title, .info-card-label {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--forest-dark);
+    margin-bottom: 6px;
+  }
+  .info-card-text {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+</style>
 </head>
 <body>
-
 
 <div class="app-frame" id="appFrame">
 
@@ -30,7 +301,7 @@
         </svg>
       </div>
       <div class="logo-wrap">
-        <div class="logo-icons"><img src="../assets/img/logozoo.png" alt="Zoo Explorer" width="200px" height="200px"></div>
+        <div class="logo-icons"><img src="../../../assets/img/logozoo.png" alt="Zoo Explorer"></div>
         <div class="logo-title">ZOO EXPLOROR</div>
         <div class="logo-sub">ZOO EXPLORER</div>
       </div>
@@ -42,23 +313,7 @@
       <div class="progress-bar-track">
         <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
       </div>
-
       <div class="zone-list" id="zoneList"></div>
-    </div>
-
-    <div class="bottom-nav">
-      <div class="nav-item active" id="navPassport">
-        <span class="nav-icon" style="font-size:22px;"><img src="../assets/img/open-book.png" alt="" width="50px" height="50px"></span>
-        <span class="nav-label">Passport</span>
-      </div>
-      <div class="nav-item" id="navMap">
-        <span class="nav-icon" style="font-size:22px;">🗺️</span>
-        <span class="nav-label">Map</span>
-      </div>
-      <div class="nav-item" id="navProfile">
-        <span class="nav-icon" style="font-size:22px;">👤</span>
-        <span class="nav-label">Profile</span>
-      </div>
     </div>
   </div>
 
@@ -89,81 +344,94 @@
     </div>
   </div>
 
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="navPassport">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Passport</span>
+    </div>
+    <div class="nav-item" id="navMap">
+      <span class="nav-icon">📷</span>
+      <span class="nav-label">Scan QR</span>
+    </div>
+    <div class="nav-item" id="navProfile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const zones = [
-  { id:'lion', name:'Lion Zone', image:'../assets/img/lionlogo.png',
+  { id:'lion', name:'Lion Zone', image:'../../../assets/img/lionlogo.png',
     story: {
-      title: 'The Lost Paw Prints',
-      text: 'สิงโตผู้พิทักษ์แห่งทุ่งหญ้าสะวันนาได้ทำรอยเท้าแห่งความกล้าหาญ (Courage Paw Print) หายไประหว่างการลาดตระเวน หากไม่มีรอยเท้านี้ สิงโตจะไม่สามารถนำทางสัตว์ตัวอื่นได้'
+      title: 'นักล่าแห่งทุ่งหญ้า',
+      text: 'สิงโตจอมพลังกำลังฝึกวิ่งล่าสัตว์ในทุ่งหญ้ากว้าง แต่เหยื่อวิ่งหลบซ้าย ขวา และตรงหน้าอย่างรวดเร็ว สิงโตต้องอาศัยทั้งความเร็วและความแม่นยำ'
     },
-    mission: 'ช่วยจับคู่รอยเท้าให้ถูกต้อง เพื่อค้นหารอยเท้าที่หายไป',
+    mission: 'ช่วยสิงโตวิ่งผ่านเส้นทาง 3 เลน หลบสิ่งกีดขวาง และเก็บเนื้อให้ครบตามจำนวนที่กำหนด เมื่อสิงโตได้อาหารครบ มันก็พร้อมกลับไปดูแลครอบครัว',
     reward: '🏅 Lion Stamp'
   },
-  { id:'elephant', name:'Elephant Zone', image:'../assets/img/Elepantlogo.png',
+  { id:'elephant', name:'Elephant Zone', image:'../../../assets/img/Elepantlogo.png',
     story: {
-      title: 'The Forgotten Food',
-      text: 'ช้างผู้มีความจำเป็นเลิศ กำลังเตรียมอาหารให้สัตว์ทุกตัว แต่ครั้งนี้เขากลับจำตำแหน่งของอาหารไม่ได้ หากหาอาหารไม่เจอ สัตว์ทั้งสวนสัตว์จะไม่มีอาหารในวันนี้'
+      title: 'มื้ออร่อยของเจ้าช้าง',
+      text: 'ถึงเวลาอาหารกลางวันแล้ว! แต่เจ้าช้างตัวใหญ่รออาหารอยู่ไกลเกินไป คนดูแลสวนสัตว์จึงขอให้คุณช่วยป้อนอาหารแทน'
     },
-    mission: 'จดจำตำแหน่งอาหารทั้งหมดให้ถูกต้อง',
+    mission: 'เล็งและโยนอาหาร ให้เข้าปากช้างให้ได้มากที่สุด ยิ่งโยนแม่น ช้างก็ยิ่งอิ่มและมีความสุข',
     reward: '🏅 Elephant Stamp'
   },
-  { id:'giraffe', name:'Giraffe Zone', image:'../assets/img/Girafflogo.png',
+  { id:'giraffe', name:'Giraffe Zone', image:'../../../assets/img/Girafflogo.png',
     story: {
-      title: 'The Wise Giraffe',
-      text: 'ยีราฟผู้รอบรู้เป็นผู้ดูแลหอคอยสังเกตการณ์ของสวนสัตว์ ก่อนจะมอบตราประทับให้ เขาจะทดสอบความรู้เกี่ยวกับสัตว์ของคุณ'
+      title: 'ยีราฟผู้เฝ้ามองท้องฟ้า',
+      text: 'ยีราฟประจำสวนสัตว์ได้รับหน้าที่คอยสังเกตเส้นทางและมองหาต้นไม้ที่มีใบอ่อนที่สุดให้เพื่อนสัตว์ แต่วันนี้... ต้นไม้เติบโตสูงกว่าปกติ! ยีราฟต้องยืดคอให้สูงที่สุดเพื่อมองเห็นเส้นทางด้านหน้า แต่ลำพังมันทำไม่สำเร็จ'
     },
-    mission: 'ตอบคำถามเกี่ยวกับยีราฟให้ถูกต้อง',
+    mission: 'ช่วยยีราฟยืดคอให้สูงถึงระดับที่กำหนด เพื่อให้มันสามารถมองเห็นต้นทางและค้นหาใบไม้แสนอร่อยได้สำเร็จ',
     reward: '🏅 Giraffe Stamp'
   },
-  { id:'penguin', name:'Penguin Zone', image:'../assets/img/panguinlogo.png',
+  { id:'penguin', name:'Penguin Zone', image:'../../../assets/img/panguinlogo.png',
     story: {
-      title: 'Fish Festival',
-      text: 'เหล่าเพนกวินกำลังเตรียมงานเทศกาลปลา แต่ปลาที่ต้องใช้กลับกระจัดกระจายไปทั่ว หากเก็บปลาไม่ทัน งานเทศกาลจะเริ่มไม่ได้'
+      title: 'นักตกปลาตัวน้อย',
+      text: 'อากาศเย็นสบายในโซนเพนกวิน แต่ปลาวันนี้ว่ายน้ำเร็วผิดปกติ เหล่าเพนกวินจึงจับปลาได้ยากกว่าทุกวัน พวกมันต้องการผู้ช่วย!'
     },
-    mission: 'ช่วยเพนกวินเก็บปลาให้ครบก่อนหมดเวลา',
+    mission: 'ช่วยเพนกวินจับปลาให้ได้ตามจำนวนที่กำหนด เมื่อเพนกวินได้อาหารครบ ทุกตัวก็จะพร้อมกลับไปพักผ่อนบนก้อนน้ำแข็ง',
     reward: '🏅 Penguin Stamp'
   },
-  { id:'panda', name:'Panda Zone', image:'../assets/img/pandalogo.png',
+  { id:'panda', name:'Panda Zone', image:'../../../assets/img/pandalogo.png',
     story: {
-      title: 'Bamboo Harvest',
-      text: 'แพนด้าผู้ใจดีต้องเก็บต้นไผ่เพื่อเตรียมอาหารสำหรับครอบครัว แต่ไผ่ในป่ากระจัดกระจายอยู่หลายแห่ง'
+      title: 'การผจญภัยในป่าไผ่',
+      text: 'เช้าวันนี้ แพนด้าน้อยออกตามหาไผ่ต้นโปรด แต่ระหว่างทาง เต็มไปด้วยหลุม ทางต่างระดับ และอุปสรรคมากมาย มันไม่สามารถเดินทางเพียงลำพังได้'
     },
-    mission: 'ช่วยแพนด้าเก็บต้นไผ่ให้ครบก่อนหมดเวลา',
+    mission: 'ช่วยแพนด้ากระโดดผ่านอุปสรรค หลบหลุม และเก็บไม้ไผ่ให้ได้มากที่สุดจนถึงเส้นชัย',
     reward: '🏅 Panda Stamp'
   },
-  { id:'monkey', name:'Monkey Zone', image:'../assets/img/Monkeylogo.png',
+  { id:'monkey', name:'Monkey Zone', image:'../../../assets/img/Monkeylogo.png',
     story: {
-      title: 'The Lost Bananas',
-      text: 'ลิงจอมซนกำลังเก็บกล้วยสำหรับเพื่อนๆ แต่กล้วยกลับหล่นหายไปทั่วป่า เขาต้องการผู้ช่วยที่ว่องไวในการรวบรวมกล้วยทั้งหมด'
+      title: 'ภารกิจเก็บกล้วย',
+      text: 'ลมแรงพัดผ่านป่าลิง ทำให้กล้วยสุกจำนวนมากหล่นลงมาจากต้น หากปล่อยไว้ ผลไม้จะเสียหายหมด เจ้าลิงตัวน้อยจึงรีบออกมาเก็บกล้วย แต่ต้องการผู้ช่วยอีกแรง'
     },
-    mission: 'ช่วยลิงเก็บกล้วยให้ครบตามจำนวนที่กำหนด',
+    mission: 'ลากลิงไปยังตำแหน่งต่าง ๆ เพื่อรับกล้วยที่กำลังตกลงมาให้ได้มากที่สุด ยิ่งเก็บได้มาก เจ้าลิงก็ยิ่งดีใจ',
     reward: '🏅 Monkey Stamp'
   },
 ];
 
-  // สถานะปลดล็อกจริง (มาจาก localStorage) — ตราจะติ๊กถูก/นับเพิ่มก็ต่อเมื่อเล่นเกมของโซนนั้นจบแล้วเท่านั้น
-  let completed = ZooState.getState().stamps;
+let completed = ZooState.getState().stamps;
 
-  const zoneListEl = document.getElementById('zoneList');
-  const progressCountEl = document.getElementById('progressCount');
-  const progressFillEl = document.getElementById('progressFill');
+const zoneListEl = document.getElementById('zoneList');
+const progressCountEl = document.getElementById('progressCount');
+const progressFillEl = document.getElementById('progressFill');
 
-  const homePage = document.getElementById('homePage');
-  const detailPage = document.getElementById('detailPage');
-  const detailAvatar = document.getElementById('detailAvatar');
-  const detailName = document.getElementById('detailName');
-  const detailStoryTitle = document.getElementById('detailStoryTitle');
-  const detailStoryText = document.getElementById('detailStoryText');
-  const detailMissionText = document.getElementById('detailMissionText');
-  const detailRewardText = document.getElementById('detailRewardText');
-  const detailHeaderTitle = document.getElementById('detailHeaderTitle');
-  const backBtn = document.getElementById('backBtn');
+const homePage = document.getElementById('homePage');
+const detailPage = document.getElementById('detailPage');
+const detailAvatar = document.getElementById('detailAvatar');
+const detailName = document.getElementById('detailName');
+const detailStoryTitle = document.getElementById('detailStoryTitle');
+const detailStoryText = document.getElementById('detailStoryText');
+const detailMissionText = document.getElementById('detailMissionText');
+const detailRewardText = document.getElementById('detailRewardText');
+const detailHeaderTitle = document.getElementById('detailHeaderTitle');
+const backBtn = document.getElementById('backBtn');
 
-  let currentZoneId = null;
-
- function renderHome(){
+function renderHome(){
   zoneListEl.innerHTML = '';
   zones.forEach(z => {
     const row = document.createElement('div');
@@ -186,10 +454,9 @@ const zones = [
   progressFillEl.style.width = `${(doneCount / zones.length) * 100}%`;
 }
 
-  function openZone(id){
+function openZone(id){
   const zone = zones.find(z => z.id === id);
   if(!zone) return;
-  currentZoneId = id;
 
   detailAvatar.innerHTML = zone.image
     ? `<img src="${zone.image}" alt="${zone.name}">`
@@ -205,20 +472,23 @@ const zones = [
   detailPage.style.display = 'flex';
 }
 
-  backBtn.addEventListener('click', () => {
-    detailPage.style.display = 'none';
-    homePage.style.display = 'flex';
-  });
+backBtn.addEventListener('click', () => {
+  detailPage.style.display = 'none';
+  homePage.style.display = 'flex';
+});
 
-  // เมนูล่าง: พาสปอร์ต(หน้านี้) / แผนที่ / โปรไฟล์
-  document.getElementById('navMap').addEventListener('click', () => {
-    window.location.href = '../07-map/index.html';
-  });
-  document.getElementById('navProfile').addEventListener('click', () => {
-    window.location.href = '../10-profile/index.html';
-  });
+document.getElementById('navMap').addEventListener('click', () => {
+  window.location.href = '../11-qr-scan/index.html';
+});
+document.getElementById('navProfile').addEventListener('click', () => {
+  window.location.href = '../10-profile/index.html';
+});
+document.getElementById('navPassport').addEventListener('click', () => {
+  detailPage.style.display = 'none';
+  homePage.style.display = 'flex';
+});
 
-  renderHome();
+renderHome();
 </script>
 
 </body>

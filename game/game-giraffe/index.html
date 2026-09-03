@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Giraffe Neck Adventure</title>
-    <link rel="stylesheet" href="style.css">
-   
+    <link rel="stylesheet" href="/game/game-giraffe/css/style.css">
+
+    <!-- ★ URL ของแอปหลัก (Zoo Passport) — เปลี่ยนเป็น URL จริงตอน deploy บน Vercel ★ -->
+    <script>
+        window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "http://127.0.0.1:5500";
+    </script>
+
 </head>
 <body>
 
@@ -102,11 +107,14 @@
 
             <button class="btn" onclick="startGame()" style="margin-top: 20px; font-size: 18px;">เล่นอีกครั้ง</button>
             <button class="btn" onclick="showStartScreen()" style="background: linear-gradient(180deg, #f8c134 0%, #e09e00 100%); border-color: #a37200; font-size: 16px; padding: 8px 24px;">กลับหน้าหลัก</button>
-            <button class="btn passport-btn" id="passport-btn" onclick="goToPassport()" disabled aria-disabled="true" style="background: linear-gradient(180deg, #8ecae6 0%, #4a90c2 100%); border-color: #2c5f82; box-shadow: 0 5px 0 #2c5f82; font-size: 16px; padding: 8px 24px;">📖 ดูพาสปอต</button>
+            <button class="btn passport-btn" id="passport-btn" onclick="goToPassport()" disabled aria-disabled="true" style="background: linear-gradient(180deg, #8ecae6 0%, #4a90c2 100%); border-color: #2c5f82; box-shadow: 0 5px 0 #2c5f82; font-size: 16px; padding: 8px 24px;">รับตราประทับ 🎁</button>
             <p id="passport-lock-hint" class="passport-lock-hint">🔒 ทำคะแนนรวมให้ถึง <span id="passport-lock-score">5,000</span> เพื่อปลดล็อกพาสปอต</p>
+
+            
         </div>
     </div>
 </div>
+
 
     <!-- game.js -->
     <script src="js/game.js"></script>

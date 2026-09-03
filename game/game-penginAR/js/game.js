@@ -732,10 +732,17 @@ function showToast(msg) {
     toastTimer = setTimeout(() => dom.arToast.classList.remove('show'), 2200);
 }
 
+// ★★★ ฟังก์ชันกลางสำหรับกลับไปหน้าพาสปอร์ต — pattern เดียวกันทุกเกม ★★★
+// zone id ของเกมนี้คือ "penguin" และคะแนนที่ส่งไปคือ score (ตอนชนะจะเท่ากับ 100)
+// เดิมปุ่มนี้แค่ขึ้น toast ข้อความ ไม่ได้พาไปไหนจริง
+function goToPassport() {
+    const base = (window.ZOO_APP_BASE_URL || 'http://127.0.0.1:5500').replace(/\/$/, '');
+    const url = `${base}/app/web/06-stamp-received/index.html?zone=penguin&points=${encodeURIComponent(score)}`;
+    window.location.href = url;
+}
+
 if (dom.viewPassportBtn) {
-    dom.viewPassportBtn.addEventListener('click', () => {
-        showToast('🎁 เปิดพาสปอร์ตสะสมตราประทับของคุณแล้ว!');
-    });
+    dom.viewPassportBtn.addEventListener('click', goToPassport);
 }
 
 dom.btnStartGame.addEventListener('click', () => startGame());

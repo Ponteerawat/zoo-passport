@@ -1,190 +1,85 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lion Zone</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lion Escape 3D - Animal Stamp Quest</title>
 
-  body {
-    font-family: 'Segoe UI', 'Tahoma', sans-serif;
-    background: #f0ede4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+    <!-- ★ ตั้งค่า URL ของแอปหลัก (Zoo Passport) — เปลี่ยนเป็น URL จริงตอน deploy บน Vercel ★ -->
+    <script>
+        window.ZOO_APP_BASE_URL = window.ZOO_APP_BASE_URL || "http://127.0.0.1:5500";
+    </script>
 
-  /* กรอบมือถือ */
-  .phone {
-    width: 320px;
-    height: 640px;
-    background: #fdf6e9;
-    border-radius: 36px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border: 6px solid #2b2b2b;
-  }
+    <!-- โหลด Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  /* Status bar */
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 20px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  /* Header: ปุ่มย้อนกลับ + ชื่อหน้า */
-  .header {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    position: relative;
-  }
-
-  .back-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    color: #333;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s;
-  }
-
-  .back-btn:hover {
-    background: rgba(0,0,0,0.06);
-  }
-
-  .header h1 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    font-weight: 700;
-    color: #333;
-  }
-
-  /* ภาพสิงโต */
-  .lion-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px 0;
-  }
-
-  .lion-scene {
-    width: 100%;
-    aspect-ratio: 1.1 / 1;
-  }
-
-  /* ข้อความคำอธิบาย */
-  .description {
-    text-align: center;
-    padding: 16px 30px;
-    font-size: 15px;
-    line-height: 1.6;
-    color: #4a4a4a;
-    font-weight: 500;
-  }
-
-  /* ปุ่มเริ่มเกม */
-  .footer {
-    padding: 16px 24px 28px;
-  }
-
-  .start-btn {
-    width: 100%;
-    padding: 15px;
-    background: #4a8c3f;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.2s ease;
-    box-shadow: 0 4px 10px rgba(74,140,63,0.35);
-  }
-
-  .start-btn:hover {
-    background: #427a38;
-  }
-
-  .start-btn:active {
-    transform: scale(0.97);
-  }
-</style>
+    <!-- แยก CSS ออกมาแล้ว -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="phone">
+    <div id="game-container">
+        <div id="game-ui">
+            <div class="top-bar">
+                <div class="badge">🥩 <span id="meat-count">0</span> / 15</div>
+                <div class="badge badge-timer">⌛ <span id="time-left">30</span>s</div>
+            </div>
+            <div class="controls">
+                <div class="btn" id="btn-left">◀</div>
+                <div class="btn btn-jump" id="btn-jump">JUMP</div>
+                <div class="btn" id="btn-right">▶</div>
+            </div>
+        </div>
 
-  <div class="header">
-    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
-    <h1>Lion Zone</h1>
-  </div>
+        <!-- หน้าเริ่มต้นเกมพร้อม Story และรูปภาพสิงโต -->
+        <div id="start-screen" class="overlay-screen">
+            <div class="card">
+                <img src="img/lionlogo.png" alt="Lion Logo" class="lion-logo">
+                <h1>Lion Meat Hunt 🦁🥩</h1>
 
-  <div class="lion-container">
-    <p><img src="../assets/img/lionlogo.png" alt="Lion" width="200px" height="200px"></p>
-  </div>
+                <div class="story-box">
+                    📖 <b>เรื่องราว:</b><br>
+                    "พี่สิงโตกำลังหิวมากๆ เลย! จงช่วยพี่สิงโตวิ่งออกตามหาอาหารชิ้นโปรดให้ครบ 15 ชิ้นภายในเวลา 30 วินาทีนะ!"
+                </div>
 
-  <style>
-  .description {
-    text-align: center;
-    padding: 16px 30px;
-    color: #4a4a4a;
-  }
+                <p style="background: #f1f2f6; padding: 6px; border-radius: 10px; font-size: 12px;">
+                    🎮 <b>ปุ่มควบคุมคอมพิวเตอร์:</b><br>
+                    • <b>A / D</b> หรือ <b>◀ / ▶</b> : หลบซ้าย-ขวา<br>
+                    • <b>W</b> / <b>Spacebar</b> / <b>▲</b> : กระโดดข้ามหิน
+                </p>
 
-  .description h2 {
-    text-align: center;   /* บังคับกึ่งกลางแม้ h2 จะมี default style */
-    margin: 2px 0;         /* ระยะห่างระหว่างบรรทัดน้อยลง */
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.6;
-  }
-</style>
+                <button class="action-btn" onclick="startGame()">เริ่มภารกิจเลย! 🚀</button>
+            </div>
+        </div>
 
-<p class="description">
-  <h2>สิงโตทำตราหล่นไว้</h2>
-  <h2>ช่วยจับคู่รอยเท้า</h2>
-  <h2>ให้ถูกต้อง!</h2>
-</p>
+        <!-- หน้าจบเกม (ชนะ/แพ้) -->
+        <div id="game-over" class="overlay-screen" style="display: none;">
+            <div class="card">
+                <h1 id="result-title">เก่งมากเลย! 🎉</h1>
 
-  <div class="footer">
-    <button class="start-btn" id="startBtn">เริ่มเกม</button>
-  </div>
+                <!-- ส่วนแสดงผลกรณี ชนะ ( Stamp Winner Zone ) -->
+                <div id="win-stamp-container" class="stamp-box" style="display: none;">
+                    <img src="img/lionlogo.png" alt="Lion Stamp" class="lion-logo" style="width: 80px; height: 80px;">
+                    <p style="color: #27ae60; font-weight: bold; font-size: 15px; margin-top: 5px;">
+                        🏆 ยินดีด้วย! คุณได้รับ<br><span style="font-size: 17px; color: #d35400;">Animal Stamp: Lion Zone</span>
+                    </p>
+                </div>
 
-</div>
+                <p id="result-desc">เก็บเนื้อได้ครบแล้ว!</p>
+                <p>เนื้อที่เก็บได้: <b id="final-meat" style="color: #e67e22; font-size: 22px;">0</b> / 15 🥩</p>
 
-<script>
-  // ปุ่มย้อนกลับ: กลับไปหน้าก่อนหน้าของเบราว์เซอร์
-  document.getElementById('backBtn').addEventListener('click', () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      alert('ย้อนกลับไปหน้าก่อนหน้า');
-    }
-  });
+                <!-- ปุ่มเล่นอีกครั้ง -->
+                <button class="action-btn" onclick="restartGame()">เล่นอีกครั้ง 🔄</button>
 
-  // ปุ่มเริ่มเกม -> ไปหน้ามินิเกมจับคู่รอยเท้าสิงโต
-  document.getElementById('startBtn').addEventListener('click', () => {
-    window.location.href = '../05-mini-game/index.html';
-  });
-</script>
+                <!-- ★ ปุ่มกลับไปหน้าพาสปอร์ต (แสดงเฉพาะเมื่อเล่นชนะ) ★ -->
+                <button id="btn-redirect" class="action-btn redirect-btn" style="display: none;" onclick="goToPassport()">
+                    รับตราประทับ 🎁
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <!-- แยก JS ออกมาแล้ว -->
+    <script src="js/game.js"></script>
 </body>
 </html>
