@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --watch app/api/src/modules/game-histories/index.ts",
+    "dev": "bun run --watch app/api/src/modules/index.ts",
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
