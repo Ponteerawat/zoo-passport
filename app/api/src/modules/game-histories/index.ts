@@ -1,25 +1,19 @@
 import { Elysia } from "elysia"
-import { getGameHistories } from "./use-cases/get-game-histories"
+import { getGameHistoriesUsecase } from "./use-cases/get-game-histories"
 import { getGameHistoriesQuerySchema } from "./models/history"
+import { handleApiError } from "../lib/error-handdle"
 
-export const gamehistories = new Elysia({ prefix: "/game-histories" })
+export const gameHistory = new Elysia({ prefix: "/game-history" })
+  .onError(({ error, set }) => handleApiError(error, set))
   .get(
     "/",
-    async ({ query, set }) => {
-      try {
-        return await getGameHistories(query)
-      } catch (error) {
-        set.status = 500
-        return {
-          success: false,
-          message: "Failed to get game histories",
-          error: error instanceof Error ? error.message : "Unknown error",
-        }
-      }
+    async ({ query }) => {
+      const gamehistories = await getGameHistoriesUsecase.execute(query)
+      return gamehistories
     },
     {
       query: getGameHistoriesQuerySchema,
-      tags: ["game-histories"],
+      tags: ["game-history"],
       description: "ดึงประวัติการเล่นเกมของผู้ใช้พร้อม pagination และ filter",
     },
   )

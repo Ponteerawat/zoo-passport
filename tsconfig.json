@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    // Environment setup & latest features
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "Preserve",
@@ -9,29 +8,24 @@
     "allowJs": true,
     "types": ["bun"],
 
-    // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
-    // Path aliases
-    "baseUrl": ".",
     "paths": {
       "@repo/database": ["./packages/database/src/index.ts"],
       "@repo/database/*": ["./packages/database/src/*"],
-      "@repo/supabase": ["packages/supabase/src/index.ts"],
-      "@repo/supabase/*": ["packages/supabase/src/*"]
+      "@repo/supabase": ["./packages/supabase/src/index.ts"],
+      "@repo/supabase/*": ["./packages/supabase/src/*"]
     },
 
-    // Best practices
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
-    // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false

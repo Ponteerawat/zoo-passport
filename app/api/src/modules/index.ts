@@ -3,8 +3,9 @@ import { cors } from "@elysiajs/cors"
 import { swagger } from "@elysiajs/swagger"
 import { openapi } from "@elysia/openapi"
 
-import { gamehistories } from "./game-histories"
+import { gameHistory } from "./game-histories"
 
+const port = process.env.API_PORT || 3003
 
 const app = new Elysia({ prefix: "api/v1" })
   .use(cors({ origin: true }))
@@ -17,7 +18,7 @@ const app = new Elysia({ prefix: "api/v1" })
         description: "API documentation for ZOO Passport",
       },
       tags: [
-        { name: "game-histories", description: "Game history endpoints" },
+        { name: "game-history", description: "Game history endpoints" },
       ],
     },
   }))
@@ -30,6 +31,8 @@ const app = new Elysia({ prefix: "api/v1" })
       },
     },
   }))
-  .use(gamehistories)
+  .use(gameHistory)
+  .get("/health", () => ({ status: "ok" }))
+  .listen(port)
 
 export { app }
