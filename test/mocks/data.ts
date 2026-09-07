@@ -1,0 +1,36 @@
+// mock data for gamehistory
+export const mockGameHistory = [
+  {
+    id: "mock-history-lion",
+    gameType: "memory_match",
+    gameName: "Lion Memory Match",
+    zoneCode: "lion",
+    zoneName: "โซนสิงโต",
+    score: 50,
+    isPassed: false,
+    timeTakenSeconds: 25,
+    playedAt: new Date().toISOString(),
+  },
+  {
+    id: "mock-history-penguin",
+    gameType: "ar_catching",
+    gameName: "Penguin AR Catch",
+    zoneCode: "penguin",
+    zoneName: "โซนเพนกวิน",
+    score: 40,
+    isPassed: false,
+    timeTakenSeconds: 20,
+    playedAt: new Date(Date.now() - 60_000).toISOString(),
+  },
+  {
+    id: "mock-history-elephant",
+    gameType: "ar_feeding",
+    gameName: "Elephant AR Feeding",
+    zoneCode: "elephant",
+    zoneName: "โซนช้าง",
+    score: 60,
+    isPassed: false,
+    timeTakenSeconds: 35,
+    playedAt: new Date(Date.now() - 120_000).toISOString(),
+  },
+]
