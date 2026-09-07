@@ -6,6 +6,7 @@ import { openapi } from "@elysia/openapi"
 import { gameHistory } from "./game-histories"
 import { authLine } from "./auth-line"
 import { profile } from "./profiles"
+import { zones } from "./zones"
 
 const port = process.env.API_PORT || 3003
 
@@ -23,6 +24,7 @@ const app = new Elysia({ prefix: "api/v1" })
         { name: "game-history", description: "Game history endpoints" },
         { name: "auth", description: "LINE login & session endpoints" },
         { name: "profile", description: "Profile endpoints" },
+        { name: "zones", description: "Zones endpoints" },
       ],
     },
   }))
@@ -38,6 +40,7 @@ const app = new Elysia({ prefix: "api/v1" })
   .use(authLine)
   .use(gameHistory)
   .use(profile)
+  .use(zones)
   .get("/health", () => ({ status: "ok" }))
   .listen(port)
 
