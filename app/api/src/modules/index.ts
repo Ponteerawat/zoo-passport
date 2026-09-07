@@ -26,6 +26,7 @@ const app = new Elysia({ prefix: "api/v1" })
         { name: "auth", description: "LINE login & session endpoints" },
         { name: "profile", description: "Profile endpoints" },
         { name: "zones", description: "Zones endpoints" },
+        { name: "rewards", description: "Rewards endpoints" },
       ],
     },
   }))
