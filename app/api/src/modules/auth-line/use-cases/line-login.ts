@@ -1,6 +1,6 @@
 import { verifyLineIdToken } from "./verify-line-id-token"
 import { upsertLineProfile } from "./upsert-line-profile"
-import { signJwt } from "../../lib/jwt"
+import { signJwt } from "../../lib/auth/jwt"
 import type { LineLoginBody } from "../models/auth"
 
 export const lineLoginUsecase = {
