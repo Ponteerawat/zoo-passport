@@ -1,10 +1,11 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zoo Exploror</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="../assets/js/api.js"></script>
   <link rel="stylesheet" href="app/web/01-login/style.css">
 </head>
 
@@ -32,7 +33,7 @@
 
 
   <script>
-    const LIFF_ID = "2010682949-JSSjvRPA";
+    const LIFF_ID = "2010682949-gBX09KZp";
 
     const statusEl = document.getElementById("status");
     const errorEl = document.getElementById("error");
@@ -55,15 +56,37 @@
     }
 
     async function showProfile() {
-      const profile = await liff.getProfile();
-      document.getElementById("profile-pic").src = profile.pictureUrl || "";
-      document.getElementById("display-name").textContent = profile.displayName;
-      document.getElementById("user-id").textContent = "User ID: " + profile.userId;
-      loginView.style.display = "none";
-      profileView.style.display = "block";
-
-      window.location.href = "app/web/02-welcome/index.html";
+  try {
+    // 1. เอา ID token จาก LIFF ไปแลก access token ของ backend เรา
+    const idToken = liff.getIDToken();
+    if (!idToken) {
+      throw new Error("ไม่พบ LINE ID token");
     }
+
+    statusEl.textContent = "กำลังยืนยันตัวตนกับระบบ...";
+    const result = await ZooAPI.lineLogin(idToken);
+
+    // 2. เก็บ token ที่ backend ตอบกลับมา (ปรับชื่อ field ตามที่ backend ตอบจริง)
+    if (result && result.accessToken) {
+      ZooAPI.setToken(result.accessToken);
+    }
+
+    // 3. แสดงโปรไฟล์จาก LINE ตามเดิม
+    const profile = await liff.getProfile();
+    document.getElementById("profile-pic").src = profile.pictureUrl || "";
+    document.getElementById("display-name").textContent = profile.displayName;
+    document.getElementById("user-id").textContent = "User ID: " + profile.userId;
+    loginView.style.display = "none";
+    profileView.style.display = "block";
+    statusEl.textContent = "";
+
+    // 4. ไปหน้าถัดไป
+    window.location.href = "../02-welcome/index.html";
+  } catch (err) {
+    errorEl.textContent = "ยืนยันตัวตนล้มเหลว: " + err.message;
+    statusEl.textContent = "";
+  }
+}
 
     document.getElementById("login-btn").addEventListener("click", () => {
       if (!liff.isLoggedIn()) liff.login();
@@ -78,4 +101,4 @@
   </script>
 
 </body>
-</html> -->
+</html>
