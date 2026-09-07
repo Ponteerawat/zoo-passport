@@ -7,6 +7,7 @@ import { gameHistory } from "./game-histories"
 import { authLine } from "./auth-line"
 import { profile } from "./profiles"
 import { zones } from "./zones"
+import { rewards } from "./rewards"
 
 const port = process.env.API_PORT || 3003
 
@@ -41,6 +42,7 @@ const app = new Elysia({ prefix: "api/v1" })
   .use(gameHistory)
   .use(profile)
   .use(zones)
+  .use(rewards)
   .get("/health", () => ({ status: "ok" }))
   .listen(port)
 
