@@ -9,7 +9,7 @@ import type { GetGameHistoriesQuery } from "../models/history"
 import { mockGameHistory } from "../../../../../../test/mocks/data"
 
 export const getGameHistoriesUsecase = {
-  async execute(query: GetGameHistoriesQuery) {
+  async execute(profileId: string, query: GetGameHistoriesQuery) {
     // --------------------------------------------------------------
     // test mock data
     if (Bun.env.USE_GAME_HISTORIES_MOCK === "true") {
@@ -47,7 +47,7 @@ export const getGameHistoriesUsecase = {
     const limit = query.limit ?? 10
     const offset = (page - 1) * limit
 
-    const filters = [eq(miniGameAttemptsSchema.userId, "")]
+    const filters = [eq(miniGameAttemptsSchema.userId, profileId)]
     if (query.gameType) filters.push(eq(miniGamesSchema.gameType, query.gameType))
     if (query.startDate) filters.push(gte(miniGameAttemptsSchema.playedAt, new Date(query.startDate)))
     if (query.endDate) filters.push(lte(miniGameAttemptsSchema.playedAt, new Date(query.endDate)))
