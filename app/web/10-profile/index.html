@@ -6,7 +6,7 @@
 <title>Zoo Explorer — Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-state.js"></script>
 <style>
   :root{
     --cream: #f6f1e6;
@@ -21,26 +21,26 @@
   }
   *{ box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* เต็มจอจริง ไม่มีกรอบมือถือปลอมๆ ปรับตามขนาดจอทุกแพลตฟอร์ม */
   html, body{
+    width: 100%;
     height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
+    background: var(--cream);
     font-family: 'Nunito', sans-serif;
     color: var(--ink);
+    /* เปลี่ยนจาก hidden เป็น auto เพื่อป้องกันหน้าจอดันเพี้ยน */
+    overflow-x: hidden; 
   }
 
   .app{
-    position: fixed;
-    inset: 0;             /* ยึดขอบกรอบไว้กับขอบจอที่มองเห็นจริงเป๊ะๆ เสมอ
-                              ไม่พึ่งหน่วย vh/dvh/svh ที่บางเบราว์เซอร์คำนวณพลาด
-                              ตอนมีแถบแจ้งเตือนของเบราว์เซอร์โผล่มาบังพื้นที่ */
+    /* เปลี่ยนเป็น min-height เพื่อให้ยืดเต็มจอและไม่บล็อกการจัดวางของ navbar */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: var(--cream);
+    position: relative;
+    padding-bottom: 75px; /* เว้นพื้นที่ด้านล่างให้พอดีกับความสูงของ bottom-nav ป้องกันเนื้อหาโดนบัง */
   }
 
-  /* ---------- HEADER ---------- */
   .header {
     flex-shrink: 0;
     display: flex;
@@ -72,18 +72,14 @@
     color: var(--gold);
   }
 
-  /* ---------- SCROLLABLE BODY ---------- */
   .body-scroll {
     flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    width: 100%;
     padding: clamp(18px, 3vh, 30px) clamp(16px, 4vw, 28px) clamp(10px, 2vh, 18px);
   }
   .content-inner{
     width: 100%;
-    max-width: 480px;         /* กันเนื้อหายืดกว้างเกินไปบนจอเดสก์ท็อป/แท็บเล็ต */
+    max-width: 480px;
     margin: 0 auto;
   }
 
@@ -183,20 +179,19 @@
   }
   .menu-item .chev { color: var(--muted); font-size: 16px; }
 
-  /* ---------- BOTTOM NAV ---------- */
+  /* ล็อกตำแหน่งให้อยู่ติดล่างสุดของจอเสมอแบบนิ่งสนิท */
   .bottom-nav {
-    flex-shrink: 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
     background: var(--wood);
     padding: clamp(10px, 2vh, 14px) 0 clamp(12px, 2.4vh, 16px);
-    max-width: 600px;
-    width: 100%;
-    margin: 0 auto;
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
   }
   .nav-item {
     display: flex;
@@ -228,10 +223,10 @@
     <div class="content-inner">
       <div class="avatar-wrap">
         <button class="avatar-btn" id="avatarBtn" aria-label="เปลี่ยนรูปโปรไฟล์">
-          <div class="avatar"><img id="avatarImg" src="../assets/img/user.png" alt="Explorer"></div>
+          <div class="avatar"><img id="avatarImg" src="../../../assets/img/users.png" alt="Explorer"></div>
           <span class="avatar-edit-badge">✎</span>
         </button>
-        <input type="file" id="avatarInput" accept="image/*" capture="user" hidden>
+        <input type="file" id="avatarInput" accept="image/* " capture="user" hidden>
         <div class="name">Explorer</div>
       </div>
 
@@ -273,24 +268,23 @@
   </div>
 
   <div class="bottom-nav">
-    <div class="nav-item" id="navPassport">
-      <span class="nav-icon">📘</span>
-      <span>Passport</span>
-    </div>
-    <div class="nav-item" id="navMap">
-      <span class="nav-icon">🗺️</span>
-      <span>Map</span>
-    </div>
-    <div class="nav-item active" id="navProfile">
-      <span class="nav-icon">👤</span>
-      <span>Profile</span>
+    <div class="nav-item active" id="navPassport">
+         <span class="nav-icon" style="font-size:22px;">📖</span>
+          <span class="nav-label">Passport</span>
+      </div>
+      <div class="nav-item" id="navMap">
+        <span class="nav-icon" style="font-size:22px;">📷</span>
+        <span class="nav-label">Scan QR</span>
+      </div>
+      <div class="nav-item" id="navProfile">
+        <span class="nav-icon" style="font-size:22px;">👤</span>
+        <span class="nav-label">Profile</span>
     </div>
   </div>
 
 </div>
 
 <script>
-  // แสดงจำนวนตราประทับ/แต้มจริง (ปลดล็อกก็ต่อเมื่อเล่นเกมของโซนนั้นจบแล้วเท่านั้น) และรูปโปรไฟล์ที่ผู้ใช้เคยเลือกไว้
   const zooState = ZooState.getState();
   document.getElementById('statStamps').textContent = `${ZooState.getStampCount(zooState)} / ${ZooState.ZONES.length}`;
   document.getElementById('statPoints').textContent = zooState.points;
@@ -298,7 +292,6 @@
     document.getElementById('avatarImg').src = zooState.avatar;
   }
 
-  // แตะวงกลมโปรไฟล์ -> เปิดตัวเลือกรูปจากเครื่อง/มือถือ -> อ่านไฟล์แล้วเซฟไว้ใช้ทุกหน้า
   const avatarBtn = document.getElementById('avatarBtn');
   const avatarInput = document.getElementById('avatarInput');
   const avatarImg = document.getElementById('avatarImg');
@@ -327,20 +320,23 @@
     window.location.href = '../08-collection/index.html';
   });
   document.getElementById('toHistory').addEventListener('click', () => {
-  window.location.href = '../12-history/index.html';
+    window.location.href = '../12-history/index.html';
   });
   document.getElementById('toHowToPlay').addEventListener('click', () => {
-  window.location.href = '../13-how-to-play/index.html';
+    window.location.href = '../13-how-to-play/index.html';
   });
   document.getElementById('toSettings').addEventListener('click', () => {
-    alert('หน้าตั้งค่า (Settings) — ยังไม่ได้สร้าง เพิ่มได้ในขั้นตอนถัดไป');
+    window.location.href = '../14-settings/index.html';
   });
 
   document.getElementById('navPassport').addEventListener('click', () => {
     window.location.href = '../03-home/index.html';
   });
   document.getElementById('navMap').addEventListener('click', () => {
-    window.location.href = '../07-map/index.html';
+    window.location.href = '../11-qr-scan/index.html';
+  });
+  document.getElementById('navProfile').addEventListener('click', () => {
+    window.location.href = '../10-profile/index.html';
   });
 </script>
 
