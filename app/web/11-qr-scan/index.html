@@ -258,6 +258,7 @@
       <button class="dev-close" id="devClose">ปิด</button>
     </div>
   </div>
+>>>>>>>>> Temporary merge branch 2
 
 </div>
 
@@ -279,7 +280,10 @@
   const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
 
-  // กำหนด path ลิงก์ตรงไปยังโฟลเดอร์ game แต่ละอันตามโครงสร้างโปรเจกต์ของคุณ
+<<<<<<<<< Temporary merge branch 1
+  // ลิงก์เกม AR แยกตามโซน (deploy บน vercel) — นี่คือสิ่งที่ QR แต่ละป้ายควรจะเข้ารหัสไว้
+=========
+>>>>>>>>> Temporary merge branch 2
   const ZONE_GAME_URL = {
     lion:     'https://game-lion.vercel.app/',
     elephant: 'https://game-elephant-ar.vercel.app/',
@@ -296,6 +300,9 @@
   const errorTitle = document.getElementById('errorTitle');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
+<<<<<<<<< Temporary merge branch 1
+=========
+  const switchCameraBtn = document.getElementById('switchCameraBtn');
   
   const devSkip = document.getElementById('devSkip');
 
@@ -305,10 +312,28 @@
   let stream = null;
   let rafId = null;
   let scanned = false;
+<<<<<<<<< Temporary merge branch 1
 
-  function goToZoneContent(targetUrl){
-    stopCamera();
-    window.location.href = targetUrl;
+  function goToZoneContent(){
+    const gameUrl = ZONE_GAME_URL[zoneId];
+    if (gameUrl) {
+      window.location.href = gameUrl;
+    } else {
+      window.location.href = '../03-home/index.html';
+    }
+  }
+=========
+  let currentFacingMode = 'environment'; // เริ่มต้นด้วยกล้องหลัง
+>>>>>>>>> Temporary merge branch 2
+
+  // ตัด scheme (http://, https://, http//, https:// พิมพ์ผิดแบบไหนก็ตัดออกหมด)
+  // ตัด "/" ท้าย และแปลงเป็นตัวพิมพ์เล็ก เพื่อเทียบแค่ตัวโดเมน/พาธจริงๆ
+  function extractDomain(str){
+    return (str || '')
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:?\/*/i, '')
+      .replace(/\/+$/, '');
   }
 
   function onScanSuccess(decodedText){
@@ -404,7 +429,9 @@
     window.location.href = '../07-map/index.html';
   });
 
-  // สร้างรายการปุ่มเลือกโซนเกมในเมนูทดสอบอัตโนมัติ
+<<<<<<<<< Temporary merge branch 1
+  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+=========
   Object.keys(ZONE_GAME_URL).forEach(key => {
     const zoneData = ZONE_INFO[key] || { name: key, emoji: '🎮' };
     const btn = document.createElement('button');
@@ -417,7 +444,7 @@
     devList.appendChild(btn);
   });
 
-  // เปิด-ปิด Modal โหมดทดสอบ
+>>>>>>>>> Temporary merge branch 2
   devSkip.addEventListener('click', () => {
     if (scanned) return;
     onScanSuccess(ZONE_GAME_URL[zoneId] || '');
