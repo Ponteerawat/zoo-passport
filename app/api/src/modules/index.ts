@@ -4,6 +4,10 @@ import { swagger } from "@elysiajs/swagger"
 import { openapi } from "@elysia/openapi"
 
 import { gameHistory } from "./game-histories"
+<<<<<<< HEAD
+import { authLine } from "./auth-line"
+=======
+>>>>>>> develop
 
 const port = process.env.API_PORT || 3003
 
@@ -19,6 +23,10 @@ const app = new Elysia({ prefix: "api/v1" })
       },
       tags: [
         { name: "game-history", description: "Game history endpoints" },
+<<<<<<< HEAD
+        { name: "auth", description: "LINE login & session endpoints" },
+=======
+>>>>>>> develop
       ],
     },
   }))
@@ -31,6 +39,10 @@ const app = new Elysia({ prefix: "api/v1" })
       },
     },
   }))
+<<<<<<< HEAD
+  .use(authLine)
+=======
+>>>>>>> develop
   .use(gameHistory)
   .get("/health", () => ({ status: "ok" }))
   .listen(port)

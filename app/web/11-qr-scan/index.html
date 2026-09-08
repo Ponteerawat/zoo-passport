@@ -248,14 +248,17 @@
 
   <div class="dev-skip" id="devSkip">🔧 โหมดทดสอบ: เลือกเกมที่จะลิ้งไป</div>
 
+  <!-- Modal สำหรับเลือกเกมทดสอบ -->
   <div class="dev-modal" id="devModal">
     <div class="dev-card">
       <h3>เลือกเกมเพื่อทดสอบ</h3>
-      <div class="dev-list" id="devList"></div>
+      <div class="dev-list" id="devList">
+        <!-- รายการเกมจะถูกสร้างด้วย JavaScript อัตโนมัติจากโครงสร้างโฟลเดอร์ game -->
+      </div>
       <button class="dev-close" id="devClose">ปิด</button>
     </div>
   </div>
-  <div class="dev-skip" id="devSkip">โหมดทดสอบ: ข้ามการสแกน</div>
+>>>>>>>>> Temporary merge branch 2
 
 </div>
 
@@ -277,7 +280,10 @@
   const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
 
+<<<<<<<<< Temporary merge branch 1
   // ลิงก์เกม AR แยกตามโซน (deploy บน vercel) — นี่คือสิ่งที่ QR แต่ละป้ายควรจะเข้ารหัสไว้
+=========
+>>>>>>>>> Temporary merge branch 2
   const ZONE_GAME_URL = {
     lion:     'https://game-lion.vercel.app/',
     elephant: 'https://game-elephant-ar.vercel.app/',
@@ -294,6 +300,8 @@
   const errorTitle = document.getElementById('errorTitle');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
+<<<<<<<<< Temporary merge branch 1
+=========
   const switchCameraBtn = document.getElementById('switchCameraBtn');
   
   const devSkip = document.getElementById('devSkip');
@@ -304,7 +312,7 @@
   let stream = null;
   let rafId = null;
   let scanned = false;
-  let currentFacingMode = 'environment'; // เริ่มต้นด้วยกล้องหลัง
+<<<<<<<<< Temporary merge branch 1
 
   function goToZoneContent(){
     const gameUrl = ZONE_GAME_URL[zoneId];
@@ -314,6 +322,9 @@
       window.location.href = '../03-home/index.html';
     }
   }
+=========
+  let currentFacingMode = 'environment'; // เริ่มต้นด้วยกล้องหลัง
+>>>>>>>>> Temporary merge branch 2
 
   // ตัด scheme (http://, https://, http//, https:// พิมพ์ผิดแบบไหนก็ตัดออกหมด)
   // ตัด "/" ท้าย และแปลงเป็นตัวพิมพ์เล็ก เพื่อเทียบแค่ตัวโดเมน/พาธจริงๆ
@@ -418,6 +429,9 @@
     window.location.href = '../07-map/index.html';
   });
 
+<<<<<<<<< Temporary merge branch 1
+  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+=========
   Object.keys(ZONE_GAME_URL).forEach(key => {
     const zoneData = ZONE_INFO[key] || { name: key, emoji: '🎮' };
     const btn = document.createElement('button');
@@ -430,7 +444,7 @@
     devList.appendChild(btn);
   });
 
-  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+>>>>>>>>> Temporary merge branch 2
   devSkip.addEventListener('click', () => {
     if (scanned) return;
     onScanSuccess(ZONE_GAME_URL[zoneId] || '');
