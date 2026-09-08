@@ -1,2 +1,5 @@
 // game-history schema
-export * from './game-history'
+
+export * from './zoo'
+
+
