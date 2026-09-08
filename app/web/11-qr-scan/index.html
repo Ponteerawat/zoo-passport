@@ -42,11 +42,16 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 28px);
     background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%);
   }
-  .back-btn {
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .back-btn, .switch-camera-btn {
     background: rgba(255,255,255,0.16);
     border: none;
     color: var(--cream);
@@ -61,7 +66,7 @@
     transition: background 0.2s ease;
     flex-shrink: 0;
   }
-  .back-btn:hover { background: rgba(255,255,255,0.3); }
+  .back-btn:hover, .switch-camera-btn:hover { background: rgba(255,255,255,0.3); }
   .header h1 {
     font-family: 'Baloo 2', sans-serif;
     font-weight: 700;
@@ -201,8 +206,11 @@
 <div class="app">
 
   <div class="header">
-    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
-    <h1>สแกน QR ประจำโซน</h1>
+    <div class="header-left">
+      <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+      <h1>สแกน QR ประจำโซน</h1>
+    </div>
+    <button class="switch-camera-btn" id="switchCameraBtn" aria-label="สลับกล้อง">🔄</button>
   </div>
 
   <div class="camera-wrap">
@@ -238,7 +246,18 @@
     <button class="state-btn" id="retryBtn">ลองใหม่</button>
   </div>
 
-  <div class="dev-skip" id="devSkip">โหมดทดสอบ: ข้ามการสแกน</div>
+  <div class="dev-skip" id="devSkip">🔧 โหมดทดสอบ: เลือกเกมที่จะลิ้งไป</div>
+
+  <!-- Modal สำหรับเลือกเกมทดสอบ -->
+  <div class="dev-modal" id="devModal">
+    <div class="dev-card">
+      <h3>เลือกเกมเพื่อทดสอบ</h3>
+      <div class="dev-list" id="devList">
+        <!-- รายการเกมจะถูกสร้างด้วย JavaScript อัตโนมัติจากโครงสร้างโฟลเดอร์ game -->
+      </div>
+      <button class="dev-close" id="devClose">ปิด</button>
+    </div>
+  </div>
 
 </div>
 
@@ -250,7 +269,7 @@
   const zoneId = params.get('zone') || 'lion';
 
   const ZONE_INFO = {
-    lion:     { name: 'Lion Zone',     emoji: '🦁' },
+    lion:     { name: 'Lion Zone',    emoji: '🦁' },
     elephant: { name: 'Elephant Zone', emoji: '🐘' },
     giraffe:  { name: 'Giraffe Zone',  emoji: '🦒' },
     penguin:  { name: 'Penguin Zone',  emoji: '🐧' },
@@ -260,7 +279,7 @@
   const info = ZONE_INFO[zoneId] || ZONE_INFO.lion;
   document.getElementById('zoneChip').textContent = `${info.emoji} ${info.name}`;
 
-  // ลิงก์เกม AR แยกตามโซน (deploy บน vercel) — นี่คือสิ่งที่ QR แต่ละป้ายควรจะเข้ารหัสไว้
+  // กำหนด path ลิงก์ตรงไปยังโฟลเดอร์ game แต่ละอันตามโครงสร้างโปรเจกต์ของคุณ
   const ZONE_GAME_URL = {
     lion:     'https://game-lion.vercel.app/',
     elephant: 'https://game-elephant-ar.vercel.app/',
@@ -277,6 +296,7 @@
   const errorTitle = document.getElementById('errorTitle');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
+  
   const devSkip = document.getElementById('devSkip');
 
   const canvas = document.createElement('canvas');
@@ -286,23 +306,9 @@
   let rafId = null;
   let scanned = false;
 
-  function goToZoneContent(){
-    const gameUrl = ZONE_GAME_URL[zoneId];
-    if (gameUrl) {
-      window.location.href = gameUrl;
-    } else {
-      window.location.href = '../03-home/index.html';
-    }
-  }
-
-  // ตัด scheme (http://, https://, http//, https:// พิมพ์ผิดแบบไหนก็ตัดออกหมด)
-  // ตัด "/" ท้าย และแปลงเป็นตัวพิมพ์เล็ก เพื่อเทียบแค่ตัวโดเมน/พาธจริงๆ
-  function extractDomain(str){
-    return (str || '')
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:?\/*/i, '')
-      .replace(/\/+$/, '');
+  function goToZoneContent(targetUrl){
+    stopCamera();
+    window.location.href = targetUrl;
   }
 
   function onScanSuccess(decodedText){
@@ -343,25 +349,38 @@
     errorOverlay.classList.remove('show');
     successOverlay.classList.remove('show');
     scanned = false;
+    
+    stopCamera(); // ปิดสตรีมเดิมก่อนเปิดใหม่เสมอ
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
+        video: { facingMode: { exact: currentFacingMode } },
         audio: false,
       });
-      video.srcObject = stream;
-      await video.play();
-      rafId = requestAnimationFrame(tick);
     } catch (err) {
-      errorTitle.textContent = 'เปิดกล้องไม่ได้';
-      if (err && err.name === 'NotAllowedError') {
-        errorText.textContent = 'คุณยังไม่ได้อนุญาตให้เว็บนี้ใช้กล้อง ลองอนุญาตแล้วกดลองใหม่';
-      } else if (err && err.name === 'NotFoundError') {
-        errorText.textContent = 'ไม่พบกล้องบนอุปกรณ์นี้';
-      } else {
-        errorText.textContent = 'เกิดข้อผิดพลาดระหว่างเปิดกล้อง ลองใหม่อีกครั้ง';
+      // Fallback เผื่ออุปกรณ์ไม่รองรับ exact facingMode
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode },
+          audio: false,
+        });
+      } catch (innerErr) {
+        errorTitle.textContent = 'เปิดกล้องไม่ได้';
+        if (innerErr && innerErr.name === 'NotAllowedError') {
+          errorText.textContent = 'คุณยังไม่ได้อนุญาตให้เว็บนี้ใช้กล้อง ลองอนุญาตแล้วกดลองใหม่';
+        } else if (innerErr && innerErr.name === 'NotFoundError') {
+          errorText.textContent = 'ไม่พบกล้องบนอุปกรณ์นี้';
+        } else {
+          errorText.textContent = 'เกิดข้อผิดพลาดระหว่างเปิดกล้อง ลองใหม่อีกครั้ง';
+        }
+        errorOverlay.classList.add('show');
+        return;
       }
-      errorOverlay.classList.add('show');
     }
+
+    video.srcObject = stream;
+    await video.play();
+    rafId = requestAnimationFrame(tick);
   }
 
   function stopCamera(){
@@ -372,6 +391,12 @@
     }
   }
 
+  // ฟังก์ชันสำหรับกดสลับกล้อง
+  switchCameraBtn.addEventListener('click', () => {
+    currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+    startCamera();
+  });
+
   retryBtn.addEventListener('click', startCamera);
 
   document.getElementById('backBtn').addEventListener('click', () => {
@@ -379,7 +404,20 @@
     window.location.href = '../07-map/index.html';
   });
 
-  // ปุ่มลับสำหรับตอนพัฒนา/เดโม ไม่มี QR จริงให้สแกน -> ข้ามไปเหมือนสแกนผ่าน
+  // สร้างรายการปุ่มเลือกโซนเกมในเมนูทดสอบอัตโนมัติ
+  Object.keys(ZONE_GAME_URL).forEach(key => {
+    const zoneData = ZONE_INFO[key] || { name: key, emoji: '🎮' };
+    const btn = document.createElement('button');
+    btn.className = 'dev-item';
+    btn.innerHTML = `<span>${zoneData.emoji}</span> <span>${zoneData.name}</span>`;
+    btn.addEventListener('click', () => {
+      devModal.classList.remove('show');
+      onScanSuccess('manual-test', ZONE_GAME_URL[key]);
+    });
+    devList.appendChild(btn);
+  });
+
+  // เปิด-ปิด Modal โหมดทดสอบ
   devSkip.addEventListener('click', () => {
     if (scanned) return;
     onScanSuccess(ZONE_GAME_URL[zoneId] || '');
