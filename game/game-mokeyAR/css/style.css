@@ -13,42 +13,50 @@ body {
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   padding-left: max(10px, env(safe-area-inset-left));
   padding-right: max(10px, env(safe-area-inset-right));
-  background-color: #0f172a;
+  background-color: #0b131f;
+  background-image: radial-gradient(circle at center, #1b2a4a 0%, #0b131f 100%);
   color: #ffffff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'M PLUS Rounded 1c', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  min-height: 100dvh; /* ใช้ dynamic viewport height บนมือถือ กัน UI โดนแถบ URL บัง */
+  min-height: 100dvh;
   overflow: hidden;
 }
 
+/* ป้ายหัวข้อเกมสไตล์ป้ายไม้การ์ตูน */
 h1 {
-  margin: 5px 0 10px 0;
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
-  color: #facc15;
+  margin: 2px 0 8px 0;
+  font-size: clamp(1.2rem, 3.8vw, 1.6rem);
+  color: #ffffff;
   text-align: center;
-  text-shadow: 0 2px 10px rgba(250, 204, 21, 0.3);
+  background: linear-gradient(135deg, #a0522d, #8b4513, #cd853f);
+  border: 3px solid #fef08a;
+  border-radius: 16px;
+  padding: 6px 24px;
+  box-shadow: 0 5px 0 #5c2c16, 0 8px 20px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 0px #000;
 }
 
+/* ขยายกรอบเกมให้ใหญ่และเต็มพื้นที่จอมากขึ้น (กรอบไม้ธรรมชาติ) */
 #game-container {
   position: relative;
-  width: 100%;
-  max-width: 900px;
-  height: 65vh;
-  height: 65dvh;
-  max-height: 600px;
-  min-height: 350px;
-  border: 3px solid #eab308;
-  border-radius: 16px;
+  width: 98vw;
+  max-width: 1100px;
+  height: 82vh;
+  height: 82dvh;
+  max-height: 750px;
+  min-height: 450px;
+  border: 10px solid #5c2c16;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0,0,0,0.4);
   transition: border-radius 0.2s ease;
 }
 
-/* โหมดเต็มจอ: ทั้งจาก Fullscreen API และโหมดจำลอง (fallback สำหรับเบราว์เซอร์ที่ไม่รองรับ) */
+/* โหมดเต็มจอ */
 #game-container:fullscreen,
 #game-container.fullscreen-mode {
   width: 100vw !important;
@@ -69,54 +77,52 @@ h1 {
 .btn-icon {
   position: absolute;
   top: 10px;
-  right: 120px; /* เว้นที่ให้กรอบพรีวิวเว็บแคม (กว้าง 100px) ทางขวา */
+  right: 120px;
   z-index: 25;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #475569;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.85);
-  color: #facc15;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #fef08a;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   transition: transform 0.15s, background-color 0.15s;
 }
 
 .btn-icon:hover {
-  background-color: rgba(30, 41, 59, 0.95);
   transform: scale(1.06);
 }
 
-/* เมื่ออยู่โหมดเต็มจอ ขยับปุ่มเต็มจอให้พ้นกรอบวิดีโอพรีวิว */
 #game-container:fullscreen .btn-icon,
 #game-container.fullscreen-mode .btn-icon {
   top: max(10px, env(safe-area-inset-top));
   right: max(10px, env(safe-area-inset-right));
 }
 
-/* ปุ่มใช้สกิล แสดงเฉพาะโหมดควบคุมด้วยการลากนิ้ว/เมาส์ (ไม่มีกล้อง) */
 .btn-skill {
   position: absolute;
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
   z-index: 25;
-  display: none; /* เปิดใช้งานผ่าน JS เมื่อสลับเป็นโหมดลากนิ้ว */
+  display: none;
   align-items: center;
   gap: 6px;
-  padding: 10px 20px;
-  border: none;
+  padding: 10px 22px;
+  border: 2px solid #fff;
   border-radius: 24px;
-  background: #a855f7;
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
   color: #fff;
   font-weight: bold;
   font-size: clamp(0.85rem, 2.6vw, 0.95rem);
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45);
+  box-shadow: 0 4px 14px rgba(147, 51, 234, 0.5);
   transition: transform 0.15s, opacity 0.15s;
 }
 
@@ -142,8 +148,10 @@ canvas {
   width: 100%;
   height: 100%;
   display: block;
-  background: linear-gradient(to bottom, #020617, #14532d);
-  touch-action: none; /* กันหน้าจอเลื่อน/ซูมระหว่างลากนิ้วควบคุมในโหมดไม่มีกล้อง */
+  /* ปรับเป็น ../img/bgmonekygame.png เพื่อถอยออกจากโฟลเดอร์ css ไปหาโฟลเดอร์ img */
+  background: linear-gradient(to bottom, rgba(10, 30, 15, 0.4), rgba(5, 15, 8, 0.6)), 
+              url('../img/bgmonekygame.png') center/cover no-repeat;
+  touch-action: none;
 }
 
 #webcam-preview {
@@ -152,11 +160,12 @@ canvas {
   right: 10px;
   width: 100px;
   height: 75px;
-  border-radius: 8px;
-  border: 2px solid #facc15;
+  border-radius: 10px;
+  border: 3px solid #5c2c16;
   transform: scaleX(-1);
   object-fit: cover;
   z-index: 20;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 #ui {
@@ -171,14 +180,18 @@ canvas {
 
 .badge {
   display: inline-block;
-  padding: 5px 10px;
-  background: rgba(15, 23, 42, 0.85);
-  border-radius: 8px;
-  border: 1px solid #475569;
-  margin-bottom: 4px;
+  padding: 6px 12px;
+  background: rgba(92, 44, 22, 0.9);
+  border-radius: 10px;
+  border: 2px solid #facc15;
+  margin-bottom: 6px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 0 #000;
 }
 
-/* Modal ป๊อปอัพจบเกม */
+/* ==========================================
+   Modal และ Result Card (ปิดการเลื่อน / พอดีจอ)
+   ========================================== */
 #overlay {
   position: absolute;
   top: 0;
@@ -187,15 +200,13 @@ canvas {
   height: 100%;
   background: rgba(15, 23, 42, 0.92);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 30;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-  text-align: center;
-  padding: 20px;
+  padding: 10px;
 }
 
 #overlay.active {
@@ -203,39 +214,39 @@ canvas {
   pointer-events: auto;
 }
 
-/* เนื้อหาภายในเลื่อนได้เอง กันแสตมป์ถูกตัดขาดบนจอเล็ก/แนวนอน */
 #overlay-scroll {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   max-height: 100%;
-  overflow-y: auto;
-  padding: 4px 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; 
 }
 
-/* ==========================================
-   การ์ดผลลัพธ์จบเกม (Result Card)
-   ดีไซน์อ้างอิงจากการ์ด "ภารกิจสำเร็จ" แบบสแตมป์รางวัล
-   ========================================== */
 .result-card {
   position: relative;
   background: #ffffff;
   color: #1e293b;
-  border-radius: 28px;
-  border: 3px dashed #fb923c;
+  border-radius: 24px;
+  border: 4px solid #f59e0b;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
-  padding: 30px 22px 22px;
+  padding: 20px 18px;
   text-align: center;
+  width: 100%;
+  max-height: 98vh;
+  overflow: hidden; 
 }
 
 .result-card.is-lose {
-  border-color: #fda4af;
+  border-color: #ef4444;
 }
 
 .result-avatar-wrap {
   position: relative;
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 14px;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 8px;
 }
 
 .result-avatar {
@@ -245,10 +256,10 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.8rem;
-  background: radial-gradient(circle at 32% 28%, #bbf7d0, #14532d 130%);
-  border: 4px solid #38bdf8;
-  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.45);
+  font-size: 2.2rem;
+  background: radial-gradient(circle at 32% 28%, #86efac, #166534 130%);
+  border: 3px solid #facc15;
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.4);
   overflow: hidden;
 }
 
@@ -259,19 +270,19 @@ canvas {
 }
 
 .result-card.is-lose .result-avatar {
-  border-color: #fda4af;
-  background: radial-gradient(circle at 32% 28%, #fecdd3, #7f1d1d 130%);
-  box-shadow: 0 6px 16px rgba(253, 164, 175, 0.45);
+  border-color: #fca5a5;
+  background: radial-gradient(circle at 32% 28%, #fecdd3, #991b1b 130%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .result-sparkle {
   position: absolute;
-  font-size: 1.1rem;
+  font-size: 1rem;
   animation: sparkleTwinkle 1.6s ease-in-out infinite;
 }
 
-.sparkle-tl { top: -2px; left: -10px; }
-.sparkle-tr { top: -6px; right: -12px; animation-delay: 0.5s; }
+.sparkle-tl { top: -4px; left: -8px; }
+.sparkle-tr { top: -6px; right: -10px; animation-delay: 0.5s; }
 
 @keyframes sparkleTwinkle {
   0%, 100% { opacity: 0.35; transform: scale(0.8); }
@@ -279,32 +290,34 @@ canvas {
 }
 
 #end-title.result-title {
-  font-size: clamp(1.3rem, 4.5vw, 1.55rem);
-  color: #2563eb;
-  margin: 0 0 16px;
+  font-size: clamp(1.1rem, 3.8vw, 1.35rem);
+  color: #15803d;
+  margin: 0 0 10px;
+  font-weight: 800;
 }
 
 .result-card.is-lose #end-title.result-title {
-  color: #e11d48;
+  color: #dc2626;
 }
 
 .result-reward-box {
-  border: 2px dashed #7dd3fc;
+  border: 2px dashed #38bdf8;
   background: #f0f9ff;
-  border-radius: 16px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
 }
 
 .result-card.is-lose .result-reward-box {
-  border-color: #fda4af;
+  border-color: #fca5a5;
   background: #fff1f2;
 }
 
 .result-reward-label {
-  font-size: clamp(0.72rem, 2.3vw, 0.82rem);
+  font-size: clamp(0.7rem, 2vw, 0.78rem);
   color: #0369a1;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  font-weight: 700;
 }
 
 .result-card.is-lose .result-reward-label {
@@ -312,70 +325,70 @@ canvas {
 }
 
 .result-reward-name {
-  font-size: clamp(0.9rem, 3vw, 1.05rem);
+  font-size: clamp(0.85rem, 2.6vw, 0.98rem);
   font-weight: bold;
-  color: #ea580c;
-  line-height: 1.4;
+  color: #d97706;
+  line-height: 1.3;
 }
 
 #end-desc.result-desc {
-  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-  color: #64748b;
-  margin: 0 0 16px;
-  line-height: 1.5;
+  font-size: clamp(0.75rem, 2.2vw, 0.85rem);
+  color: #475569;
+  margin: 0 0 10px;
+  line-height: 1.4;
 }
 
 .result-point-pill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 20px;
-  padding: 8px 18px;
-  margin-bottom: 20px;
+  gap: 8px;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 18px;
+  padding: 6px 14px;
+  margin-bottom: 12px;
 }
 
 .result-point-icon {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
 .result-point-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 .result-point-label {
-  font-size: 0.62rem;
-  letter-spacing: 1.5px;
-  color: #94a3b8;
+  font-size: 0.58rem;
+  letter-spacing: 1.2px;
+  color: #b45309;
   font-weight: bold;
 }
 
 .result-point-value {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: bold;
-  color: #1e293b;
+  color: #78350f;
 }
 
 .result-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .btn-result {
-  padding: 11px 18px;
-  border: none;
-  border-radius: 24px;
+  padding: 10px 18px;
+  border: 2px solid #fff;
+  border-radius: 20px;
   font-weight: bold;
-  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  font-size: clamp(0.78rem, 2.3vw, 0.85rem);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.15s, background-color 0.15s;
 }
 
@@ -384,28 +397,29 @@ canvas {
 }
 
 .btn-result-primary {
-  background-color: #22c55e;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
 }
 
 .btn-result-primary:hover {
-  background-color: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
 }
 
 .btn-result-secondary {
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
 }
 
 .btn-result-secondary:hover {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
 }
 
 #status {
-  margin-top: 10px;
-  font-size: clamp(0.75rem, 2.5vw, 0.9rem);
-  color: #cbd5e1;
+  margin-top: 6px;
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  color: #fef08a;
   text-align: center;
+  text-shadow: 1px 1px 0 #000;
 }
 
 @media (max-width: 480px) {
@@ -415,9 +429,9 @@ canvas {
   }
 
   .btn-icon {
-    right: 93px; /* เว้นที่ตามความกว้างพรีวิวเว็บแคมที่เล็กลงบนมือถือ */
-    width: 34px;
-    height: 34px;
+    right: 93px;
+    width: 36px;
+    height: 36px;
     font-size: 1rem;
   }
 }
@@ -425,37 +439,36 @@ canvas {
 /* ==========================================
    ระบบแสตมป์สะสม (Stamp Collection)
    ========================================== */
-
 .stamps-earned-section {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .stamps-earned-title {
-  font-size: clamp(0.95rem, 3vw, 1.1rem);
+  font-size: clamp(0.9rem, 2.8vw, 1.05rem);
   font-weight: bold;
-  color: #ea580c;
-  margin-bottom: 8px;
+  color: #d97706;
+  margin-bottom: 6px;
 }
 
 .stamps-earned-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .stamp-earned-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: clamp(0.75rem, 2.3vw, 0.85rem);
   font-weight: bold;
   color: #0f172a;
   background: var(--stamp-color, #facc15);
-  border-radius: 20px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   animation: stampPop 0.4s ease;
 }
 
@@ -466,29 +479,30 @@ canvas {
 }
 
 .stamps-collection-wrap {
-  margin-top: 8px;
-  padding-top: 14px;
+  margin-top: 6px;
+  padding-top: 10px;
   border-top: 1px dashed #cbd5e1;
   text-align: center;
 }
 
 .stamps-collection-title {
-  font-size: clamp(1rem, 3.2vw, 1.2rem);
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
   color: #1e293b;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
+  font-weight: bold;
 }
 
 .stamps-collection-progress {
-  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  font-size: clamp(0.75rem, 2.2vw, 0.85rem);
   color: #64748b;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
 }
 
 .stamps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 10px;
-  margin-bottom: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .stamp-card {
@@ -496,10 +510,10 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 8px 10px;
+  padding: 8px 6px;
   background: rgba(0, 0, 0, 0.02);
   border: 2px dashed var(--stamp-color, #94a3b8);
-  border-radius: 14px;
+  border-radius: 12px;
   transform: rotate(-1.5deg);
   transition: transform 0.15s ease;
 }
@@ -520,28 +534,28 @@ canvas {
 }
 
 .stamp-ring {
-  width: 54px;
-  height: 54px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle, rgba(0,0,0,0.04), transparent 70%);
   border: 2px solid var(--stamp-color, #94a3b8);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .stamp-emoji {
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   line-height: 1;
 }
 
 .stamp-name {
-  font-size: clamp(0.75rem, 2.4vw, 0.85rem);
+  font-size: clamp(0.7rem, 2.2vw, 0.8rem);
   font-weight: bold;
   color: var(--stamp-color, #334155);
   text-align: center;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .stamp-card.stamp-locked .stamp-name {
@@ -549,38 +563,37 @@ canvas {
 }
 
 .stamp-desc {
-  font-size: clamp(0.65rem, 2vw, 0.72rem);
+  font-size: clamp(0.6rem, 1.8vw, 0.68rem);
   color: #64748b;
   text-align: center;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .stamp-new-badge {
   position: absolute;
-  top: -8px;
-  right: -6px;
+  top: -6px;
+  right: -4px;
   background: #ef4444;
   color: #fff;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 2px 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 480px) {
   .stamps-grid {
-    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 6px;
   }
 
   .stamp-ring {
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
   }
 
   .stamp-emoji {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 }
-

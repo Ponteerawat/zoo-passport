@@ -18,7 +18,7 @@
 </head>
 <body>
 
-  <h1>🐒 Monkey Banana Catch 🍌</h1>
+  <h1>ช่วยลิงน้อยจอมซนเก็บกล้วย</h1>
   
   <div id="game-container">
     <div id="ui">
@@ -32,6 +32,27 @@
 
     <video id="webcam-preview" autoplay playsinline muted></video>
     <canvas id="gameCanvas"></canvas>
+
+<!-- หน้าจอเมนูเลือกโหมดก่อนเริ่มเกม (ธีมป่าพร้อมลวดลายใบไม้) -->
+    <div id="mode-select-screen" style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at center, rgba(34,84,41,0.95) 0%, rgba(15,38,20,0.98) 100%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:50; text-align:center; padding:20px; border: 8px solid #5c2c16; border-radius: 16px;">
+      
+      <!-- กรอบรูปลิงด้านบน สไตล์ธรรมชาติ -->
+      <div style="width: 84px; height: 84px; background: radial-gradient(circle, #facc15, #b45309); border-radius: 50%; border: 4px solid #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); overflow: hidden;">
+        <img src="pic/Monkeylogo.png" alt="Monkey Logo" style="width: 80%; height: 80%; object-fit: contain;">
+      </div>
+
+      <h2 style="color:#fef08a; font-size:clamp(1.5rem, 4vw, 1.8rem); margin-bottom:8px; text-shadow: 2px 2px 0px #000;">Monkey Banana Catch</h2>
+      <p style="color:#cbd5e1; font-size:clamp(0.9rem, 2.5vw, 1rem); margin-bottom:24px; text-shadow: 1px 1px 0px #000;">เลือกวิธีการควบคุมลิงเก็บกล้วยที่คุณต้องการ</p>
+      
+      <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:280px;">
+        <button id="select-camera" style="padding:14px 20px; background:linear-gradient(135deg, #16a34a, #15803d); color:#fff; border:2px solid #86efac; border-radius:14px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(22,163,74,0.5); text-shadow: 1px 1px 0px rgba(0,0,0,0.3);">
+          โหมดกล้อง (ขยับหน้า AR)
+        </button>
+        <button id="select-touch" style="padding:14px 20px; background:linear-gradient(135deg, #ca8a04, #a16207); color:#fff; border:2px solid #fef08a; border-radius:14px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(202,138,4,0.5); text-shadow: 1px 1px 0px rgba(0,0,0,0.3);">
+          โหมดลาก (เมาส์ / นิ้วมือ)
+        </button>
+      </div>
+    </div>
 
     <!-- หน้าจอแสดงผลเมื่อจบเกม (Modal Overlay) -->
     <div id="overlay">
@@ -63,7 +84,7 @@
 
           <div class="result-actions">
             <button class="btn-result btn-result-primary" id="btn-restart">🔄 เล่นอีกครั้ง</button>
-            <button class="btn-result btn-result-secondary" id="btn-view-collection"> พาสปอร์ต</button>
+            <button class="btn-result btn-result-secondary" id="btn-view-collection">รับตราประทับ 🎁</button>
           </div>
 
           <!-- แสตมป์ใหม่ที่ได้รับในรอบนี้ -->
@@ -81,9 +102,8 @@
     </div>
   </div>
 
-  <p id="status">กำลังเปิดกล้องและเชื่อมต่อระบบตรวจจับสายตา...</p>
+  <p id="status">กรุณาเลือกโหมดการเล่นเพื่อเริ่มเกม...</p>
 
-  
   <!-- JavaScript: จัดการโหมดเต็มจอ / responsive -->
   <script src="js/responsive.js"></script>
   <!-- JavaScript Game Logic -->
