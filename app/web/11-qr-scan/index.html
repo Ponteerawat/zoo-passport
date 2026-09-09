@@ -314,6 +314,7 @@
 
 <script src="../../../assets/js/jsqr.min.js?v=3"></script>
 <script src="../../../assets/js/zoo-state.js?v=3"></script>
+<script src="../../../assets/js/zoo-api.js?v=1"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const zoneId = params.get('zone');
@@ -361,12 +362,26 @@
   let scanned = false;
   let currentFacingMode = 'environment'; // เริ่มต้นด้วยกล้องหลัง
 
-  function onScanSuccess(decodedText, customTargetUrl = null){
+  async function onScanSuccess(decodedText, customTargetUrl = null, skipCheckIn = false){
     if (scanned) return;
     scanned = true;
     stopCamera();
 
     const targetUrl = customTargetUrl || ZONE_GAME_URL[zoneId] || '../03-home/index.html';
+
+    // ยืนยันเช็คอินกับ backend จริง (ข้ามขั้นตอนนี้เฉพาะตอนกดทดสอบจากเมนู dev)
+    if (!skipCheckIn && ZooAPI.isLoggedIn()) {
+      try {
+        await ZooAPI.checkInZone(decodedText);
+      } catch (err) {
+        // เช็คอินไม่ผ่าน (เช่น QR ผิด/หมดอายุ) -> แจ้ง error แล้วให้สแกนใหม่ ไม่พาไปเกม
+        errorTitle.textContent = 'เช็คอินไม่สำเร็จ';
+        errorText.textContent = err.message;
+        errorOverlay.classList.add('show');
+        scanned = false;
+        return;
+      }
+    }
 
     successText.textContent = `ยืนยันตัวตนสำเร็จ กำลังพามุ่งหน้าสู่เกม...`;
     successOverlay.classList.add('show');
@@ -457,7 +472,7 @@
     btn.innerHTML = `<span>${zoneData.emoji}</span> <span>${zoneData.name}</span>`;
     btn.addEventListener('click', () => {
       devModal.classList.remove('show');
-      onScanSuccess('manual-test', ZONE_GAME_URL[key]);
+      onScanSuccess('manual-test', ZONE_GAME_URL[key], true); // skipCheckIn=true เพราะเป็นโหมดทดสอบ ไม่มี QR จริง
     });
     devList.appendChild(btn);
   });

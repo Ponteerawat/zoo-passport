@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="../../../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-api.js"></script>
 <style>
   :root{
     --cream: #f6f1e6;
@@ -415,6 +416,21 @@ const zones = [
 ];
 
 let completed = ZooState.getState().stamps;
+
+// ดึงสถานะโซนจริงจาก backend มาทับค่า local ถ้า login อยู่และ API ใช้งานได้
+// (ใช้ zone.animaltype เป็นตัวจับคู่กับ zoneId ในชุดข้อมูล story/mission local ด้านบน)
+(async () => {
+  if (!ZooAPI.isLoggedIn()) return;
+  try {
+    const zonesFromServer = await ZooAPI.getZones();
+    zonesFromServer.forEach(z => {
+      if (z.status === 'completed') completed[z.animaltype] = true;
+    });
+    renderHome();
+  } catch (err) {
+    console.warn('โหลดสถานะโซนจาก server ไม่สำเร็จ ใช้ข้อมูลในเครื่องแทน:', err.message);
+  }
+})();
 
 const zoneListEl = document.getElementById('zoneList');
 const progressCountEl = document.getElementById('progressCount');

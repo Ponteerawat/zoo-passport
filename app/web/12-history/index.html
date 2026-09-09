@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="../../../assets/js/zoo-state.js"></script>
+<script src="../../../assets/js/zoo-api.js"></script>
 <style>
   :root{
     --cream: #f6f1e6;
@@ -177,28 +178,32 @@
   };
 
   const contentInner = document.getElementById('contentInner');
-  const history = ZooState.getHistory(); // ล่าสุดอยู่บนสุดอยู่แล้ว (เรียงตอนบันทึก)
 
-  if (history.length === 0) {
-    // ยังไม่เคยเล่นเกมเลยสักครั้ง -> ยังไม่มีประวัติให้แสดง
-    contentInner.innerHTML = `
-      <div class="empty">
-        <div class="emoji">🕘</div>
-        <div class="title">ยังไม่มีประวัติการเล่น</div>
-        <div class="sub">ลองไปเล่น Mini Game ที่โซนใดโซนหนึ่งดูสิ<br>ประวัติจะขึ้นที่นี่หลังเล่นจบ</div>
-      </div>
-    `;
-  } else {
+  // เรนเดอร์รายการ — รับ list รูปแบบกลาง: [{ zoneId, points, timestamp }]
+  function renderHistory(list) {
+    contentInner.innerHTML = '';
+
+    if (list.length === 0) {
+      contentInner.innerHTML = `
+        <div class="empty">
+          <div class="emoji">🕘</div>
+          <div class="title">ยังไม่มีประวัติการเล่น</div>
+          <div class="sub">ลองไปเล่น Mini Game ที่โซนใดโซนหนึ่งดูสิ<br>ประวัติจะขึ้นที่นี่หลังเล่นจบ</div>
+        </div>
+      `;
+      return;
+    }
+
     const summary = document.createElement('p');
     summary.className = 'summary';
-    summary.innerHTML = `เล่นไปแล้วทั้งหมด <strong>${history.length}</strong> ครั้ง`;
+    summary.innerHTML = `เล่นไปแล้วทั้งหมด <strong>${list.length}</strong> ครั้ง`;
     contentInner.appendChild(summary);
 
-    const list = document.createElement('div');
-    list.className = 'list';
+    const listEl = document.createElement('div');
+    listEl.className = 'list';
 
-    history.forEach(entry => {
-      const meta = zoneMeta[entry.zoneId] || { name: entry.zoneId, image: '../assets/img/user.png' };
+    list.forEach(entry => {
+      const meta = zoneMeta[entry.zoneId] || { name: entry.zoneId, image: '../../../assets/img/users.png' };
       const dt = new Date(entry.timestamp);
       const timeStr = dt.toLocaleString('th-TH', {
         day: 'numeric', month: 'short', year: 'numeric',
@@ -215,11 +220,30 @@
         </div>
         <div class="points">+${entry.points} pt</div>
       `;
-      list.appendChild(el);
+      listEl.appendChild(el);
     });
 
-    contentInner.appendChild(list);
+    contentInner.appendChild(listEl);
   }
+
+  // โหลดจาก backend ก่อนถ้า login อยู่ — ถ้าไม่สำเร็จ/ไม่ได้ login ใช้ local history แทน
+  (async () => {
+    if (ZooAPI.isLoggedIn()) {
+      try {
+        const data = await ZooAPI.getGameHistory({ limit: 50 });
+        const normalized = data.histories.map(h => ({
+          zoneId: h.zoneCode,
+          points: h.score,
+          timestamp: new Date(h.playedAt).getTime(),
+        }));
+        renderHistory(normalized);
+        return;
+      } catch (err) {
+        console.warn('โหลดประวัติจาก server ไม่สำเร็จ ใช้ข้อมูลในเครื่องแทน:', err.message);
+      }
+    }
+    renderHistory(ZooState.getHistory()); // ล่าสุดอยู่บนสุดอยู่แล้ว (เรียงตอนบันทึก)
+  })();
 
   document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = '../10-profile/index.html';
