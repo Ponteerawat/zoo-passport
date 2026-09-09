@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zoo Exploror</title>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="assets/js/zoo-api.js"></script>
   <link rel="stylesheet" href="app/web/01-login/style.css">
 </head>
 
@@ -63,7 +64,18 @@
       loginView.style.display = "none";
       profileView.style.display = "block";
 
-      window.location.href = "../02-welcome/index.html";
+      // แลก LINE idToken เป็น session ของแอปเรา (JWT) แล้วเก็บ token ให้อัตโนมัติ
+      try {
+        statusEl.textContent = "กำลังเข้าสู่ระบบ...";
+        const idToken = liff.getIDToken();
+        await ZooAPI.login(idToken);
+        statusEl.textContent = "";
+      } catch (err) {
+        errorEl.textContent = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
+        return; // ไม่ให้ไปหน้าถัดไปถ้า login backend ไม่สำเร็จ
+      }
+
+      window.location.href = "app/web/02-welcome/index.html";
     }
 
     document.getElementById("login-btn").addEventListener("click", () => {
@@ -71,6 +83,7 @@
     });
 
     document.getElementById("logout-btn").addEventListener("click", () => {
+      ZooAPI.logout();
       liff.logout();
       window.location.reload();
     });
