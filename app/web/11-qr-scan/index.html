@@ -368,11 +368,15 @@
     stopCamera();
 
     const targetUrl = customTargetUrl || ZONE_GAME_URL[zoneId] || '../03-home/index.html';
+    let finalUrl = targetUrl;
 
     // ยืนยันเช็คอินกับ backend จริง (ข้ามขั้นตอนนี้เฉพาะตอนกดทดสอบจากเมนู dev)
     if (!skipCheckIn && ZooAPI.isLoggedIn()) {
       try {
-        await ZooAPI.checkInZone(decodedText);
+        const result = await ZooAPI.checkInZone(decodedText);
+        // แนบ zone.id จริงจาก backend ไปกับ URL เกม เพื่อให้เกมเรียก startMiniGame/submitMiniGame ถูกโซน
+        const sep = finalUrl.includes('?') ? '&' : '?';
+        finalUrl = `${finalUrl}${sep}zoneId=${encodeURIComponent(result.zone.id)}`;
       } catch (err) {
         // เช็คอินไม่ผ่าน (เช่น QR ผิด/หมดอายุ) -> แจ้ง error แล้วให้สแกนใหม่ ไม่พาไปเกม
         errorTitle.textContent = 'เช็คอินไม่สำเร็จ';
@@ -386,7 +390,7 @@
     successText.textContent = `ยืนยันตัวตนสำเร็จ กำลังพามุ่งหน้าสู่เกม...`;
     successOverlay.classList.add('show');
     setTimeout(() => {
-      window.location.href = targetUrl;
+      window.location.href = finalUrl;
     }, 1200);
   }
 

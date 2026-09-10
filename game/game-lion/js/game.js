@@ -95,6 +95,12 @@ const AudioFX = {
 
 const container = document.getElementById('game-container');
 
+// zoneId จริงจากฐานข้อมูล (UUID) ที่หน้า QR-scan แนบมาให้ทาง URL หลังเช็คอินสำเร็จ
+// ถ้าไม่มี (เช่นเปิดเกมตรงๆ ตอน dev) จะเล่นแบบ offline ไม่ยิง API ใดๆ
+const urlParams = new URLSearchParams(window.location.search);
+const zoneId = urlParams.get('zoneId');
+let miniGameSessionToken = null;
+
 // --- 1. SET UP SCENE & CAMERA ---
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x70d6ff);
@@ -523,28 +529,54 @@ function startTimer() {
     }, 1000);
 }
 
-function startGame() {
+async function startGame() {
     AudioFX.init();
     AudioFX.startBGM();
     document.getElementById('start-screen').style.display = 'none';
     gameStarted = true;
+
+    if (zoneId && window.ZooAPI && ZooAPI.isLoggedIn()) {
+        try {
+            const data = await ZooAPI.startMiniGame(zoneId);
+            miniGameSessionToken = data.sessionToken;
+        } catch (err) {
+            console.warn('เริ่มมินิเกมกับ server ไม่สำเร็จ เล่นแบบ offline:', err.message);
+            miniGameSessionToken = null;
+        }
+    }
+
     startTimer();
 }
 
-function endGame(isWin, title, desc) {
+async function endGame(isWin, title, desc) {
     isGameOver = true;
     clearInterval(timerInterval);
     AudioFX.stopBGM();
+
+    // ส่งคะแนนไป backend จริง (ถ้ามี session) — ให้ server เป็นคนตัดสินว่าผ่าน/ปลดล็อกตราหรือไม่
+    let passed = isWin; // ค่า fallback ถ้าไม่มี session (โหมด offline/dev)
+    if (miniGameSessionToken && zoneId && window.ZooAPI) {
+        try {
+            const result = await ZooAPI.submitMiniGame(zoneId, miniGameSessionToken, meatCollected);
+            passed = result.isPassed;
+        } catch (err) {
+            console.warn('ส่งคะแนนไป server ไม่สำเร็จ ใช้ผลจากในเกมแทน:', err.message);
+        }
+    }
 
     const winStampContainer = document.getElementById('win-stamp-container');
     const btnRedirect = document.getElementById('btn-redirect');
 
     if (isWin) {
         AudioFX.playWinSound();
+    } else {
+        AudioFX.playHitSound();
+    }
+
+    if (passed) {
         winStampContainer.style.display = 'flex';
         btnRedirect.style.display = 'block';
     } else {
-        AudioFX.playHitSound();
         winStampContainer.style.display = 'none';
         btnRedirect.style.display = 'none';
     }
@@ -575,6 +607,17 @@ function restartGame() {
     camera.position.x = 0;
 
     AudioFX.startBGM();
+
+    // ขอ session token ใหม่ตอนเล่นรอบใหม่ (อันเดิมอาจหมดอายุ/ถูกใช้ไปแล้วตอน submit รอบก่อน)
+    if (zoneId && window.ZooAPI && ZooAPI.isLoggedIn()) {
+        ZooAPI.startMiniGame(zoneId)
+            .then(data => { miniGameSessionToken = data.sessionToken; })
+            .catch(err => {
+                console.warn('ขอ session ใหม่ไม่สำเร็จ เล่นแบบ offline:', err.message);
+                miniGameSessionToken = null;
+            });
+    }
+
     startTimer();
 }
 

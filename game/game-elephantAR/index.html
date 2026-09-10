@@ -6,11 +6,10 @@
 <title>ป้อนอาหารช้างน้อย 🐘 | Realistic AR Game</title>
 
 <script>
-  window.ZOO_API_BASE_URL = 'http://localhost:3000/api';  // ทีหลังค่อยเปลี่ยนเป็น URL จริงตอน deploy
-  window.ZOO_LIFF_ID = '1234567890-AbCdEfGh';               // LIFF ID จากเฟส 3
+  // zoneId จริงจากฐานข้อมูล (UUID) ที่หน้า QR-scan แนบมาให้ทาง URL หลังเช็คอินสำเร็จ
+  // ถ้าไม่มี (เช่นเปิดเกมตรงๆ ตอน dev) จะเล่นแบบ offline ไม่ยิง API ใดๆ
 </script>
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="js/zoo-api-client.js"></script>
+<script src="../../assets/js/zoo-api.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -510,6 +509,10 @@ let gameActive = false;
 let isAnimating = false;
 let startTime = 0;
 let timerInterval = null;
+
+// zoneId จริงจากฐานข้อมูล (UUID) ที่หน้า QR-scan แนบมาให้ทาง URL หลังเช็คอินสำเร็จ
+const elephantZoneId = new URLSearchParams(window.location.search).get('zoneId');
+let elephantMiniGameSessionToken = null;
 
 // -------------------- DOM References --------------------
 const $ = (id) => document.getElementById(id);
@@ -1105,7 +1108,7 @@ function saveBestTime(t) {
   try { localStorage.setItem('elephant_game_best_time', String(t)); } catch (e) {}
 }
 
-function triggerWin() {
+async function triggerWin() {
   gameActive = false;
   clearInterval(timerInterval);
   playSound('win');
@@ -1124,6 +1127,15 @@ function triggerWin() {
   // Score on the Mission Complete card is intentionally a fixed display value (100), not the live gameplay score.
   finalScoreValEl.textContent = '100';
 
+  // ส่งคะแนนจริงไป backend (ถ้ามี session) — ให้ server ตัดสินปลดล็อกตราตามคะแนนจริง
+  if (elephantZoneId && elephantMiniGameSessionToken && window.ZooAPI) {
+    try {
+      await ZooAPI.submitMiniGame(elephantZoneId, elephantMiniGameSessionToken, score);
+    } catch (err) {
+      console.warn('ส่งคะแนนไป server ไม่สำเร็จ ใช้ผลจากในเกมแทน:', err.message);
+    }
+  }
+
   setTimeout(() => winOverlay.classList.remove('hidden'), 300);
 }
 
@@ -1136,6 +1148,16 @@ function resetGame() {
   gameActive = true;
   startTimer();
   spawnItem();
+
+  // ขอ session token ใหม่ทุกครั้งที่เริ่ม/เริ่มใหม่ (เผื่อ token เดิมหมดอายุหรือถูกใช้ไปแล้ว)
+  if (elephantZoneId && window.ZooAPI && ZooAPI.isLoggedIn()) {
+    ZooAPI.startMiniGame(elephantZoneId)
+      .then(data => { elephantMiniGameSessionToken = data.sessionToken; })
+      .catch(err => {
+        console.warn('เริ่มมินิเกมกับ server ไม่สำเร็จ เล่นแบบ offline:', err.message);
+        elephantMiniGameSessionToken = null;
+      });
+  }
 }
 
 startBtn.addEventListener('click', () => {

@@ -1,3 +1,8 @@
+// zoneId จริงจากฐานข้อมูล (UUID) ที่หน้า QR-scan แนบมาให้ทาง URL หลังเช็คอินสำเร็จ
+// ถ้าไม่มี (เช่นเปิดเกมตรงๆ ตอน dev) จะเล่นแบบ offline ไม่ยิง API ใดๆ
+const zooZoneId = new URLSearchParams(window.location.search).get('zoneId');
+let zooMiniGameSessionToken = null;
+
 class SoundFX {
     constructor() {
         this.ctx = null;
@@ -848,6 +853,16 @@ function startGame() {
     game.score = 0;
     game.totalBamboo = 0;
     game.levelIndex = 0;
+
+    // ขอ session token ใหม่ทุกครั้งที่เริ่ม/เริ่มใหม่ (เผื่อ token เดิมหมดอายุหรือถูกใช้ไปแล้ว)
+    if (zooZoneId && window.ZooAPI && ZooAPI.isLoggedIn()) {
+        ZooAPI.startMiniGame(zooZoneId)
+            .then(data => { zooMiniGameSessionToken = data.sessionToken; })
+            .catch(err => {
+                console.warn('เริ่มมินิเกมกับ server ไม่สำเร็จ เล่นแบบ offline:', err.message);
+                zooMiniGameSessionToken = null;
+            });
+    }
     loadLevel(game.levelIndex);
 
     document.getElementById('screen-start').classList.add('hidden');
@@ -886,14 +901,14 @@ function nextLevel() {
 
 
 
-function showFinalCompletion() {
+async function showFinalCompletion() {
     gameState = 'FINAL_COMPLETE';
 
     document.getElementById('screen-levelcomplete').classList.add('hidden');
     document.getElementById('screen-gameover').classList.add('hidden');
     document.getElementById('screen-pause').classList.add('hidden');
 
-    document.getElementById('final-point').innerText = 100;
+    document.getElementById('final-point').innerText = game.score;
 
     document.getElementById('screen-finalcomplete').classList.remove('hidden');
 
@@ -902,10 +917,19 @@ function showFinalCompletion() {
     if (player) {
         fx.addSparkles(player.x + player.w / 2, player.y + player.h / 2, '#FFD700', 30);
     }
+
+    // ส่งคะแนนไป backend จริง (ถ้ามี session) — ให้ server เป็นคนตัดสินปลดล็อกตราตามคะแนนจริง
+    if (zooZoneId && zooMiniGameSessionToken && window.ZooAPI) {
+        try {
+            await ZooAPI.submitMiniGame(zooZoneId, zooMiniGameSessionToken, game.score);
+        } catch (err) {
+            console.warn('ส่งคะแนนไป server ไม่สำเร็จ ใช้ผลจากในเกมแทน:', err.message);
+        }
+    }
 }
 
 function showPassport() {
-    showToast("🎁 เปิดพาสปอร์ตสะสมตราประทับของคุณแล้ว!");
+    window.location.href = `../../app/web/06-stamp-received/index.html?zone=panda&points=${encodeURIComponent(game.score)}`;
 }
 
 function checkItemCollisions() {

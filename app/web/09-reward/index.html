@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zoo Explorer — Congratulations</title>
+<script src="../../../assets/js/zoo-api.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -144,8 +145,44 @@
     phone.appendChild(c);
   }
 
-  document.getElementById('claimBtn').addEventListener('click', () => {
-    window.location.href = '../../../10-profile/index.html';
+  document.getElementById('claimBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('claimBtn');
+    const targetUrl = '../10-profile/index.html'; // (แก้ path เดิมที่ผิด: ../../../10-profile/... ชี้ผิดตำแหน่ง)
+
+    if (!ZooAPI.isLoggedIn()) {
+      // ไม่ได้ login ผ่าน backend (เช่นเปิดหน้านี้ตรงๆ ตอน dev) -> ไปหน้าโปรไฟล์เฉยๆ เหมือนเดิม
+      window.location.href = targetUrl;
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'กำลังรับรางวัล...';
+
+    try {
+      const rewards = await ZooAPI.getRewards();
+
+      // reward "รวมทุกโซน" คือตัวที่ requiredStamps มากที่สุด (ครบ 6 ตราตามที่หน้านี้สื่อ)
+      const masterReward = rewards.reduce(
+        (max, r) => (!max || r.requiredStamps > max.requiredStamps ? r : max),
+        null,
+      );
+
+      if (!masterReward) {
+        // ยังไม่มีรางวัลถูกตั้งค่าไว้ใน backend เลย -> ไม่มีอะไรให้ claim ก็ไปหน้าโปรไฟล์ต่อได้
+        window.location.href = targetUrl;
+        return;
+      }
+
+      if (!masterReward.isClaimed) {
+        await ZooAPI.claimReward(masterReward.id);
+      }
+      // ไม่ว่าจะเพิ่ง claim สำเร็จ หรือเคย claim ไปแล้วก่อนหน้า ก็ไปหน้าโปรไฟล์ต่อได้เลย
+      window.location.href = targetUrl;
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'รับรางวัล';
+      alert('รับรางวัลไม่สำเร็จ: ' + err.message);
+    }
   });
 </script>
 
