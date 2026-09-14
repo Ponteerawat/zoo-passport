@@ -1,0 +1,394 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply h-full bg-cream text-ink;
+  }
+  body {
+    @apply font-body;
+  }
+
+  /* Keyboard focus ต้องเห็นชัดทุก element ที่กดได้ */
+  a:focus-visible,
+  button:focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-leaf ring-offset-cream;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ปุ่ม CTA หลัก แบบ 3D กดได้ ใช้ซ้ำได้ทุกหน้า */
+  .btn-primary {
+    @apply w-full max-w-[300px] rounded-full py-3.5 font-display font-semibold
+      text-white bg-gradient-to-b from-[#4CAF54] to-[#2E7D34]
+      shadow-[0_6px_0_#1F5A25,0_10px_18px_rgba(46,107,62,0.35)]
+      active:translate-y-1 active:shadow-[0_2px_0_#1F5A25,0_4px_10px_rgba(46,107,62,0.35)]
+      transition-transform;
+  }
+
+  /* ปุ่ม CTA แบบวงกลมไอคอนขยายเต็มปุ่มตอน hover (ปรับจาก Uiverse M4rio1/odd-cougar-66) */
+  .btn-adventure {
+    @apply relative flex h-[3.2em] w-full max-w-[300px] items-center overflow-hidden rounded-full
+      py-[0.35em] pl-[1.6em] pr-[3.6em] font-display font-semibold text-white
+      bg-gradient-to-b from-[#4CAF54] to-[#2E7D34]
+      shadow-[inset_0_0_1.6em_-0.6em_#1F5A25,0_6px_0_#1F5A25,0_10px_18px_rgba(46,107,62,0.35)]
+      transition-transform active:translate-y-1;
+  }
+
+  .btn-adventure-icon {
+    @apply absolute right-[0.3em] flex h-[2.4em] w-[2.4em] items-center justify-center rounded-full
+      bg-white shadow-[0.1em_0.1em_0.6em_0.2em_#1F5A25] transition-all duration-300;
+  }
+
+  .btn-adventure:hover .btn-adventure-icon {
+    width: calc(100% - 0.6em);
+  }
+
+  .btn-adventure-icon svg {
+    @apply w-[1.15em] text-[#2E7D34] transition-transform duration-300;
+  }
+
+  .btn-adventure:hover .btn-adventure-icon svg {
+    transform: translateX(0.15em);
+  }
+
+  .btn-adventure:active .btn-adventure-icon {
+    transform: scale(0.95);
+  }
+
+  /* ตัวแปรสีแดงของ .btn-adventure ใช้กับปุ่ม "ออกจากระบบ" */
+  .btn-adventure-danger {
+    @apply bg-gradient-to-b from-[#E14D4D] to-[#A62F2F]
+      shadow-[inset_0_0_1.6em_-0.6em_#6B1F1F,0_6px_0_#6B1F1F,0_10px_18px_rgba(166,47,47,0.35)];
+  }
+
+  .btn-adventure-danger .btn-adventure-icon svg {
+    @apply text-[#A62F2F];
+  }
+
+  .btn-adventure-danger .btn-adventure-icon {
+    box-shadow: 0.1em 0.1em 0.6em 0.2em #6b1f1f;
+  }
+
+  .btn-gold {
+    @apply rounded-full px-8 py-3 font-display font-bold text-white
+      bg-gradient-to-b from-gold to-gold-dark
+      shadow-[0_6px_14px_rgba(217,134,42,0.4)]
+      hover:-translate-y-0.5 active:translate-y-0 transition-transform;
+  }
+  
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card;
+  }
+}
+
+@keyframes stampIn {
+  0% {
+    transform: scale(0.4) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* การ์ดเกม memory-match: พลิก 3 มิติจริง แทนการสลับพื้นหลังเฉยๆ */
+.flip-card {
+  perspective: 800px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s;
+  transform-style: preserve-3d;
+}
+.flip-card.is-flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+}
+.flip-face-back {
+  transform: rotateY(180deg);
+}
+
+/* loader */
+/* From Uiverse.io by satyamchaudharydev */ 
+.loader {
+  display: block;
+  --height-of-loader: 4px;
+  --loader-color: #0071e2;
+  width: 130px;
+  height: var(--height-of-loader);
+  border-radius: 30px;
+  background-color: rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.loader::before {
+  content: "";
+  position: absolute;
+  background: var(--loader-color);
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  border-radius: 30px;
+  animation: moving 1s ease-in-out infinite;
+  ;
+}
+
+@keyframes moving {
+  50% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0;
+    right: 0;
+    left: unset;
+  }
+}
+
+/* loaderline */
+/* From Uiverse.io by uiverse-astronaut */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap");
+
+.loader-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px 10px 14px;
+  background: var(--color-cloud, #ffffff);
+  border: 1px solid var(--color-edge, #e3e8ee);
+  border-radius: 999px;
+  box-shadow:
+    0 1px 1px rgba(14, 17, 22, 0.04),
+    0 18px 36px -24px rgba(14, 17, 22, 0.18);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-ink, #0e1116);
+}
+
+.loader-line__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loader-line__dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-signal, #2e7def);
+  animation: loader-line-pulse 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.loader-line__dots i:nth-child(2) {
+  background: var(--color-citrus, #ff7a3d);
+  animation-delay: 0.16s;
+}
+
+.loader-line__dots i:nth-child(3) {
+  background: var(--color-meadow, #2bc48a);
+  animation-delay: 0.32s;
+}
+
+.loader-line__text {
+  letter-spacing: -0.005em;
+}
+
+@keyframes loader-line-pulse {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* button logout */
+/* From Uiverse.io by vinodjangid07 */ 
+.Btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: rgb(255, 65, 65);
+}
+
+/* plus sign */
+.sign {
+  width: 100%;
+  transition-duration: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 17px;
+}
+
+.sign svg path {
+  fill: white;
+}
+/* text */
+.text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  transition-duration: .3s;
+}
+/* hover effect on button width */
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: .3s;
+}
+
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+/* hover effect button's text */
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: .3s;
+  padding-right: 10px;
+}
+/* button click effect*/
+.Btn:active {
+  transform: translate(2px ,2px);
+}
+  /* From Uiverse.io by vinodjangid07 - Tags: button, hover, logout */
+  /* ปรับให้เป็นแคปซูลโชว์ข้อความตลอด ไม่ต้อง hover/กดก่อน */
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    height: 45px;
+    padding: 0 18px 0 16px;
+    gap: 10px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition-duration: 0.2s;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+    background-color: rgb(255, 65, 65);
+  }
+
+  .logout-btn__sign {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logout-btn__sign svg {
+    width: 17px;
+  }
+
+  .logout-btn__sign svg path {
+    fill: white;
+  }
+
+  .logout-btn__text {
+    position: static;
+    width: auto;
+    opacity: 1;
+    color: white;
+    font-size: 1.2em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .logout-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .logout-btn:active {
+    transform: translate(2px, 2px);
+  }
+
+/* qr scan overlay — ปรับจาก app/web/11-qr-scan/index.html */
+.qr-scan-box {
+  width: min(64vw, 280px);
+  height: min(64vw, 280px);
+  position: relative;
+}
+.qr-scan-box .corner {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 4px solid theme(colors.leaf.light);
+}
+.qr-scan-box .corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+.qr-scan-box .corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
+.qr-scan-box .corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
+.qr-scan-box .corner.br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
+
+.qr-scan-line {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 3px;
+  background: theme(colors.leaf.light);
+  box-shadow: 0 0 8px theme(colors.leaf.light);
+  top: 4%;
+  animation: qr-scan-move 2.2s ease-in-out infinite;
+  border-radius: 2px;
+}
+@keyframes qr-scan-move {
+  0% { top: 4%; }
+  50% { top: 92%; }
+  100% { top: 4%; }
+}

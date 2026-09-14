@@ -29,6 +29,8 @@ export const zonesSchema = pgTable("zones", {
   nameTh: text("name_th").notNull(),
   nameEn: text("name_en").notNull(),
   descriptionTh: text("description_th"),
+  storyTitleTh: text("story_title_th"),
+  missionTh: text("mission_th"),
   iconUrl: text("icon_url"),
   orderIndex: integer("order_index").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),

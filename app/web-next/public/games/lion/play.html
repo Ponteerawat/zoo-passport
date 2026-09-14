@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lion Zone — Mini Game</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="game-container">
+  <div id="game-ui">
+    <div class="top-bar">
+      <div class="badge">🍖 <span id="meat-count">0</span> / 15</div>
+      <div class="badge badge-timer">⏱ <span id="time-left">30</span>s</div>
+    </div>
+    <div class="controls">
+      <div class="btn" id="btn-left">◀</div>
+      <div class="btn btn-jump" id="btn-jump">JUMP</div>
+      <div class="btn" id="btn-right">▶</div>
+    </div>
+  </div>
+
+  <div id="start-screen" class="overlay-screen">
+    <div class="card">
+      <h1>Lion Zone 🦁</h1>
+      <div class="story-box">สิงโตหิวมาก! ช่วยวิ่งเก็บเนื้อให้ครบ 15 ชิ้น ภายใน 30 วินาที แล้วหลบก้อนหินแหลมด้วยการกระโดด</div>
+      <button class="action-btn" onclick="startGame()">เริ่มเกม</button>
+    </div>
+  </div>
+
+  <div id="game-over" class="overlay-screen" style="display:none;">
+    <div class="card">
+      <h1 id="result-title">ผลการเล่น</h1>
+      <p id="result-desc"></p>
+
+      <div id="win-stamp-container" class="stamp-box" style="display:none;">
+        <img class="lion-logo" src="img/lionlogo.png" alt="Lion Stamp">
+        <p>คุณได้รับตราประทับ Lion Zone แล้ว!</p>
+      </div>
+
+      <p>เก็บเนื้อได้ <strong id="final-meat">0</strong> ชิ้น</p>
+
+      <button class="action-btn" onclick="restartGame()">เล่นอีกครั้ง</button>
+      <button id="btn-redirect" class="action-btn redirect-btn" style="display:none;" onclick="goToPassport()">
+        ดูพาสปอร์ต
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Zoo Passport integration: ต้องมาก่อน game.js เสมอ -->
+<script>
+  window.ZOO_API_BASE_URL = "http://localhost:3003/api/v1"; // TODO: เปลี่ยนตอน deploy production
+  window.ZOO_APP_BASE_URL = "http://localhost:3000";        // TODO: เปลี่ยนตอน deploy production
+</script>
+<script src="../_shared/zoo-passport-client.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/game.js"></script>
+
+</body>
+</html>
