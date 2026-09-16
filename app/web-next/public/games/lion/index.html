@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Lion Zone</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" aria-label="ย้อนกลับ">←</button>
+    <h1>Lion Zone</h1>
+  </div>
+
+  <div class="lion-container">
+    <p><img src="img/lionlogo.png" alt="Lion" width="200px" height="200px"></p>
+  </div>
+
+  <style>
+  .description {
+    text-align: center;
+    padding: 16px 30px;
+    color: #4a4a4a;
+  }
+
+  .description h2 {
+    text-align: center;   /* บังคับกึ่งกลางแม้ h2 จะมี default style */
+    margin: 2px 0;         /* ระยะห่างระหว่างบรรทัดน้อยลง */
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+</style>
+
+<p class="description">
+  <h2>สิงโตทำตราหล่นไว้</h2>
+  <h2>ช่วยจับคู่รอยเท้า</h2>
+  <h2>ให้ถูกต้อง!</h2>
+</p>
+
+  <div class="footer">
+    <button class="start-btn" id="startBtn">เริ่มเกม</button>
+  </div>
+
+</div>
+
+<script>
+  // เข้าสู่เกมสิงโตแล้วไปหน้าที่มีปุ่ม "เริ่มเกม" โดยตรง
+  const zoneId = new URLSearchParams(window.location.search).get('zoneId');
+  window.location.replace('play.html' + (zoneId ? `?zoneId=${zoneId}` : ''));
+
+  // ปุ่มย้อนกลับ: กลับไปหน้าก่อนหน้าของเบราว์เซอร์
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      alert('ย้อนกลับไปหน้าก่อนหน้า');
+    }
+  });
+
+  // ปุ่มเริ่มเกม -> ไปหน้าเกมจริงในโฟลเดอร์นี้เอง ส่งต่อ zoneId ที่ได้จากการสแกน QR ไปด้วย
+  document.getElementById('startBtn').addEventListener('click', () => {
+    const zoneId = new URLSearchParams(window.location.search).get('zoneId');
+    window.location.href = 'play.html' + (zoneId ? `?zoneId=${zoneId}` : '');
+  });
+</script>
+
+</body>
+</html>

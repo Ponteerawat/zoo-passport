@@ -13,6 +13,8 @@ export const getZonesResponseSchema = t.Object({
       nameTh: t.String(),
       nameEn: t.String(),
       descriptionTh: t.Nullable(t.String()),
+      storyTitleTh: t.Nullable(t.String()),
+      missionTh: t.Nullable(t.String()),
       iconUrl: t.Nullable(t.String()),
       orderIndex: t.Number(),
       status: t.String(), // 'locked' | 'available' | 'in_progress' | 'completed'

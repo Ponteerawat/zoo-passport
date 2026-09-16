@@ -37,6 +37,8 @@ export const getZonesUsecase = {
         nameTh: zone.nameTh,
         nameEn: zone.nameEn,
         descriptionTh: zone.descriptionTh,
+        storyTitleTh: zone.storyTitleTh,
+        missionTh: zone.missionTh,
         iconUrl: zone.iconUrl,
         orderIndex: zone.orderIndex,
         status: progress?.status ?? "locked",
