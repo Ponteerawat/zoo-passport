@@ -70,10 +70,13 @@ async function request<T>(
 }
 
 // ---------- Auth ----------
-export function lineLogin(idToken: string) {
+export function lineLogin(idToken: string | null, accessToken: string | null) {
   return request<{ accessToken: string; profile: ProfileSummary }>(
     "/auth/line-login",
-    { method: "POST", body: JSON.stringify({ idToken }) }
+    {
+      method: "POST",
+      body: JSON.stringify({ idToken: idToken ?? undefined, accessToken: accessToken ?? undefined }),
+    }
   );
 }
 
