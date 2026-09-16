@@ -1,13 +1,31 @@
-type LineIdTokenPayload = {
-  sub: string // LINE user ID
+type LineProfilePayload = {
+  sub: string
   name?: string
   picture?: string
 }
 
-/** Verifies the ID token with LINE's own endpoint — never trust a client-supplied payload. */
+type LineIdTokenPayload = LineProfilePayload
+
+type LineAccessTokenPayload = {
+  client_id: string
+  expires_in: number
+}
+
+const lineRequest = async (url: string, init: RequestInit) => {
+  const response = await fetch(url, init)
+  const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
+  if (!response.ok) {
+    const detail =
+      (body.error_description as string | undefined) ??
+      (body.message as string | undefined) ??
+      `HTTP ${response.status}`
+    throw new Error(`LINE verification failed: ${detail}`)
+  }
+  return body
+}
+
+/** Verifies a LIFF ID token against LINE's Verify ID token endpoint. */
 export const verifyLineIdToken = async (idToken: string): Promise<LineIdTokenPayload> => {
-  // Safeguard: mock ใช้ได้เฉพาะตอน dev เท่านั้น ต่อให้ลืมลบ/ลืมปิด
-  // USE_LINE_LOGIN_MOCK ใน production env ก็ยังไม่มีทาง bypass การ verify จริงได้
   const isMockAllowed =
     Bun.env.USE_LINE_LOGIN_MOCK === "true" && Bun.env.NODE_ENV !== "production"
 
@@ -19,18 +37,32 @@ export const verifyLineIdToken = async (idToken: string): Promise<LineIdTokenPay
     }
   }
 
-  const response = await fetch("https://api.line.me/oauth2/v2.1/verify", {
+  return lineRequest("https://api.line.me/oauth2/v2.1/verify", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       id_token: idToken,
       client_id: Bun.env.LINE_CHANNEL_ID ?? "",
     }),
-  })
+  }) as Promise<LineIdTokenPayload>
+}
 
-  if (!response.ok) {
-    throw new Error("Invalid or expired LINE ID token")
+/** Verifies a LIFF access token, then gets the LINE profile directly from LINE. */
+export const verifyLineAccessToken = async (
+  accessToken: string,
+): Promise<LineProfilePayload> => {
+  const channelId = Bun.env.LINE_CHANNEL_ID ?? ""
+  const verification = (await lineRequest(
+    `https://api.line.me/oauth2/v2.1/verify?access_token=${encodeURIComponent(accessToken)}`,
+    { method: "GET" },
+  )) as LineAccessTokenPayload
+
+  if (verification.client_id !== channelId || verification.expires_in <= 0) {
+    throw new Error("LINE access token is invalid for this channel")
   }
 
-  return response.json() as Promise<LineIdTokenPayload>
+  return lineRequest("https://api.line.me/v2/profile", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  }) as Promise<LineProfilePayload>
 }

@@ -22,8 +22,14 @@ export default function LoginPage() {
     setStatus("authenticating");
     try {
       const idToken = liff.getIDToken();
-      const { accessToken } = await lineLogin(idToken);
-      setToken(accessToken);
+      const accessToken = liff.getAccessToken();
+
+      if (!idToken && !accessToken) {
+        throw new Error("LINE token unavailable");
+      }
+
+      const { accessToken: sessionToken } = await lineLogin(idToken, accessToken);
+      setToken(sessionToken);
       router.replace("/welcome");
     } catch (err) {
       console.error(err);
@@ -77,7 +83,7 @@ export default function LoginPage() {
   async function handleMockLogin() {
     setStatus("authenticating");
     try {
-      const { accessToken } = await lineLogin("mock-token");
+      const { accessToken } = await lineLogin("mock-token", null);
       setToken(accessToken);
       router.replace("/welcome");
     } catch (err) {

@@ -1,7 +1,8 @@
 import { t } from "elysia"
 
 export const lineLoginBodySchema = t.Object({
-  idToken: t.String({ description: "LINE ID token from LIFF's liff.getIDToken()" }),
+  idToken: t.Optional(t.String({ description: "LINE ID token from LIFF's liff.getIDToken()" })),
+  accessToken: t.Optional(t.String({ description: "LINE access token from LIFF's liff.getAccessToken()" })),
 })
 
 export type LineLoginBody = typeof lineLoginBodySchema.static
