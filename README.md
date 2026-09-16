@@ -30,7 +30,7 @@ zoo-passpost/
 │   │       ├── lib/          # auth guard, jwt, error handler
 │   │       └── index.ts      # composition root + CORS + docs
 │   ├── web/                  # เวอร์ชัน static เดิม (เก็บไว้อ้างอิงดีไซน์)
-│   └── web-next/             # เว็บหลักที่ใช้งานจริง (Next.js 16)
+│   └── web/             # เว็บหลักที่ใช้งานจริง (Next.js 16)
 │       ├── public/
 │       │   ├── image/        # โลโก้, ไอคอน, พื้นหลัง
 │       │   └── games/        # 6 มินิเกม (HTML/JS แยกอิสระ)

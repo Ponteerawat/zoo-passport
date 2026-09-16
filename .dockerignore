@@ -1,0 +1,17 @@
+.git
+.env
+.env.local
+.env.example
+node_modules
+app/web
+**/node_modules
+**/.next
+**/.turbo
+*.tsbuildinfo
+.windsurf
+.claude
+.agents
+generated
+supabase/.temp
+README.md
+AGENTS.md
