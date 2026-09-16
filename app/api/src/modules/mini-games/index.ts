@@ -9,6 +9,7 @@ import {
 } from "./models/mini-games"
 import { requireAuth } from "../lib/auth/auth-guard"
 import { handleApiError } from "../lib/error-handdle"
+import { errorResponseSchema } from "../lib/error-response-schema"
 
 export const miniGames = new Elysia({ prefix: "/mini-games" })
   .onError(({ error, set }) => handleApiError(error, set))
@@ -21,7 +22,7 @@ export const miniGames = new Elysia({ prefix: "/mini-games" })
     {
       headers: miniGameHeadersSchema,
       params: t.Object({ zoneId: t.String() }),
-      response: startMiniGameResponseSchema,
+      response: { 200: startMiniGameResponseSchema, 401: errorResponseSchema, 404: errorResponseSchema, 500: errorResponseSchema },
       tags: ["mini-games"],
       description: "เริ่มเล่นมินิเกมของโซนนี้ ออก session token อายุสั้นๆ ไว้ตรวจตอน submit",
     },
@@ -36,7 +37,7 @@ export const miniGames = new Elysia({ prefix: "/mini-games" })
       headers: miniGameHeadersSchema,
       params: t.Object({ zoneId: t.String() }),
       body: submitMiniGameBodySchema,
-      response: submitMiniGameResponseSchema,
+      response: { 200: submitMiniGameResponseSchema, 401: errorResponseSchema, 404: errorResponseSchema, 500: errorResponseSchema },
       tags: ["mini-games"],
       description: "ส่งคะแนนหลังเล่นจบ ตรวจ anti-cheat ครบทุกจุดก่อนปลดล็อกตรา",
     },

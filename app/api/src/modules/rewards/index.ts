@@ -9,6 +9,7 @@ import {
 } from "./models/rewards"
 import { requireAuth } from "../lib/auth/auth-guard"
 import { handleApiError } from "../lib/error-handdle"
+import { errorResponseSchema } from "../lib/error-response-schema"
 
 export const rewards = new Elysia({ prefix: "/rewards" })
   .onError(({ error, set }) => handleApiError(error, set))
@@ -20,7 +21,7 @@ export const rewards = new Elysia({ prefix: "/rewards" })
     },
     {
       headers: rewardsHeadersSchema,
-      response: getRewardsResponseSchema,
+      response: { 200: getRewardsResponseSchema, 401: errorResponseSchema, 404: errorResponseSchema, 500: errorResponseSchema },
       tags: ["rewards"],
       description: "ดึงรายการรางวัลทั้งหมด พร้อมสถานะว่า user คนนี้เก็บครบ/รับไปแล้วหรือยัง",
     },
@@ -34,7 +35,7 @@ export const rewards = new Elysia({ prefix: "/rewards" })
     {
       headers: rewardsHeadersSchema,
       params: claimRewardParamsSchema,
-      response: claimRewardResponseSchema,
+      response: { 200: claimRewardResponseSchema, 401: errorResponseSchema, 404: errorResponseSchema, 500: errorResponseSchema },
       tags: ["rewards"],
       description: "รับรางวัล ตรวจสอบเงื่อนไขซ้ำฝั่ง server ก่อนบวกคะแนนและบันทึกการรับ",
     },
