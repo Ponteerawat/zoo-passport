@@ -24,6 +24,10 @@ COPY tsconfig.json ./
 COPY app/api ./app/api
 COPY packages ./packages
 COPY prisma ./prisma
+# game-histories module import mock data จาก test/mocks/data แบบ top-level import
+# ต้อง copy เข้ามาด้วยเสมอ ต่อให้ USE_GAME_HISTORIES_MOCK=false ก็ตาม เพราะ
+# import statement resolve ตอนโหลดไฟล์ ก่อนเช็คเงื่อนไขใดๆ ทั้งสิ้น
+COPY test ./test
 
 # API_PORT ตั้งผ่าน env ตอน deploy ได้ (ดูใน app/api/src/modules/index.ts)
 # ค่า default ในโค้ดคือ 3003 — ปรับ EXPOSE ให้ตรงถ้าเปลี่ยนค่า
