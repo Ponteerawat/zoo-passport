@@ -11,16 +11,16 @@ export const lineLoginUsecase = {
 
     let linePayload: Awaited<ReturnType<typeof verifyLineAccessToken>> | undefined
 
-    if (accessToken) {
+    if (idToken) {
       try {
-        linePayload = await verifyLineAccessToken(accessToken)
-      } catch (accessError) {
-        if (!idToken) throw accessError
+        linePayload = await verifyLineIdToken(idToken)
+      } catch (idTokenError) {
+        if (!accessToken) throw idTokenError
       }
     }
 
     if (!linePayload) {
-      linePayload = await verifyLineIdToken(idToken!)
+      linePayload = await verifyLineAccessToken(accessToken!)
     }
 
     const profile = await upsertLineProfile({
