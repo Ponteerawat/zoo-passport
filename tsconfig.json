@@ -30,5 +30,5 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["node_modules", "app/web-next", ".next", "supabase/.temp"]
+  "exclude": ["node_modules", "app/web", ".next", "supabase/.temp"]
 }
