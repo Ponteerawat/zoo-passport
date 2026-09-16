@@ -1,8 +1,0 @@
-{
-  "/profile/page": "app/profile/page.js",
-  "/how-to-play/page": "app/how-to-play/page.js",
-  "/scan/page": "app/scan/page.js",
-  "/history/page": "app/history/page.js",
-  "/passport/page": "app/passport/page.js",
-  "/_not-found/page": "app/_not-found/page.js"
-}
