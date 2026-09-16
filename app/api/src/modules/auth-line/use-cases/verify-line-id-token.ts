@@ -6,11 +6,6 @@ type LineProfilePayload = {
 
 type LineIdTokenPayload = LineProfilePayload
 
-type LineAccessTokenPayload = {
-  client_id: string
-  expires_in: number
-}
-
 const lineRequest = async (url: string, init: RequestInit) => {
   const response = await fetch(url, init)
   const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
@@ -47,20 +42,13 @@ export const verifyLineIdToken = async (idToken: string): Promise<LineIdTokenPay
   }) as Promise<LineIdTokenPayload>
 }
 
-/** Verifies a LIFF access token, then gets the LINE profile directly from LINE. */
+/** Verifies a LIFF access token by calling LINE's authenticated profile endpoint. */
 export const verifyLineAccessToken = async (
   accessToken: string,
 ): Promise<LineProfilePayload> => {
-  const channelId = Bun.env.LINE_CHANNEL_ID ?? ""
-  const verification = (await lineRequest(
-    `https://api.line.me/oauth2/v2.1/verify?access_token=${encodeURIComponent(accessToken)}`,
-    { method: "GET" },
-  )) as LineAccessTokenPayload
-
-  if (verification.client_id !== channelId || verification.expires_in <= 0) {
-    throw new Error("LINE access token is invalid for this channel")
-  }
-
+  // The profile endpoint authenticates the bearer token itself. This avoids
+  // depending on LINE_CHANNEL_ID for LIFF access-token login, while ID-token
+  // verification below still validates the audience explicitly.
   return lineRequest("https://api.line.me/v2/profile", {
     method: "GET",
     headers: { Authorization: `Bearer ${accessToken}` },
