@@ -17,6 +17,17 @@ type LineAccessTokenProfile = {
   pictureUrl?: string
 }
 
+const getLineChannelId = () => {
+  const configured = (Bun.env.LINE_CHANNEL_ID ?? "").trim().replace(/^[\'\"]|[\'\"]$/g, "")
+  const channelId = configured.match(/^(\d+)(?:-|$)/)?.[1] ?? ""
+
+  if (!channelId) {
+    throw new Error("LINE_CHANNEL_ID is not configured")
+  }
+
+  return channelId
+}
+
 const lineRequest = async (url: string, init: RequestInit) => {
   const response = await fetch(url, init)
   const body = (await response.json().catch(() => ({}))) as Record<string, unknown>
@@ -48,7 +59,7 @@ export const verifyLineIdToken = async (idToken: string): Promise<LineIdTokenPay
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       id_token: idToken,
-      client_id: Bun.env.LINE_CHANNEL_ID ?? "",
+      client_id: getLineChannelId(),
     }),
   }) as Promise<LineIdTokenPayload>
 }
@@ -57,7 +68,7 @@ export const verifyLineIdToken = async (idToken: string): Promise<LineIdTokenPay
 export const verifyLineAccessToken = async (
   accessToken: string,
 ): Promise<LineProfilePayload> => {
-  const channelId = Bun.env.LINE_CHANNEL_ID ?? ""
+  const channelId = getLineChannelId()
   const verification = (await lineRequest(
     `https://api.line.me/oauth2/v2.1/verify?access_token=${encodeURIComponent(accessToken)}`,
     { method: "GET" },
