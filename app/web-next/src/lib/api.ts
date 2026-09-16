@@ -9,8 +9,18 @@ import type {
   Pagination,
 } from "./types";
 
-const API_BASE =
-  (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3003") + "/api/v1";
+// NEXT_PUBLIC_API_URL ต้องตั้งตอน build เสมอบน production
+// ถ้าไม่ตั้ง เว็บที่ deploy แล้วจะยิงไป localhost ของเครื่องผู้ใช้ → โหลดข้อมูลไม่ขึ้นทั้งแอป
+// จึงให้ fail ตั้งแต่ตอน build แทนที่จะปล่อยให้พังเงียบๆ ตอนผู้ใช้เปิดเว็บ
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_ORIGIN && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not set — ต้องตั้งเป็น URL ของ API จริงก่อน build production",
+  );
+}
+
+const API_BASE = (API_ORIGIN ?? "http://localhost:3003") + "/api/v1";
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -31,14 +41,24 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      // กันหน้าค้างหมุนไม่รู้จบเวลา API/DB ไม่ตอบ — 15 วิแล้วถือว่า fail
+      signal: options.signal ?? AbortSignal.timeout(15000),
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "TimeoutError") {
+      throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ (หมดเวลา) ลองใหม่อีกครั้ง");
+    }
+    throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+  }
 
   const body = await res.json().catch(() => ({}));
 
