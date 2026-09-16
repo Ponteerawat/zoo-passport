@@ -40,6 +40,14 @@
       </div>
 
       <p>เก็บเนื้อได้ <strong id="final-meat">0</strong> ชิ้น</p>
+      <div class="coin-reward">
+        <img src="../../image/coint-Zoo.png" alt="Zoo Coin">
+        <div>
+          <span>ได้รับเหรียญ</span>
+          <strong id="final-coins">0</strong>
+          <span>เหรียญ</span>
+        </div>
+      </div>
 
       <button class="action-btn" onclick="restartGame()">เล่นอีกครั้ง</button>
       <button id="btn-redirect" class="action-btn redirect-btn" style="display:none;" onclick="goToPassport()">
@@ -51,12 +59,13 @@
 
 <!-- Zoo Passport integration: ต้องมาก่อน game.js เสมอ -->
 <script>
-  window.ZOO_API_BASE_URL = "http://localhost:3003/api/v1"; // TODO: เปลี่ยนตอน deploy production
-  window.ZOO_APP_BASE_URL = "http://localhost:3000";        // TODO: เปลี่ยนตอน deploy production
+  window.ZOO_API_BASE_URL = "http://localhost:3003/api/v1";
+  window.ZOO_APP_BASE_URL = "http://localhost:3000";
 </script>
 <script src="../_shared/zoo-passport-client.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../_shared/audio-settings.js"></script>
 <script src="js/game.js"></script>
 
 </body>

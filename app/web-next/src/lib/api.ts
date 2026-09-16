@@ -62,6 +62,10 @@ export function getProfile() {
   return request<ProfileSummary>("/profile");
 }
 
+export function resetProgress() {
+  return request<{ success: boolean }>("/profile/reset", { method: "DELETE" });
+}
+
 // ---------- Zones ----------
 export function getZones() {
   return request<ZoneSummary[]>("/zones");

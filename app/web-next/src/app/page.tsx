@@ -68,7 +68,11 @@ export default function LoginPage() {
   // ทางลัดสำหรับ dev เท่านั้น: ข้าม LIFF ไปเลย ใช้ตอน backend เปิด
   // USE_LINE_LOGIN_MOCK=true (รับ idToken อะไรก็ได้ ไม่เช็คกับ LINE จริง)
   // ต้องเปิดใช้ด้วยการตั้ง NEXT_PUBLIC_USE_LOGIN_MOCK=true ใน .env.local เอง
-  const showMockLogin = process.env.NEXT_PUBLIC_USE_LOGIN_MOCK === "true";
+  // Safeguard: เช็ค NODE_ENV ด้วย กันไม่ให้ปุ่มนี้โผล่ใน production build
+  // ต่อให้ลืมลบ/ลืมปิด NEXT_PUBLIC_USE_LOGIN_MOCK ก่อน deploy จริง
+  const showMockLogin =
+    process.env.NEXT_PUBLIC_USE_LOGIN_MOCK === "true" &&
+    process.env.NODE_ENV !== "production";
 
   async function handleMockLogin() {
     setStatus("authenticating");
@@ -93,6 +97,7 @@ export default function LoginPage() {
         alt="logozoo"
         width={1500}
         height={1500}
+        loading="eager"
       /> 
         </div>
         <h1 className="mb-1 font-display text-xl font-bold text-forest-dark">

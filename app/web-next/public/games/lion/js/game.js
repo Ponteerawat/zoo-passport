@@ -8,6 +8,7 @@ const AudioFX = {
         }
     },
     playEatSound() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -22,6 +23,7 @@ const AudioFX = {
         osc.stop(this.ctx.currentTime + 0.15);
     },
     playJumpSound() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -36,6 +38,7 @@ const AudioFX = {
         osc.stop(this.ctx.currentTime + 0.2);
     },
     playHitSound() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -50,6 +53,7 @@ const AudioFX = {
         osc.stop(this.ctx.currentTime + 0.3);
     },
     playWinSound() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const notes = [261.63, 329.63, 392.00, 523.25];
         notes.forEach((freq, idx) => {
@@ -67,10 +71,15 @@ const AudioFX = {
     },
     startBGM() {
         this.stopBGM();
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const melody = [261, 293, 329, 349, 392, 349, 329, 293];
         let step = 0;
         this.bgmInterval = setInterval(() => {
+            if (!window.ZooAudioSettings?.isSoundEnabled()) {
+                this.stopBGM();
+                return;
+            }
             if (this.ctx.state === 'suspended') this.ctx.resume();
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -295,6 +304,10 @@ scene.add(lionGroup);
 let gameStarted = false;
 let isGameOver = false;
 let meatCollected = 0;
+
+// แต้มต่อเนื้อ 1 ชิ้น: เก็บครบ 15 ชิ้น = 150 แต้ม (ต้องได้อย่างน้อย 10 ชิ้น
+// ~100 แต้ม ถึงจะผ่านเกณฑ์ pass_score=100 ที่ backend)
+const POINTS_PER_MEAT = 10;
 let timeLeft = 30;
 let timerInterval = null;
 
@@ -550,19 +563,23 @@ function endGame(isWin, title, desc) {
     const winStampContainer = document.getElementById('win-stamp-container');
     const btnRedirect = document.getElementById('btn-redirect');
 
+    // ปุ่ม "ดูพาสปอต" ต้องกดได้เสมอไม่ว่าจะแพ้หรือชนะ (เดิมซ่อนไว้ตอนแพ้
+    // ทำให้ติดอยู่ในหน้านั้น กลับแอปไม่ได้ — เหมือนบั๊กที่เจอใน panda ก่อนหน้านี้)
+    btnRedirect.style.display = 'block';
+
     if (isWin) {
         AudioFX.playWinSound();
         winStampContainer.style.display = 'flex';
-        btnRedirect.style.display = 'block';
     } else {
         AudioFX.playHitSound();
         winStampContainer.style.display = 'none';
-        btnRedirect.style.display = 'none';
     }
 
     document.getElementById('result-title').innerText = title;
     document.getElementById('result-desc').innerText = desc;
+    const finalCoins = meatCollected * POINTS_PER_MEAT;
     document.getElementById('final-meat').innerText = meatCollected;
+    document.getElementById('final-coins').innerText = finalCoins;
     document.getElementById('game-over').style.display = 'flex';
 
     // ส่งคะแนนจริงเข้า backend เสมอ ไม่ว่าจะชนะหรือแพ้ (backend เป็นคนตัดสิน pass/fail)
@@ -570,7 +587,7 @@ function endGame(isWin, title, desc) {
         try {
             if (zooSessionPromise) await zooSessionPromise;
             if (!zooSessionToken) throw new Error("ไม่มี session token — เริ่มเกมใหม่อีกครั้ง");
-            zooSubmitResult = await ZooPassport.submitMiniGame(zooSessionToken, meatCollected);
+            zooSubmitResult = await ZooPassport.submitMiniGame(zooSessionToken, meatCollected * POINTS_PER_MEAT);
         } catch (err) {
             console.error("[ZooPassport] ส่งคะแนนไม่สำเร็จ:", err);
         }

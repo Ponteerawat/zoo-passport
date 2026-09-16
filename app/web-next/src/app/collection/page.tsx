@@ -6,6 +6,8 @@ import Link from "next/link";
 import { getZones } from "@/lib/api";
 import type { ZoneSummary } from "@/lib/types";
 import { getZoneIconSrc } from "@/lib/zone-icons";
+import { getAnimalArLink } from "@/lib/ar-links";
+import { ARButton } from "@/components/ARButton";
 
 export default function CollectionPage() {
   const [zones, setZones] = useState<ZoneSummary[]>([]);
@@ -29,34 +31,36 @@ export default function CollectionPage() {
         {zones.map((zone) => {
           const done = zone.status === "completed";
           const iconSrc = getZoneIconSrc(zone.animaltype, zone.iconUrl);
+          const arLink = done ? getAnimalArLink(zone.animaltype) : null;
+
           return (
-            <Link
-              key={zone.id}
-              href={`/passport/${zone.id}`}
-              className="flex flex-col items-center gap-2"
-            >
-              <div
-                className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 text-3xl shadow-sm transition-transform hover:-translate-y-0.5 ${
-                  done
-                    ? "border-leaf-light bg-white"
-                    : "border-muted bg-muted-bg grayscale opacity-60"
-                }`}
-              >
-                {iconSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={iconSrc} alt={zone.nameTh} className="h-full w-full object-cover" />
-                ) : (
-                  <span>🐾</span>
-                )}
-              </div>
-              <span
-                className={`font-display text-sm font-bold ${
-                  done ? "text-forest-dark" : "text-muted"
-                }`}
-              >
-                {zone.nameTh}
-              </span>
-            </Link>
+            <div key={zone.id} className="flex flex-col items-center gap-2">
+              <Link href={`/passport/${zone.id}`} className="flex flex-col items-center gap-2">
+                <div
+                  className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 text-3xl shadow-sm transition-transform hover:-translate-y-0.5 ${
+                    done
+                      ? "border-leaf-light bg-white"
+                      : "border-muted bg-muted-bg grayscale opacity-60"
+                  }`}
+                >
+                  {iconSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={iconSrc} alt={zone.nameTh} className="h-full w-full object-cover" />
+                  ) : (
+                    <span>🐾</span>
+                  )}
+                </div>
+                <span
+                  className={`font-display text-sm font-bold ${
+                    done ? "text-forest-dark" : "text-muted"
+                  }`}
+                >
+                  {zone.nameTh}
+                </span>
+              </Link>
+
+              {arLink && <ARButton href={arLink} />}
+            </div>
           );
         })}
       </main>

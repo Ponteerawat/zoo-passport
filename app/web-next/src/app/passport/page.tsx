@@ -31,7 +31,7 @@ export default function PassportHomePage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-cream">
-      <header className="relative flex-shrink-0 overflow-hidden bg-[url('/image/bg-passport.png')] bg-cover bg-center px-6 pb-9 pt-8 text-center">
+      <header className="relative flex-shrink-0 overflow-hidden bg-[url('/image/bg-passport.jpg')] bg-cover bg-center px-6 pb-9 pt-8 text-center">
         <Image
           src="/image/logozoo.png"
           alt="logo zoo"

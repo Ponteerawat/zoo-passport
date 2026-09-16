@@ -287,6 +287,7 @@ function getAudioCtx() {
 }
 
 function playCatchSound() {
+    if (!window.ZooAudioSettings?.isSoundEnabled()) return;
     const ac = getAudioCtx();
     if (!ac) return;
     const now = ac.currentTime;
@@ -304,6 +305,7 @@ function playCatchSound() {
 }
 
 function playExplosionSound() {
+    if (!window.ZooAudioSettings?.isSoundEnabled()) return;
     const ac = getAudioCtx();
     if (!ac) return;
     const now = ac.currentTime;

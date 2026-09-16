@@ -11,8 +11,12 @@ import { mockGameHistory } from "../../../../../../test/mocks/data"
 export const getGameHistoriesUsecase = {
   async execute(profileId: string, query: GetGameHistoriesQuery) {
     // --------------------------------------------------------------
-    // test mock data
-    if (Bun.env.USE_GAME_HISTORIES_MOCK === "true") {
+    // test mock data — safeguard: ใช้ได้เฉพาะตอน dev เท่านั้น ต่อให้ลืมปิด
+    // USE_GAME_HISTORIES_MOCK ใน production env ก็ยังไม่มีทาง serve ข้อมูล mock ได้
+    const isMockAllowed =
+      Bun.env.USE_GAME_HISTORIES_MOCK === "true" && Bun.env.NODE_ENV !== "production"
+
+    if (isMockAllowed) {
       const filtered = mockGameHistory.filter((history) => {
         if (query.gameType && history.gameType !== query.gameType) return false
         if (query.startDate && history.playedAt < query.startDate) return false

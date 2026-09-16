@@ -10,6 +10,7 @@
   window.ZOO_APP_BASE_URL = "http://localhost:3000";        // TODO: เปลี่ยนตอน deploy production
 </script>
 <script src="../_shared/zoo-passport-client.js"></script>
+<script src="../_shared/audio-settings.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -290,8 +291,8 @@
     background: #fffaf0;
     border: 3px dashed #ffb74d;
     border-radius: 28px;
-    padding: 30px 24px 26px;
-    max-width: 380px;
+    padding: clamp(22px, 5vw, 30px) clamp(16px, 5vw, 24px) clamp(20px, 5vw, 26px);
+    max-width: min(380px, 100%);
     width: 100%;
     margin: auto 0;
     flex-shrink: 0;
@@ -303,14 +304,15 @@
 
   .mission-title {
     color: #ff8c1a;
-    font-size: 24px;
+    font-size: clamp(20px, 6vw, 24px);
     font-weight: 800;
     margin: 0 0 18px;
     text-shadow: 0 1px 0 rgba(255,255,255,0.6);
   }
 
   .mission-badge-wrap {
-    width: 128px; height: 128px;
+    width: clamp(96px, 30vw, 128px);
+    height: clamp(96px, 30vw, 128px);
     margin: 0 auto 14px;
     border-radius: 50%;
     overflow: hidden;
@@ -320,18 +322,30 @@
   .mission-badge-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .mission-sub {
-    font-size: 14px; font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: clamp(12px, 3.5vw, 14px);
+    font-weight: 600;
     color: #8a8f98;
     margin: 4px 0 2px;
   }
+  .mission-sub img {
+    width: clamp(18px, 5vw, 24px);
+    height: clamp(18px, 5vw, 24px);
+    object-fit: contain;
+    flex: 0 0 auto;
+  }
   .mission-stamp-name {
-    font-size: 19px; font-weight: 800;
+    font-size: clamp(16px, 4.8vw, 19px);
+    font-weight: 800;
     color: #2f855a;
     margin: 0 0 14px;
   }
 
   .mission-desc {
-    font-size: 14px; color: #6b7280;
+    font-size: clamp(12px, 3.6vw, 14px); color: #6b7280;
     line-height: 1.55;
     margin: 0 0 16px;
   }
@@ -345,12 +359,22 @@
     margin: 0 0 20px;
   }
   .mission-score-label {
-    font-size: 14px; font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: clamp(12px, 3.6vw, 14px);
+    font-weight: 700;
     color: #a3651a;
     letter-spacing: 0.3px;
   }
+  .mission-score-label img {
+    width: clamp(20px, 6vw, 28px);
+    height: clamp(20px, 6vw, 28px);
+    object-fit: contain;
+  }
   .mission-score-number {
-    font-size: 44px;
+    font-size: clamp(34px, 11vw, 44px);
     font-weight: 800;
     line-height: 1.15;
     background: linear-gradient(135deg, #ffcb05, #f5a623);
@@ -364,9 +388,10 @@
   .mission-btn {
     border: none;
     width: 100%;
+    min-height: 48px;
     font-family: var(--font-main);
-    font-weight: 800; font-size: 16px;
-    padding: 14px 0;
+    font-weight: 800; font-size: clamp(14px, 4vw, 16px);
+    padding: 12px 0;
     border-radius: 30px;
     cursor: pointer;
     transition: transform 0.15s;
@@ -458,7 +483,10 @@
       <p class="mission-desc">คุณป้อนอาหารช้างน้อยจนอิ่มแล้ว ขอบคุณมากๆ นะ! 🐘💛</p>
 
       <div class="mission-score-box">
-        <span class="mission-score-label">คะแนนที่เก็บได้ :</span>
+        <span class="mission-score-label">
+          <img src="../../image/coint-Zoo.png" alt="Zoo Point">
+          คะแนนที่เก็บได้ :
+        </span>
         <span id="final-score-val" class="mission-score-number">100</span>
       </div>
 
@@ -500,6 +528,9 @@ const CONFIG = {
 
 // -------------------- State --------------------
 let score = 0;
+// เกมนี้จบเกมพอดีที่ WIN_SCORE=20 ครั้ง คูณ 7 ให้ได้แต้มสูงสุด ~140 (ตาม
+// เป้าหมาย: เล่นเต็มไม้เต็มมือได้ไม่เกิน ~150 แต้ม, pass_score=100 ที่ backend)
+const POINTS_MULTIPLIER = 7;
 let gameActive = false;
 let isAnimating = false;
 let startTime = 0;
@@ -877,6 +908,7 @@ function getAudioCtx() {
 }
 
 function playSound(type) {
+  if (!window.ZooAudioSettings?.isSoundEnabled()) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
 
@@ -1120,15 +1152,17 @@ function triggerWin() {
     statsText += ` (สถิติที่ดีที่สุด: ${best} วินาที)`;
   }
   $('win-stats').textContent = statsText;
-  // แสดงคะแนนจริงที่เล่นได้ (ของเดิม hardcode เป็น '100' ตายตัว ไม่ตรงกับที่เล่นจริง)
-  finalScoreValEl.textContent = String(score);
+  // แสดงคะแนนจริงที่เล่นได้ x ตัวคูณแต้ม (ดู POINTS_MULTIPLIER ด้านบน) ให้ตรง
+  // กับค่าที่ส่งเข้า backend เป๊ะๆ (เดิม hardcode เป็น '100' ตายตัว ไม่ตรงกับที่เล่นจริง)
+  const finalPoints = score * POINTS_MULTIPLIER;
+  finalScoreValEl.textContent = String(finalPoints);
 
   // ส่งคะแนนจริงเข้า backend
   (async () => {
     try {
       if (zooSessionPromise) await zooSessionPromise;
       if (!zooSessionToken) throw new Error('ไม่มี session token — เริ่มเกมใหม่อีกครั้ง');
-      zooSubmitResult = await ZooPassport.submitMiniGame(zooSessionToken, score);
+      zooSubmitResult = await ZooPassport.submitMiniGame(zooSessionToken, finalPoints);
     } catch (err) {
       console.error('[ZooPassport] ส่งคะแนนไม่สำเร็จ:', err);
     }

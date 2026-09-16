@@ -1,11 +1,13 @@
 // src/app/settings/page.tsx — หน้า Settings
-// หมายเหตุ: "Reset Progress" ของเดิม (เวอร์ชัน static mockup) แค่ล้าง localStorage
-// ตอนนี้ progress จริงอยู่บน Supabase ฝั่ง backend ไม่มี endpoint ลบ/รีเซ็ตให้ใช้งาน
-// เลยเปลี่ยนเป็นสถานะ "ยังไม่รองรับ" แทนการทำฟีเจอร์ปลอมที่ไม่ได้ผลจริง
+// "Reset Progress": มีปุ่ม + popup ยืนยัน เรียก DELETE /profile/reset จริง
+// ลบ zone progress, ประวัติมินิเกม, รางวัลที่รับแล้ว และรีเซ็ตแต้มเป็น 0 — กู้คืนไม่ได้
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { resetProgress } from "@/lib/api";
+import ToggleSwitch from "@/components/ToggleSwitch";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 function useLocalToggle(key: string, defaultValue: boolean) {
   const [value, setValue] = useState(defaultValue);
@@ -19,6 +21,7 @@ function useLocalToggle(key: string, defaultValue: boolean) {
     setValue((v) => {
       const next = !v;
       localStorage.setItem(key, String(next));
+      window.dispatchEvent(new Event("zoo-settings-change"));
       return next;
     });
   }
@@ -26,37 +29,27 @@ function useLocalToggle(key: string, defaultValue: boolean) {
   return [value, toggle] as const;
 }
 
-function Toggle({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={onChange}
-      className={`relative h-[26px] w-12 flex-shrink-0 rounded-full transition-colors ${
-        checked ? "bg-leaf" : "bg-muted-bg"
-      }`}
-    >
-      <span
-        className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          checked ? "translate-x-[25px]" : "translate-x-[3px]"
-        }`}
-      />
-    </button>
-  );
-}
-
 export default function SettingsPage() {
   const [sound, toggleSound] = useLocalToggle("zoo_sound_enabled", true);
   const [music, toggleMusic] = useLocalToggle("zoo_music_enabled", false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetNotice, setResetNotice] = useState<"success" | "error" | null>(null);
+
+  async function handleResetConfirmed() {
+    setIsResetting(true);
+    try {
+      await resetProgress();
+      setShowResetConfirm(false);
+      setResetNotice("success");
+    } catch {
+      setShowResetConfirm(false);
+      setResetNotice("error");
+    } finally {
+      setIsResetting(false);
+      setTimeout(() => setResetNotice(null), 3000);
+    }
+  }
 
   return (
     <main className="min-h-dvh bg-cream">
@@ -87,7 +80,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-muted">เล่นเสียงตอบสนองในเกม</p>
               </div>
             </div>
-            <Toggle checked={sound} onChange={toggleSound} label="Sound Effects" />
+            <ToggleSwitch checked={sound} onChange={toggleSound} label="Sound Effects" />
           </div>
 
           <div className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 shadow-sm">
@@ -100,7 +93,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-muted">เปิดเสียงบรรยากาศสวนสัตว์</p>
               </div>
             </div>
-            <Toggle checked={music} onChange={toggleMusic} label="Background Music" />
+            <ToggleSwitch checked={music} onChange={toggleMusic} label="Background Music" />
           </div>
         </div>
 
@@ -119,19 +112,42 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 rounded-2xl bg-white/60 p-4 opacity-70 shadow-sm">
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="flex w-full items-center gap-3.5 rounded-2xl bg-white p-4 text-left shadow-sm transition-colors hover:bg-red-50"
+          >
             <span className="text-xl">🗑️</span>
             <div>
-              <p className="font-display font-bold text-wood-dark">
+              <p className="font-display font-bold text-red-500">
                 Reset Progress
               </p>
               <p className="text-xs text-muted">
-                ยังไม่รองรับฟีเจอร์นี้ในเวอร์ชันปัจจุบัน
+                ลบสถิติและตราประทับทั้งหมด เริ่มเล่นใหม่ตั้งแต่ต้น
               </p>
             </div>
-          </div>
+          </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showResetConfirm}
+        title="รีเซ็ตความคืบหน้า?"
+        message="การรีเซ็ตจะลบสถิติและตราประทับทั้งหมดที่สะสมไว้ ไม่สามารถกู้คืนได้"
+        confirmLabel={isResetting ? "กำลังรีเซ็ต..." : "รีเซ็ต"}
+        cancelLabel="ยกเลิก"
+        onConfirm={handleResetConfirmed}
+        onCancel={() => setShowResetConfirm(false)}
+      />
+
+      {resetNotice && (
+        <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-6">
+          <div className="rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lg">
+            {resetNotice === "success"
+              ? "รีเซ็ตความคืบหน้าเรียบร้อยแล้ว"
+              : "รีเซ็ตไม่สำเร็จ ลองใหม่อีกครั้ง"}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

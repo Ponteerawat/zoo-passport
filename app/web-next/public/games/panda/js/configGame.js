@@ -17,6 +17,7 @@ class SoundFX {
         }
     }
     playCoin() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -32,6 +33,7 @@ class SoundFX {
         osc.stop(now + 0.25);
     }
     playBamboo() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -47,6 +49,7 @@ class SoundFX {
         osc.stop(now + 0.2);
     }
     playMushroom() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -63,6 +66,7 @@ class SoundFX {
         osc.stop(now + 0.28);
     }
     playJump() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -78,6 +82,7 @@ class SoundFX {
         osc.stop(now + 0.12);
     }
     playDie() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -93,6 +98,7 @@ class SoundFX {
         osc.stop(now + 0.35);
     }
     playWin() {
+        if (!window.ZooAudioSettings?.isSoundEnabled()) return;
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
@@ -269,6 +275,9 @@ function resize() {
     canvas.width = GAME_WIDTH * scale;
     canvas.height = GAME_HEIGHT * scale;
 
+    // แก้บัค: ต้อง reset transform ก่อน scale ใหม่ทุกครั้ง
+    // ไม่งั้นตอนหมุนจอ/ปรับขนาดหน้าต่างซ้ำๆ ค่า scale จะสะสมทบกันเรื่อยๆ ทำให้เกมเบี้ยว
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(scale, scale);
 
     canvas.style.width = `${GAME_WIDTH * scale}px`;
@@ -430,8 +439,16 @@ const Draw = {
         ctx.lineTo(x + w, y + h);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(x, y, w, 5);
+        // เส้นมันวาวด้านบน — แก้บัค: เดิมวาดเป็นเส้นตรงคงที่ ไม่ได้ตามแนวคลื่น ทำให้ดูไม่เสมอกัน
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x, y + Math.sin((0 + time) * 0.05) * 5);
+        for (let i = 0; i <= w; i += 20) {
+            const waveY = Math.sin((i + time) * 0.05) * 5;
+            ctx.lineTo(x + i, y + waveY);
+        }
+        ctx.stroke();
     },
     goal: (x, y, w, h) => {
         ctx.fillStyle = '#8B0000';
@@ -702,7 +719,7 @@ const levels = [
             { x: 620, y: 500, w: 180, h: 30 }
         ],
         waters: [
-            { x: 400, y: 600, w: 180, h: 120 }
+            { x: 400, y: 600, w: 480, h: 120 }
         ],
         bamboos: [
             { x: 720, y: 240, w: 15, h: 80, collected: false },
@@ -765,7 +782,7 @@ const levels = [
         ],
         spikes: [],
         waters: [
-            { x: 160, y: 550, w: 720, h: 170 }
+            { x: 160, y: 600, w: 720, h: 120 }
         ],
         bamboos: [
             { x: 300, y: 370, w: 15, h: 80, collected: false },
@@ -954,10 +971,10 @@ function checkItemCollisions() {
             b.collected = true;
             game.bamboo++;
             game.totalBamboo++;
-            game.score += 50;
+            game.score += 5;
             sound.playBamboo();
             fx.addSparkles(b.x + b.w / 2, b.y + b.h / 2, '#32CD32', 15);
-            fx.addFloatingText(b.x + b.w / 2, b.y, '+50 ไผ่!', '#32CD32');
+            fx.addFloatingText(b.x + b.w / 2, b.y, '+5 ไผ่!', '#32CD32');
             updateUI();
         }
     }
@@ -981,7 +998,7 @@ function checkItemCollisions() {
             m.collected = true;
             player.hasMushroom = true;
             player.mushroomTimer = 6;
-            game.score += 20;
+            game.score += 5;
             sound.playMushroom();
             fx.addSparkles(m.x + m.w / 2, m.y + m.h / 2, '#FF8C00', 18);
             fx.addFloatingText(m.x + m.w / 2, m.y, 'กระโดดสูง!', '#FF8C00');

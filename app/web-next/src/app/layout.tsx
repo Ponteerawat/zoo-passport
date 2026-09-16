@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Baloo_2, Nunito, Kanit, Noto_Sans_Thai } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import SiteAudioManager from "@/components/SiteAudioManager";
 
 const baloo = Baloo_2({
   subsets: ["latin"],
@@ -15,8 +16,6 @@ const nunito = Nunito({
   variable: "--font-nunito",
 });
 
-// Baloo 2 / Nunito ไม่มีตัวอักษรไทย — ใช้สองตัวนี้เป็น fallback
-// สำหรับข้อความไทยโดยเฉพาะ (เชื่อมกับ tailwind.config.ts)
 const kanit = Kanit({
   subsets: ["thai", "latin"],
   weight: ["600", "700"],
@@ -48,17 +47,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="th"
-      className={`${baloo.variable} ${nunito.variable} ${kanit.variable} ${notoSansThai.variable}`}
-    >
+    <html lang="th" className={`${baloo.variable} ${nunito.variable} ${kanit.variable} ${notoSansThai.variable}`}>
       <body>
         {children}
-        {/* LIFF SDK — โหลดก่อนหน้า /login ใช้งาน window.liff */}
-        <Script
-          src="https://static.line-scdn.net/liff/edge/2/sdk.js"
-          strategy="beforeInteractive"
-        />
+        <SiteAudioManager />
+        <Script src="https://static.line-scdn.net/liff/edge/2/sdk.js" strategy="beforeInteractive" />
       </body>
     </html>
   );

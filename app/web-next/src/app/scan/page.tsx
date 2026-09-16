@@ -58,7 +58,7 @@ export default function ScanPage() {
       setZoneName(result.zone.nameTh);
       setState("success");
       setTimeout(() => {
-        const gameUrl = ZONE_GAME_URL[result.zone.animaltype];
+        const gameUrl = ZONE_GAME_URL[result.zone.animaltype.toLowerCase()];
         if (gameUrl) {
           // ยังใช้ full navigation (ไม่ใช่ router.push) เพราะเป็นไฟล์ static
           // ธรรมดาใน public/ ไม่ใช่ route ของ Next.js — แนบ zoneId ให้เกมรู้ว่า

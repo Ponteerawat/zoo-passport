@@ -1,6 +1,12 @@
 import { Elysia } from "elysia"
 import { getProfileUsecase } from "./use-cases/get-profile"
-import { getProfileHeadersSchema, profileResponseSchema } from "./models/profile"
+import { resetProgressUsecase } from "./use-cases/reset-progress"
+import {
+  getProfileHeadersSchema,
+  profileResponseSchema,
+  resetProgressHeadersSchema,
+  resetProgressResponseSchema,
+} from "./models/profile"
 import { requireAuth } from "../lib/auth/auth-guard"
 import { handleApiError } from "../lib/error-handdle"
 
@@ -17,5 +23,19 @@ export const profile = new Elysia({ prefix: "/profile" })
       response: profileResponseSchema,
       tags: ["profile"],
       description: "ดึงข้อมูลโปรไฟล์ผู้ใช้ที่ login อยู่ (ต้องแนบ Authorization: Bearer <token>)",
+    },
+  )
+  .delete(
+    "/reset",
+    async ({ headers }) => {
+      const profileId = requireAuth(headers.authorization)
+      return resetProgressUsecase.execute(profileId)
+    },
+    {
+      headers: resetProgressHeadersSchema,
+      response: resetProgressResponseSchema,
+      tags: ["profile"],
+      description:
+        "รีเซ็ต progress ทั้งหมดของผู้ใช้ที่ login อยู่ (ลบ zone progress, ประวัติมินิเกม, รางวัลที่รับแล้ว และรีเซ็ตแต้มเป็น 0) — ทำแล้วกู้คืนไม่ได้",
     },
   )

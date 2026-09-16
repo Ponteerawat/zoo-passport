@@ -61,7 +61,14 @@ function startGame() {
 
 // --- GAME ENGINE & LOGIC ---
 const GAME_DURATION = 60;
-const PASS_SCORE = 5000;
+// เดิม PASS_SCORE=5000 อิงกับ maxStretchDist หน่วย pixel ดิบ (ไม่ได้จำกัด
+// เพดาน เลยสะสมเป็นพันได้ใน 60 วิ) ตอนนี้หารสเกลลงแล้ว (ดู HEIGHT_SCORE_DIVISOR
+// ใน finishGame/update) เลยตั้งให้ตรงกับ pass_score=100 ของ backend ไปเลย
+// เพื่อให้ตัวเลข "ผ่าน/ไม่ผ่าน" ในเกมกับที่ backend ตัดสินตรงกันเป๊ะ
+const PASS_SCORE = 100;
+// หารระยะที่ปีนได้ (pixel) ก่อนรวมเป็นคะแนน — ปรับให้เล่นเต็มเวลา 60 วิ
+// แล้วได้คะแนนสูงสุดไม่เกินประมาณ 150 ตามเป้าหมาย
+const HEIGHT_SCORE_DIVISOR = 35;
 
 let isPlaying = false;
 let score = 0;
@@ -69,6 +76,12 @@ let heightMeters = 0;
 let elapsedTime = 0;
 let remainingTime = GAME_DURATION;
 let bestScore = Number(localStorage.getItem('giraffe_best_score')) || 0;
+// เครื่องที่เคยเล่นด้วยสเกลคะแนนเก่า (หลักพัน) ต้อง reset ค่านี้ ไม่งั้นจะดู
+// เหมือน "ทำลายสถิติไม่ได้เลย" ตลอดไป เพราะสเกลใหม่สูงสุดแค่ ~150
+if (bestScore > 1000) {
+    bestScore = 0;
+    localStorage.setItem('giraffe_best_score', 0);
+}
 
 // Zoo Passport integration
 let zooSessionPromise = null;
@@ -202,7 +215,9 @@ function spawnWorldRow(worldY) {
             type: Math.random() < 0.25 ? 'star' : 'leaf',
             x: 50 + Math.random() * (canvas.width - 100),
             y: worldY - 40,
-            collected: false
+            collected: false,
+            phase: Math.random() * Math.PI * 2,
+            speed: 1.5 + Math.random() * 1.2
         });
     }
 }
@@ -232,10 +247,11 @@ function gameLoop(now) {
 function update(deltaSeconds) {
     obstacles.forEach(obs => {
         if (obs.type === 'branch') {
-            const move = Math.sin(elapsedTime * obs.speed + obs.phase) * obs.range;
-            obs.x = obs.side === 'left'
-                ? Math.max(20, obs.baseX + move)
-                : Math.min(canvas.width - obs.width - 20, obs.baseX + move);
+            // ให้ขอนไม้เดินเต็มความกว้างของ canvas จากซ้ายสุดถึงขวาสุด
+            // เพื่อให้ตำแหน่งสิ่งกีดขวางไม่ขึ้นกับขนาดหน้าจอ
+            const maxX = Math.max(0, canvas.width - obs.width);
+            const progress = (Math.sin(elapsedTime * obs.speed + obs.phase) + 1) / 2;
+            obs.x = progress * maxX;
         }
 
         if (obs.type === 'beehive' && obs.anchorBranch) {
@@ -255,7 +271,7 @@ function update(deltaSeconds) {
     heightMeters = (maxStretchDist / 50).toFixed(1);
 
     // Update score (live display uses the same numbers finishGame() will use)
-    const heightScore = Math.floor(maxStretchDist);
+    const heightScore = Math.floor(maxStretchDist / HEIGHT_SCORE_DIVISOR);
     document.getElementById('height-display').innerText = `${heightMeters} m`;
     document.getElementById('score-display').innerText = `คะแนน: ${score + heightScore}`;
 
@@ -288,12 +304,15 @@ function checkCollisions() {
     // Check items collection
     items.forEach(item => {
         if (!item.collected) {
+            const bob = Math.sin(elapsedTime * (item.speed || 1) + (item.phase || 0)) * 5;
             const dx = head.x - item.x;
-            const dy = head.y - item.y;
+            const dy = head.y - (item.y + bob);
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < head.radius + 15) {
                 item.collected = true;
-                score += (item.type === 'star') ? 300 : 100;
+                // ลดจาก 300/100 เดิม (ตอนนั้นคะแนนรวมสเกลหลักพันจากความสูงอยู่
+                // แล้ว) ให้เข้ากับสเกลใหม่ที่คะแนนสูงสุดรวมทั้งหมดอยู่ที่ ~150
+                score += (item.type === 'star') ? 15 : 5;
             }
         }
     });
@@ -325,7 +344,7 @@ function finishGame() {
     if (!isPlaying) return;
 
     isPlaying = false;
-    const totalScore = score + Math.floor(maxStretchDist);
+    const totalScore = score + Math.floor(maxStretchDist / HEIGHT_SCORE_DIVISOR);
     const passed = totalScore >= PASS_SCORE;
 
     localStorage.setItem('giraffe_latest_score', totalScore);
@@ -389,17 +408,25 @@ function render() {
         }
     });
 
-    // 2. Draw Collectibles
+    // 2. Draw Collectibles — ดาวและใบไม้ลอย/หมุนเล็กน้อยให้ดูมีชีวิต
     items.forEach(item => {
-        if (!item.collected) {
-            if (item.type === 'star') {
-                ctx.font = '24px sans-serif';
-                ctx.fillText('⭐', item.x - 12, item.y + 8);
-            } else {
-                ctx.font = '24px sans-serif';
-                ctx.fillText('🍃', item.x - 12, item.y + 8);
-            }
-        }
+        if (item.collected) return;
+
+        const phase = item.phase || 0;
+        const speed = item.speed || 1;
+        const bob = Math.sin(elapsedTime * speed + phase) * 5;
+        const rotation = Math.sin(elapsedTime * speed * 0.8 + phase) * 0.16;
+        const scale = 1 + Math.sin(elapsedTime * speed * 1.2 + phase) * 0.08;
+
+        ctx.save();
+        ctx.translate(item.x, item.y + bob);
+        ctx.rotate(rotation);
+        ctx.scale(scale, scale);
+        ctx.font = '28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.type === 'star' ? '⭐' : '🍃', 0, 0);
+        ctx.restore();
     });
 
     
@@ -696,7 +723,6 @@ function drawGiraffe() {
 
     // Compute screen coords for head/body relative to #game-screen
     const container = document.getElementById('game-screen');
-    const rect = container.getBoundingClientRect();
     const screenHeadY = head.y + cameraOffsetY; // world -> screen
     const screenBodyY = bodyY + cameraOffsetY;
     const screenHeadX = bodyX; // canvas and container align

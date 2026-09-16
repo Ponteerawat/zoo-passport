@@ -261,13 +261,26 @@ canvas {
 }
 
 /* --- รูปยีราฟหน้า Start ให้ปรับขนาดตามจอเสมอ (กัน overflow บนจอเล็ก) --- */
-#start-screen img {
-    max-width: 70%;
-    width: auto;
-    height: auto;
-    max-height: 32vh;
+#start-screen .giraffe-hero {
+    width: 100%;
+    height: clamp(320px, 58vh, 620px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: visible;
+    margin: -8px auto 4px;
+    flex: 0 0 auto;
+}
+
+#start-screen .giraffe-hero img {
+    width: min(240vw, 1000px) !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
     display: block;
-    margin: 4px auto;
+    margin: 0 auto !important;
+    object-fit: contain;
+    flex: 0 0 auto;
 }
 
 /* --- Fluid typography: ปรับขนาดตัวอักษร/ปุ่มไหลลื่นตามความกว้างจอ --- */
@@ -344,8 +357,13 @@ canvas {
         font-size: 12px;
     }
 
-    #start-screen img {
-        max-height: 20vh;
+    #start-screen .giraffe-hero {
+        height: 48vh;
+        margin-top: -4px;
+    }
+
+    #start-screen .giraffe-hero img {
+        width: min(210vw, 820px) !important;
     }
 
     .btn {
@@ -681,6 +699,78 @@ table {
     .speech-bubble {
         font-size: 10px;
         padding: 4px 9px;
+    }
+}
+
+/* ============================================================
+   GIRAFFE HERO + FINAL COIN
+   ============================================================ */
+.giraffe-hero {
+    width: min(94vw, 460px);
+    height: clamp(250px, 48vh, 500px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    margin: 2px auto 10px;
+    pointer-events: none;
+}
+
+.giraffe-hero img {
+    width: min(92vw, 430px) !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain;
+    object-position: center bottom;
+    display: block;
+    margin: 0 auto !important;
+}
+
+.final-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+}
+
+.final-score-row #final-score {
+    margin: 0;
+}
+
+.final-score-coin {
+    width: clamp(34px, 11vw, 56px) !important;
+    height: clamp(34px, 11vw, 56px) !important;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 56px !important;
+    max-height: 56px !important;
+    object-fit: contain !important;
+    display: block !important;
+    flex: 0 0 auto;
+    margin: 0 !important;
+}
+
+@media (max-width: 340px) {
+    .giraffe-hero {
+        height: 34vh;
+        margin-bottom: 4px;
+    }
+
+    .giraffe-hero img {
+        width: 88vw !important;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .giraffe-hero {
+        height: 38vh;
+        margin: 0 auto 4px;
+    }
+
+    .giraffe-hero img {
+        width: min(42vw, 300px) !important;
     }
 }
 

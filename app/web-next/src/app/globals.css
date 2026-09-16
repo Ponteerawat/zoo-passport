@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -175,7 +177,6 @@
 
 /* loaderline */
 /* From Uiverse.io by uiverse-astronaut */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap");
 
 .loader-line {
   display: inline-flex;
@@ -358,6 +359,114 @@
   .logout-btn:active {
     transform: translate(2px, 2px);
   }
+
+/* toggle switch — From Uiverse.io by Galahhad, Tags: switch, checkbox, bubble */
+/* ตั้งชื่อ class ขึ้นต้นด้วย toggle-switch กันชนกับ class อื่นในโปรเจกต์ */
+.toggle-switch {
+  --switch-width: 46px;
+  --switch-height: 24px;
+  --switch-bg: rgb(131, 131, 131);
+  --switch-checked-bg: #5a9c3f; /* ใช้สี leaf ของธีมแอปแทนสีเขียวเดิม */
+  --switch-offset: calc((var(--switch-height) - var(--circle-diameter)) / 2);
+  --switch-transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  --circle-diameter: 18px;
+  --circle-bg: #fff;
+  --circle-shadow: 1px 1px 2px rgba(146, 146, 146, 0.45);
+  --circle-checked-shadow: -1px 1px 2px rgba(163, 163, 163, 0.45);
+  --icon-transition: all 0.2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
+  --icon-cross-color: var(--switch-bg);
+  --icon-cross-size: 6px;
+  --icon-checkmark-color: var(--switch-checked-bg);
+  --icon-checkmark-size: 10px;
+  --effect-width: calc(var(--circle-diameter) / 2);
+  --effect-height: calc(var(--effect-width) / 2 - 1px);
+  --effect-bg: var(--circle-bg);
+  --effect-border-radius: 1px;
+  --effect-transition: all 0.2s ease-in-out;
+  display: inline-block;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-switch svg {
+  transition: var(--icon-transition);
+  position: absolute;
+  height: auto;
+}
+
+.toggle-switch .toggle-switch__checkmark {
+  width: var(--icon-checkmark-size);
+  color: var(--icon-checkmark-color);
+  transform: scale(0);
+}
+
+.toggle-switch .toggle-switch__cross {
+  width: var(--icon-cross-size);
+  color: var(--icon-cross-color);
+}
+
+.toggle-switch__slider {
+  box-sizing: border-box;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  background: var(--switch-bg);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: var(--switch-transition);
+  cursor: pointer;
+}
+
+.toggle-switch__circle {
+  width: var(--circle-diameter);
+  height: var(--circle-diameter);
+  background: var(--circle-bg);
+  border-radius: inherit;
+  box-shadow: var(--circle-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--switch-transition);
+  z-index: 1;
+  position: absolute;
+  left: var(--switch-offset);
+}
+
+.toggle-switch__slider::before {
+  content: "";
+  position: absolute;
+  width: var(--effect-width);
+  height: var(--effect-height);
+  left: calc(var(--switch-offset) + (var(--effect-width) / 2));
+  background: var(--effect-bg);
+  border-radius: var(--effect-border-radius);
+  transition: var(--effect-transition);
+}
+
+/* actions */
+.toggle-switch input:checked + .toggle-switch__slider {
+  background: var(--switch-checked-bg);
+}
+
+.toggle-switch input:checked + .toggle-switch__slider .toggle-switch__checkmark {
+  transform: scale(1);
+}
+
+.toggle-switch input:checked + .toggle-switch__slider .toggle-switch__cross {
+  transform: scale(0);
+}
+
+.toggle-switch input:checked + .toggle-switch__slider::before {
+  left: calc(100% - var(--effect-width) - (var(--effect-width) / 2) - var(--switch-offset));
+}
+
+.toggle-switch input:checked + .toggle-switch__slider .toggle-switch__circle {
+  left: calc(100% - var(--circle-diameter) - var(--switch-offset));
+  box-shadow: var(--circle-checked-shadow);
+}
 
 /* qr scan overlay — ปรับจาก app/web/11-qr-scan/index.html */
 .qr-scan-box {
