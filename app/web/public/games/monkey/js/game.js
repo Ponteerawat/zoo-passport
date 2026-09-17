@@ -8,6 +8,11 @@ let isGameOver = false;
 let gameStarted = false;
 let controlMode = 'camera'; // 'camera' หรือ 'touch'
 
+// Zoo Passport integration
+let zooSessionPromise = null;
+let zooSessionToken = null;
+let zooSubmitResult = null;
+
 let targetX = 0;
 let spawnInterval = null;
 let timerInterval = null;
@@ -104,10 +109,11 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 if (btnRestart) btnRestart.addEventListener('click', restartGame);
 
-// เชื่อมโยงปุ่มพาสปอร์ต/ดูแสตมป์ ให้ลิงก์ไปหน้า 06-stamp-received ของโซนลิง
+// เชื่อมโยงปุ่มพาสปอร์ต/ดูแสตมป์ ให้กลับเข้าแอปหลักผ่าน shared client
+// (เดิมลิงก์ไปหน้า app/web เก่าที่ถูกลบไปแล้ว)
 if (btnViewCollection) {
   btnViewCollection.addEventListener('click', () => {
-    window.location.href = `../../../app/web/06-stamp-received/index.html?zone=monkey&points=${score}`;
+    ZooPassport.goBackToApp(zooSubmitResult);
   });
 }
 
@@ -138,6 +144,14 @@ if (selectTouchBtn) {
 
 function startGameFlow() {
   gameStarted = true;
+
+  // เล่นใหม่ = attempt ใหม่ ต้องขอ session token ใหม่เสมอ (กันโกงเรื่องเวลา)
+  zooSessionToken = null;
+  zooSubmitResult = null;
+  zooSessionPromise = ZooPassport.startMiniGame()
+    .then((r) => { zooSessionToken = r.sessionToken; })
+    .catch((err) => console.error('[ZooPassport] เริ่มเกมไม่สำเร็จ:', err));
+
   startTimers();
   requestAnimationFrame(gameLoop);
 }
@@ -398,6 +412,17 @@ function endGame(isWin = score >= TARGET_SCORE) {
       }
     }
   }
+
+  // ส่งคะแนนจริงเข้า backend เสมอ ไม่ว่าจะชนะหรือหมดเวลา
+  (async () => {
+    try {
+      if (zooSessionPromise) await zooSessionPromise;
+      if (!zooSessionToken) throw new Error('ไม่มี session token — เริ่มเกมใหม่อีกครั้ง');
+      zooSubmitResult = await ZooPassport.submitMiniGame(zooSessionToken, score);
+    } catch (err) {
+      console.error('[ZooPassport] ส่งคะแนนไม่สำเร็จ:', err);
+    }
+  })();
 }
 
 function restartGame() {

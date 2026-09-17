@@ -5,9 +5,9 @@
 
 URLs:
 
-- Web (dev): http://localhost:3000
-- API (dev): http://localhost:3003/api/v1
-- API docs: http://localhost:3003/api/v1/docs (Scalar) · /swagger
+- Web : https://zoo-passportio.vercel.app/
+- API : https://zoo-passport-production.up.railway.app
+- API docs: https://zoo-passport-production.up.railway.app/api/v1/docs (Scalar) · /swagger
 
 ## What's Inside the Project?
 

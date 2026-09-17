@@ -105,6 +105,12 @@
   <p id="status">กรุณาเลือกโหมดการเล่นเพื่อเริ่มเกม...</p>
 
   <!-- JavaScript: จัดการโหมดเต็มจอ / responsive -->
+  <!-- Zoo Passport integration: ต้องมาก่อน game.js เสมอ -->
+  <script>
+    window.ZOO_API_BASE_URL = "https://zoo-passport-production.up.railway.app/api/v1";
+    window.ZOO_APP_BASE_URL = "https://zoo-passportio.vercel.app";
+  </script>
+  <script src="../_shared/zoo-passport-client.js"></script>
   <script src="js/responsive.js"></script>
   <script src="../_shared/audio-settings.js"></script>
   <!-- JavaScript Game Logic -->
