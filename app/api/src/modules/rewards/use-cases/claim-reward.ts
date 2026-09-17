@@ -1,15 +1,18 @@
-import { eq, and, count, sql } from "drizzle-orm"
+import { eq, and, sql } from "drizzle-orm"
 import {
   db,
   rewardsSchema,
   userRewardsSchema,
-  userZoneProgressSchema,
   profilesSchema,
 } from "@repo/database"
 
 export const claimRewardUsecase = {
   async execute(profileId: string, rewardId: string) {
-    const [reward] = await db.select().from(rewardsSchema).where(eq(rewardsSchema.id, rewardId)).limit(1)
+    const [reward] = await db
+      .select()
+      .from(rewardsSchema)
+      .where(eq(rewardsSchema.id, rewardId))
+      .limit(1)
 
     if (!reward) {
       throw new Error("Reward not found")
@@ -18,26 +21,27 @@ export const claimRewardUsecase = {
     const [existingClaim] = await db
       .select()
       .from(userRewardsSchema)
-      .where(and(eq(userRewardsSchema.userId, profileId), eq(userRewardsSchema.rewardId, rewardId)))
+      .where(
+        and(
+          eq(userRewardsSchema.userId, profileId),
+          eq(userRewardsSchema.rewardId, rewardId),
+        ),
+      )
       .limit(1)
 
     if (existingClaim) {
       throw new Error("Reward already claimed")
     }
 
-    // ตรวจฝั่ง server เสมอ — ห้ามเชื่อ isEligible ที่ client อาจเคยเห็นจาก /rewards ตอนก่อนหน้า
-    const [ completedZoneRow ] = await db
-      .select({ completedZones: count() })
-      .from(userZoneProgressSchema)
-      .where(
-        and(
-          eq(userZoneProgressSchema.userId, profileId),
-          eq(userZoneProgressSchema.status, "completed"),
-        ),
-      )
+    // Server-side check: the coupon unlocks at 600 total points.
+    const [profile] = await db
+      .select({ totalPoints: profilesSchema.totalPoints })
+      .from(profilesSchema)
+      .where(eq(profilesSchema.id, profileId))
+      .limit(1)
 
-    if (Number(completedZoneRow?.completedZones ?? 0) < reward.requiredStamps) {
-      throw new Error("Not enough stamps collected yet")
+    if (Number(profile?.totalPoints ?? 0) < 600) {
+      throw new Error("Not enough points to unlock this coupon")
     }
 
     const [claim] = await db
@@ -57,8 +61,7 @@ export const claimRewardUsecase = {
 
     if (!updatedProfile) {
       throw new Error("Failed to update profile points")
-    }  
-
+    }
     return {
       success: true,
       data: {

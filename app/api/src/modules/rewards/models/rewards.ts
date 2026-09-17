@@ -15,6 +15,8 @@ export const getRewardsResponseSchema = t.Object({
       imageUrl: t.Nullable(t.String()),
       requiredStamps: t.Number(),
       pointsValue: t.Number(),
+      currentPoints: t.Number(),
+      unlockPoints: t.Number(),
       isEligible: t.Boolean(),
       isClaimed: t.Boolean(),
       claimedAt: t.Nullable(t.String()),

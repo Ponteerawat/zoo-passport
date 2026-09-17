@@ -311,7 +311,8 @@ const POINTS_PER_MEAT = 10;
 let timeLeft = 30;
 let timerInterval = null;
 
-const gameSpeed = 0.38;
+// เพิ่มความเร็วการวิ่งและการเคลื่อนที่ของฉาก/สิ่งกีดขวางให้รู้สึกเร็วขึ้นบนทุกอุปกรณ์
+const gameSpeed = 0.65;
 let currentLane = 0;
 let objects = [];
 let spawnTimer = 0;

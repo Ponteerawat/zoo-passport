@@ -236,14 +236,28 @@ function updatePointerPosition(x, y) {
 window.addEventListener('mousemove', (e) => updatePointerPosition(e.clientX, e.clientY));
 window.addEventListener('mousedown', () => { if (!aiActive) cursor.isPinched = true; });
 window.addEventListener('mouseup', () => { if (!aiActive) cursor.isPinched = false; });
-window.addEventListener('touchmove', (e) => { if (e.touches.length > 0) updatePointerPosition(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+window.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+        updatePointerPosition(e.touches[0].clientX, e.touches[0].clientY);
+        if (!aiActive) e.preventDefault();
+    }
+}, { passive: false });
 window.addEventListener('touchstart', (e) => {
     if (e.touches.length > 0) {
         updatePointerPosition(e.touches[0].clientX, e.touches[0].clientY);
-        if (!aiActive) cursor.isPinched = true;
+        if (!aiActive) {
+            cursor.isPinched = true;
+            cursor.wasPinched = false;
+            e.preventDefault();
+        }
     }
-}, { passive: true });
-window.addEventListener('touchend', () => { if (!aiActive) cursor.isPinched = false; });
+}, { passive: false });
+window.addEventListener('touchend', () => {
+    if (!aiActive) {
+        cursor.isPinched = false;
+        cursor.wasPinched = false;
+    }
+});
 document.addEventListener('visibilitychange', () => { if (document.hidden) aiActive = false; });
 
 /**
@@ -556,8 +570,10 @@ function updateFishesAndInteraction(dt) {
         const distToCursor = Math.hypot(cursor.x - fish.x, cursor.y - fish.y);
         if (distToCursor < fish.radius * 1.2) {
             hoveringAny = true;
-            if (cursor.isPinched && !cursor.wasPinched && !grabbedObject) {
-                fish.isGrabbed = true; grabbedObject = fish;
+            // Touch mode: เริ่มลากทันทีเมื่อแตะโดนปลา ไม่ต้องแตะ/คลิกซ้ำ
+            if (cursor.isPinched && !grabbedObject) {
+                fish.isGrabbed = true;
+                grabbedObject = fish;
             }
         }
 

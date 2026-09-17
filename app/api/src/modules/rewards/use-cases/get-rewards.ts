@@ -1,29 +1,26 @@
-import { eq, and, count } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import {
   db,
   rewardsSchema,
   userRewardsSchema,
-  userZoneProgressSchema
+  profilesSchema,
 } from "@repo/database"
 
 export const getRewardsUsecase = {
   async execute(profileId: string) {
-    const [rewards, claimedRewards, completedZones ] = await Promise.all([
+    const [rewards, claimedRewards, profileRows] = await Promise.all([
       db.select().from(rewardsSchema),
       db.select().from(userRewardsSchema).where(eq(userRewardsSchema.userId, profileId)),
       db
-        .select({ completedZones: count() })
-        .from(userZoneProgressSchema)
-        .where(
-          and(
-            eq(userZoneProgressSchema.userId, profileId),
-            eq(userZoneProgressSchema.status, "completed"),
-          ),
-        ),
+        .select({ totalPoints: profilesSchema.totalPoints })
+        .from(profilesSchema)
+        .where(eq(profilesSchema.id, profileId))
+        .limit(1),
     ])
 
     const claimedByRewardId = new Map(claimedRewards.map((row) => [row.rewardId, row]))
-    const completedCount = Number(completedZones)
+    const currentPoints = Number(profileRows[0]?.totalPoints ?? 0)
+    const unlockPoints = 600
 
     const data = rewards.map((reward) => {
       const claimed = claimedByRewardId.get(reward.id)
@@ -36,7 +33,9 @@ export const getRewardsUsecase = {
         imageUrl: reward.imageUrl,
         requiredStamps: reward.requiredStamps,
         pointsValue: reward.pointsValue,
-        isEligible: completedCount >= reward.requiredStamps,
+        currentPoints,
+        unlockPoints,
+        isEligible: currentPoints >= unlockPoints,
         isClaimed: Boolean(claimed),
         claimedAt: claimed?.claimedAt?.toISOString() ?? null,
       }

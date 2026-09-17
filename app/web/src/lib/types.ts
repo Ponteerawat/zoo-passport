@@ -1,6 +1,4 @@
-// src/lib/types.ts — shape ตรงกับ response จริงของ backend (app/api)
-// อ้างอิงจาก app/api/src/modules/*/models/*.ts โดยตรง — แก้ที่นี่ถ้า schema backend เปลี่ยน
-
+// Types matching the backend response shapes.
 export type ZoneStatus = "locked" | "available" | "in_progress" | "completed";
 
 export interface ZoneMiniGame {
@@ -45,6 +43,8 @@ export interface RewardSummary {
   imageUrl: string | null;
   requiredStamps: number;
   pointsValue: number;
+  currentPoints: number;
+  unlockPoints: number;
   isEligible: boolean;
   isClaimed: boolean;
   claimedAt: string | null;
