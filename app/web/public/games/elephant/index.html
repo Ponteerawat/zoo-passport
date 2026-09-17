@@ -438,7 +438,7 @@
       <span>⏱</span>
       <span id="timer-val" style="font-family:monospace; font-size:1.1em;">00:00</span>
     </div>
-    <button id="camera-btn" title="เปิด/ปิดกล้อง AR">📷</button>
+    <button id="camera-btn" title="สลับกล้องหน้า/หลัง" aria-label="สลับกล้องหน้า/หลัง">🔄</button>
   </div>
 
   <div id="pokemon-card">
@@ -545,6 +545,8 @@ let zooSubmitResult = null;
 const $ = (id) => document.getElementById(id);
 const cameraFeed = $('camera-feed');
 const cameraBtn = $('camera-btn');
+let cameraFacingMode = 'environment';
+let cameraStream = null;
 const scoreValEl = $('score-val');
 const timerValEl = $('timer-val');
 const itemLabelEl = $('item-label');
@@ -877,24 +879,40 @@ function onWindowResize() {
    ================================================================== */
 async function initCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('เปิดใช้ฉาก 3D สะวันนายามเย็น 🌅');
-    return;
+    showToast('อุปกรณ์นี้ไม่รองรับกล้อง');
+    return false;
   }
+
   try {
+    cameraStream?.getTracks().forEach((track) => track.stop());
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' } },
+      video: { facingMode: { ideal: cameraFacingMode } },
       audio: false
     });
+    cameraStream = stream;
     cameraFeed.srcObject = stream;
     cameraFeed.style.display = 'block';
-    showToast('เปิดกล้อง AR สำเร็จ! 📷');
+    cameraFeed.style.transform = cameraFacingMode === 'user' ? 'scaleX(-1)' : 'none';
+    await cameraFeed.play();
+    cameraBtn.textContent = '🔄';
+    cameraBtn.title = cameraFacingMode === 'user' ? 'สลับไปกล้องหลัง' : 'สลับไปกล้องหน้า';
+    cameraBtn.setAttribute('aria-label', cameraBtn.title);
+    showToast(cameraFacingMode === 'user' ? 'เปิดกล้องหน้าแล้ว 👤' : 'เปิดกล้องหลังแล้ว 📷');
+    return true;
   } catch (err) {
+    cameraStream?.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+    cameraFeed.srcObject = null;
     cameraFeed.style.display = 'none';
-    showToast('สลับใช้ฉาก 3D จำลองแทนกล้อง 🌳');
+    showToast('ไม่สามารถเปิดกล้องได้');
+    return false;
   }
 }
 
-cameraBtn.addEventListener('click', initCamera);
+cameraBtn.addEventListener('click', async () => {
+  cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+  await initCamera();
+});
 
 /* ==================================================================
    🔊 เสียงสังเคราะห์เอฟเฟกต์ Web Audio API
