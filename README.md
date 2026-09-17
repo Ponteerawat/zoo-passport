@@ -6,7 +6,6 @@
 URLs:
 
 - Web : https://zoo-passportio.vercel.app/
-- API : https://zoo-passport-production.up.railway.app
 - API docs: https://zoo-passport-production.up.railway.app/api/v1/docs (Scalar) · /swagger
 
 ## What's Inside the Project?
