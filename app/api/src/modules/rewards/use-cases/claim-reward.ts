@@ -33,14 +33,14 @@ export const claimRewardUsecase = {
       throw new Error("Reward already claimed")
     }
 
-    // Server-side check: the coupon unlocks at 600 total points.
+    // Server-side check: use the threshold configured for this coupon.
     const [profile] = await db
       .select({ totalPoints: profilesSchema.totalPoints })
       .from(profilesSchema)
       .where(eq(profilesSchema.id, profileId))
       .limit(1)
 
-    if (Number(profile?.totalPoints ?? 0) < 600) {
+    if (Number(profile?.totalPoints ?? 0) < reward.unlockPoints) {
       throw new Error("Not enough points to unlock this coupon")
     }
 

@@ -20,7 +20,6 @@ export const getRewardsUsecase = {
 
     const claimedByRewardId = new Map(claimedRewards.map((row) => [row.rewardId, row]))
     const currentPoints = Number(profileRows[0]?.totalPoints ?? 0)
-    const unlockPoints = 600
 
     const data = rewards.map((reward) => {
       const claimed = claimedByRewardId.get(reward.id)
@@ -34,8 +33,8 @@ export const getRewardsUsecase = {
         requiredStamps: reward.requiredStamps,
         pointsValue: reward.pointsValue,
         currentPoints,
-        unlockPoints,
-        isEligible: currentPoints >= unlockPoints,
+        unlockPoints: reward.unlockPoints,
+        isEligible: currentPoints >= reward.unlockPoints,
         isClaimed: Boolean(claimed),
         claimedAt: claimed?.claimedAt?.toISOString() ?? null,
       }

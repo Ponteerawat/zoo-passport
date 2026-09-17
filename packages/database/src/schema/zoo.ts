@@ -90,6 +90,7 @@ export const rewardsSchema = pgTable("rewards", {
   imageUrl: text("image_url"),
   requiredStamps: integer("required_stamps").notNull().default(0),
   pointsValue: integer("points_value").notNull().default(0),
+  unlockPoints: integer("unlock_points").notNull().default(0),
 })
 
 export const userRewardsSchema = pgTable("user_rewards", {
