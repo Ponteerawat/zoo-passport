@@ -272,16 +272,16 @@ function resize() {
     const scaleY = ch / GAME_HEIGHT;
     scale = Math.min(scaleX, scaleY);
 
-    canvas.width = GAME_WIDTH * scale;
-    canvas.height = GAME_HEIGHT * scale;
+    // ให้ canvas กินพื้นที่ viewport ทั้งหมดบนมือถือ/LIFF
+    // ใช้ scale แยกแกนเพื่อไม่ให้เกิดขอบว่างเมื่ออัตราส่วนหน้าจอไม่ตรง 16:9
+    canvas.width = Math.max(1, Math.floor(cw));
+    canvas.height = Math.max(1, Math.floor(ch));
 
-    // แก้บัค: ต้อง reset transform ก่อน scale ใหม่ทุกครั้ง
-    // ไม่งั้นตอนหมุนจอ/ปรับขนาดหน้าต่างซ้ำๆ ค่า scale จะสะสมทบกันเรื่อยๆ ทำให้เกมเบี้ยว
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(scale, scale);
+    ctx.scale(scaleX, scaleY);
 
-    canvas.style.width = `${GAME_WIDTH * scale}px`;
-    canvas.style.height = `${GAME_HEIGHT * scale}px`;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
 }
 window.addEventListener('resize', resize);
 resize();
